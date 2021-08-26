@@ -41,12 +41,12 @@
 #define SPI_A_CS			GPIO19
 
 //SPIB
-#define SPI_B_QSEL			GPAQSEL2
-#define SPI_B_MUX			GPAMUX2
-#define SPI_B_SIMO			GPIO24
-#define SPI_B_SOMI			GPIO25
-#define SPI_B_CLK			GPIO26
-#define SPI_B_CS			GPIO27
+#define SPI_B_QSEL			GPAQSEL1
+#define SPI_B_MUX			GPAMUX1
+#define SPI_B_SIMO			GPIO12
+#define SPI_B_SOMI			GPIO13
+#define SPI_B_CLK			GPIO14
+#define SPI_B_CS			GPIO15
 
 //SPIC
 #define SPI_C_QSEL			GPAQSEL2
@@ -70,25 +70,31 @@
 #define SCI_A_RX			GPIO28
 #define SCI_A_MUX_SELECTOR	1
 //
-#define PIN_DIN1			2
-#define PIN_DIN2			4
-#define PIN_DIN3			6
-#define PIN_DIN4			8
-#define PIN_LED_1			33
-#define PIN_LED_2			34
-#define PIN_CHARGE_PS		23
+#define PIN_T_TR2			0
+#define PIN_T_REC			2
+#define PIN_U_GATE_SEL		4
+#define PIN_SYNC_IM			6
+#define PIN_LED2			7
+#define PIN_SB_IM_CS		8
+#define PIN_SB_TSP_CS		9
+#define PIN_DCB_LDAC		10
+#define PIN_MCB_LDAC		11
+#define PIN_SB_TK1_CS		12
+#define PIN_WATER			15
+#define PIN_T_TR1			16
+#define PIN_PS_CTRL			19
+#define PIN_LED1			20
+#define PIN_MCB_DCB_SYNC	23
+#define PIN_SB_TCOOL2_CS	24
+#define PIN_SB_IH_CS		25
+#define PIN_SB_TCOOL1_CS	26
+#define PIN_SB_TK2_CS		27
+#define PIN_MEM_CS			32
+#define PIN_SYNC_OSC		33
+#define PIN_REG_RCLK		34
+
+
 //
-#define PIN_MEM_CS			0
-#define PIN_T_DUT_CS		20
-#define PIN_T_COOL_CS		27
-#define PIN_IMC_CS			32
-#define PIN_IHC_CS			33
-#define PIN_SYNC			19
-#define PIN_MCB_LDAC		18
-#define PIN_GATE_DRV_LDAC	17
-#define PIN_DAC_LDAC		16
-#define PIN_MCB_SYNC		15
-//
-#define AIN_U_BAT			0x08	// 1000b = B + IN0			- in sequential mode
+#define AIN_U_BAT			0x00	// INA0
 
 #endif // __BOARD_CONFIG_H
