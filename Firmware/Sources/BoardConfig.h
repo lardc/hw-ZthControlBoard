@@ -73,7 +73,7 @@
 #define PIN_T_TR2			0
 #define PIN_T_REC			2
 #define PIN_U_GATE_SEL		4
-#define PIN_SYNC_IM			6
+#define PIN_MCB_SYNC		6
 #define PIN_LED2			7
 #define PIN_SB_IM_CS		8
 #define PIN_SB_TSP_CS		9
@@ -84,12 +84,12 @@
 #define PIN_T_TR1			16
 #define PIN_PS_CTRL			19
 #define PIN_LED1			20
-#define PIN_MCB_DCB_SYNC	23
+#define PIN_MCB_DCB_CS		23
 #define PIN_SB_TCOOL2_CS	24
 #define PIN_SB_IH_CS		25
 #define PIN_SB_TCOOL1_CS	26
 #define PIN_SB_TK2_CS		27
-#define PIN_MEM_CS			32
+#define PIN_EEPROM_CS		32
 #define PIN_SYNC_OSC		33
 #define PIN_REG_RCLK		34
 

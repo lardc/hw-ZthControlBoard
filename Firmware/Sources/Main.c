@@ -153,37 +153,38 @@ void InitializeSCI()
 
 void InitializeADC()
 {
-	const Int16U ADC_Channel[1] = {AIN_U_BAT};
-
-	// Initialize ADC
+	// Initialize and prepare ADC
 	ZwADC_Init(ADC_PRESCALER, ADC_CD2, ADC_SH);
-	ZwADC_ConfigureSequentialCascaded(1, &ADC_Channel[0]);
-	ZwADC_SubscribeToResults1(NULL);
+	ZwADC_ConfigInterrupts(TRUE, FALSE);
+
+	// Enable interrupts on peripheral and CPU levels
+	ZwADC_EnableInterrupts(TRUE, FALSE);
+	ZwADC_EnableInterruptsGlobal(TRUE);
 }
 // -----------------------------------------
 
 void InitializeSPI()
 {
 	// Init SPI-A
-	ZwSPIa_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX | ZW_SPI_INIT_CS, FALSE, FALSE);
+	ZwSPIa_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX | ZW_SPI_INIT_CS, TRUE, FALSE);
 	ZwSPIa_InitFIFO(0, 0);
 	ZwSPIa_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIa_EnableInterrupts(FALSE, FALSE);
 
 	// Init SPI-B
-	ZwSPIb_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, FALSE, FALSE);
+	ZwSPIb_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, TRUE, FALSE);
 	ZwSPIb_InitFIFO(0, 0);
 	ZwSPIb_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIb_EnableInterrupts(FALSE, FALSE);
 
 	// Init SPI-C
-	ZwSPIc_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_TX | ZW_SPI_INIT_CS, FALSE, FALSE);
+	ZwSPIc_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_TX | ZW_SPI_INIT_CS, TRUE, FALSE);
 	ZwSPIc_InitFIFO(0, 0);
 	ZwSPIc_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIc_EnableInterrupts(FALSE, FALSE);
 
 	// Init SPI-D
-	ZwSPId_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, FALSE, FALSE);
+	ZwSPId_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, TRUE, FALSE);
 	ZwSPId_InitFIFO(0, 0);
 	ZwSPId_ConfigInterrupts(FALSE, FALSE);
 	ZwSPId_EnableInterrupts(FALSE, FALSE);
