@@ -136,13 +136,13 @@ void ZbGPIO_DCB_MCB_CS(Boolean State)
 }
 // ----------------------------------------
 
-void ZbGPIO_SB_TColl1_CS(Boolean State)
+void ZbGPIO_SB_Tcool1_CS(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_SB_TCOOL1_CS, State);
 }
 // ----------------------------------------
 
-void ZbGPIO_SB_TColl2_CS(Boolean State)
+void ZbGPIO_SB_Tcoll2_CS(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_SB_TCOOL2_CS, State);
 }
@@ -154,7 +154,13 @@ void ZbGPIO_SB_Ih_CS(Boolean State)
 }
 // ----------------------------------------
 
-void ZbGPIO_SB_Tk2_CS(Boolean State)
+void ZbGPIO_SB_Tc1_CS(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_SB_TK2_CS, State);
+}
+// ----------------------------------------
+
+void ZbGPIO_SB_Tc2_CS(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_SB_TK2_CS, State);
 }
