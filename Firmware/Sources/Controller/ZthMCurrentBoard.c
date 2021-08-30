@@ -8,13 +8,14 @@
 #include "ZwUtils.h"
 #include "Global.h"
 #include "ConvertUtils.h"
+#include "ZbDAC.h"
 
 
 // Functions
 //
 void ZthMCB_CurrentSet(Int16U Current)
 {
-	ZbDAC_Write((CONVERT_Im(Current) & BIT15), &ZbGPIO_MCB_LDAC);
+	ZbDAC_Write((CONVERT_Im(Current) & DAC_WRITE_A), &ZbGPIO_MCB_LDAC);
 }
 // ----------------------------------------
 
