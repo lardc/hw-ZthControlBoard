@@ -13,10 +13,6 @@
 
 // Functions
 //
-void MeasureBeforeAndAfterPulse(Boolean AfterPulseFlag);
-void Measure_TSP_Start(void);
-Int16U Measure_TSP_Finish(void);
-Int16U Measure_Im_Ih_Tdut(void (*Source)(Boolean));
 
 
 #endif /* MEASURINGPROCESSES_H_ */
