@@ -28,17 +28,7 @@
 		<link>
 			<name>IQmath</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>IQmath/IQmath.lib</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/IQmath/IQmath.lib</locationURI>
-		</link>
-		<link>
-			<name>IQmath/limits.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/IQmath/limits.h</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/IQmath</locationURI>
 		</link>
 		<link>
 			<name>Sources/Interface</name>

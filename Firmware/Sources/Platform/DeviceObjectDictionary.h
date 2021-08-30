@@ -12,9 +12,6 @@
 #define ACT_CLR_FAULT				3	// Clear fault (try switch state from FAULT to NONE)
 #define ACT_CLR_WARNING				4	// Clear warning
 //
-#define ACT_START					100	// Start measurement
-#define ACT_STOP					101	// Force measurement stop
-#define ACT_SINGLE_START			102	// Start single-pulse measurement
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -28,39 +25,62 @@
 
 // REGISTERS
 //
-#define REG_PULSE_EDGE_TIME			0	// Edge time of heating current
-#define REG_K_ADC_TO_CELSIUS		1 	// Coefficient for transform from ADC data to degree of Celsius
-#define REG_K_IHC_TO_AMPHER			2
-#define REG_K_TSP_TO_VOLTAGE		3
-#define REG_K_UBAT_TO_VOLTS			4
-#define REG_T_CORR_A				5	// Temperature correction factor
-#define REG_T_CORR_B				6	// Temperature correction shift
-#define REG_P_TOP_PULSE				7
-#define REG_I_TOP_PULSE				8
-#define REG_P_TOP_PULSE_D			9
-#define REG_I_TOP_PULSE_D			10
-#define REG_P_FRONT_PULSE			11
-#define REG_I_FRONT_PULSE			12
-#define REG_P_FRONT_PULSE_D			13
-#define REG_I_FRONT_PULSE_D			14
-#define REG_K_DAC_OUT				15
-// ----------------------------------------
+#define REG_DAC_IG_P2				0	// Fine coefficient for Ig quadratic correction P2 x1e6
+#define REG_DAC_IG_P1				1	// Fine coefficient for Ig quadratic correction P1 x1000
+#define REG_DAC_IG_P0				2	// Fine coefficient for Ig quadratic correction P0 (in mA)
+#define REG_DAC_IG_K				3	// Conversion coefficient K for Ig x1000
+#define REG_DAC_IG_B				4	// Conversion offset for Ig (in mA)
 //
-#define REG_MODE					128	// Measurement mode
-#define REG_CURRENT_PULSE_SHORT		129	// The value of current pulse 0.1 - 10mS
-#define REG_CURRENT_PULSE_LONG		130	// The value of current pulse 10mS - 1000S
-#define REG_TIME_FIRST_PULSE		131	// The value of the duration of the first pulse
-#define REG_TIME_LAST_PULSE			132	// The value of the duration of the last pulse
-#define REG_TIME_FIRST_DELAY		133
-#define REG_TIME_LAST_DELAY			134
-#define REG_TIME_PULSE_MULT			135	// Multiplier for REG_TIME_FIRST_PULSE and REG_TIME_LAST_PULSE
-#define REG_K_TIME_BETWEEN_PULSES	136 // Coefficient of time between pulses
-#define REG_V_GATE_DUT				137 // IGBT gate voltage
-#define REG_I_GATE_DUT				138	// Thirystor gate current
-#define REG_M_CURRENT_SET			139 // The value of measuring current
-#define REG_MEASURMENT_DELAY		140 // Measurment delay after heating current pulse
-#define REG_TIME_REGISTRATION_TSP	141	// Time of registration TSP in graduarion mode
-#define REG_DUT_TYPE				142	// Type of DUT - IGBT or thirystor
+#define REG_DAC_IH_P2				5	// Fine coefficient for Ih quadratic correction P2 x1e6
+#define REG_DAC_IH_P1				6	// Fine coefficient for Ih quadratic correction P1 x1000
+#define REG_DAC_IH_P0				7	// Fine coefficient for Ih quadratic correction P0 (in A)
+#define REG_DAC_IH_K				8	// Conversion coefficient K for Ih x1000
+#define REG_DAC_IH_B				9	// Conversion offset for Ih (in A)
+//
+#define REG_DAC_IM_P2				10	// Fine coefficient for Im quadratic correction P2 x1e6
+#define REG_DAC_IM_P1				11	// Fine coefficient for Im quadratic correction P1 x1000
+#define REG_DAC_IM_P0				12	// Fine coefficient for Im quadratic correction P0 (in mA)
+#define REG_DAC_IM_K				13	// Conversion coefficient K for Im x1000
+#define REG_DAC_IM_B				14	// Conversion offset for Im (in mA)
+//
+#define REG_ADC_IH_P2				15	// Fine coefficient for Ih quadratic correction P2 x1e6
+#define REG_ADC_IH_P1				16	// Fine coefficient for Ih quadratic correction P1 x1000
+#define REG_ADC_IH_P0				17	// Fine coefficient for Ih quadratic correction P0 (in A)
+#define REG_ADC_IH_K				18	// Conversion coefficient K for Ih x1000
+#define REG_ADC_IH_B				19	// Conversion offset for Ih (in A)
+//
+#define REG_ADC_IM_P2				20	// Fine coefficient for Im quadratic correction P2 x1e6
+#define REG_ADC_IM_P1				21	// Fine coefficient for Im quadratic correction P1 x1000
+#define REG_ADC_IM_P0				22	// Fine coefficient for Im quadratic correction P0 (in mA)
+#define REG_ADC_IM_K				23	// Conversion coefficient K for Im x1000
+#define REG_ADC_IM_B				24	// Conversion offset for Im (in mA)
+//
+#define REG_ADC_TSP_P2				25	// Fine coefficient for TSP quadratic correction P2 x1e6
+#define REG_ADC_TSP_P1				26	// Fine coefficient for TSP quadratic correction P1 x1000
+#define REG_ADC_TSP_P0				27	// Fine coefficient for TSP quadratic correction P0 (in mV)
+#define REG_ADC_TSP_K				28	// Conversion coefficient K for TSP x1000
+#define REG_ADC_TSP_B				29	// Conversion offset for TSP (in mV)
+//
+#define REG_ADC_T_K					30	// Conversion coefficient K for T x1000
+#define REG_ADC_T_B					31	// Conversion offset for T (in C x100)
+//
+#define REG_ADC_T_CASE1_P2			32	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE1_P1			33	// Fine coefficient for Tcase1 quadratic correction P1 x1000
+#define REG_ADC_T_CASE1_P0			34	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
+//
+#define REG_ADC_T_CASE2_P2			35	// Fine coefficient for Tcase2 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE2_P1			36	// Fine coefficient for Tcase2 quadratic correction P1 x1000
+#define REG_ADC_T_CASE2_P0			37	// Fine coefficient for Tcase2 quadratic correction P0 (in T x100)
+//
+#define REG_ADC_T_COOL1_P2			38	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL1_P1			39	// Fine coefficient for Tcool1 quadratic correction P1 x1000
+#define REG_ADC_T_COOL1_P0			40	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
+//
+#define REG_ADC_T_COOL2_P2			41	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL2_P1			42	// Fine coefficient for Tcool2 quadratic correction P1 x1000
+#define REG_ADC_T_COOL2_P0			43	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
+
+
 //
 #define REG_PWD_1					180	// Unlock password location 1
 #define REG_PWD_2					181	// Unlock password location 2
@@ -75,19 +95,7 @@
 #define REG_WARNING					195	// Warning if present
 #define REG_PROBLEM					196	// Problem if present
 //
-#define REG_MAIN_VOLTAGE			197 // Voltage on capacitors
-#define REG_M_CURRENT_REAL			198	// Measured measuring current
-#define REG_H_CURRENT_REAL			199	// Measured heating current
-#define REG_H_POWER					200	// Calculated heating power
-//
-#define REG_TSP_BEFORE_PULSE		201 // The value of thermal sensitive parameter before pulse
-#define REG_T_COOL					202 // The themperature value of cooler  before pulse
-#define REG_T_DUT_BEFORE_PULSE		203 // The themperature value of DUT  before pulse
-//
-#define REG_TSP_AFTER_PULSE			204 // The value of thermal sensitive parameter after pulse
-#define REG_T_DUT_AFTER_PULSE		205 // The themperature value of DUT  after pulse
-//
-#define REG_GRADUATION_STATUS 		206 // Graduation ststus info
+
 //
 #define REG_CANA_BUSOFF_COUNTER		220 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			221	// CAN status register (32 bit)
@@ -99,10 +107,7 @@
 
 // ENDPOINTS
 //
-#define EP_I						1	// Current data
-#define EP_U						2	// Voltage data
-#define EP_P						3	// Power data
-#define EP_Z						4	// Thermal resistance data
+
 //
 
 
@@ -110,7 +115,6 @@
 // FAULT CODES
 //
 #define FAULT_NONE					0	// No fault
-#define FAULT_GARDUATION			1	// Graduation was not executing
 
 
 // WARNING CODES
