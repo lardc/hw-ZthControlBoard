@@ -51,34 +51,34 @@ void ZbGPIO_Init()
 	ZwGPIO_PinToOutput(PIN_REG_RCLK);
 
 	// Configure pins to input
-	ZwGPIO_PinToInput(PIN_T_TR2);
-	ZwGPIO_PinToInput(PIN_T_REC);
-	ZwGPIO_PinToInput(PIN_WATER);
-	ZwGPIO_PinToInput(PIN_T_TR1);
+	ZwGPIO_PinToInput(PIN_T_TR2, FALSE, 0);
+	ZwGPIO_PinToInput(PIN_T_REC, FALSE, 0);
+	ZwGPIO_PinToInput(PIN_WATER, FALSE, 0);
+	ZwGPIO_PinToInput(PIN_T_TR1, FALSE, 0);
 }
 // ----------------------------------------
 
 void ZbGPIO_SwitchLED1(Boolean Set)
 {
-	ZwGPIO_WritePin(PIN_LED_1, Set);
+	ZwGPIO_WritePin(PIN_LED1, Set);
 }
 // ----------------------------------------
 
 void ZbGPIO_SwitchLED2(Boolean Set)
 {
-	ZwGPIO_WritePin(PIN_LED_2, Set);
+	ZwGPIO_WritePin(PIN_LED2, Set);
 }
 // ----------------------------------------
 
 void ZbGPIO_ToggleLED1()
 {
-	ZwGPIO_TogglePin(PIN_LED_1);
+	ZwGPIO_TogglePin(PIN_LED1);
 }
 // ----------------------------------------
 
 void ZbGPIO_ToggleLED2()
 {
-	ZwGPIO_TogglePin(PIN_LED_2);
+	ZwGPIO_TogglePin(PIN_LED2);
 }
 // ----------------------------------------
 
@@ -132,7 +132,7 @@ void ZbGPIO_LowPowerSupplyControl(Boolean State)
 
 void ZbGPIO_DCB_MCB_CS(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_MCB_DCB_SYNC, State);
+	ZwGPIO_WritePin(PIN_MCB_DCB_CS, State);
 }
 // ----------------------------------------
 
