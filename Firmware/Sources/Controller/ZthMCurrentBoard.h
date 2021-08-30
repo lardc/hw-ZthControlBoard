@@ -5,10 +5,11 @@
 //
 #include "stdinc.h"
 #include "ZwDSP.h"
+#include "IQmathLib.h"
 
 // Functions
 //
-void ZthMCB_CurrentSet(Int16U Current);
+void ZthMCB_CurrentSet(_iq Current);
 void ZthMCB_CurrentControl(Boolean State);
 
 #endif /* ZTH_MCURRENTBOARD_H_ */

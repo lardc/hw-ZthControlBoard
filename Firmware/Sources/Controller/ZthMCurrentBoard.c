@@ -12,9 +12,9 @@
 
 // Functions
 //
-void ZthMCB_CurrentSet(Int16U Current)
+void ZthMCB_CurrentSet(_iq Current)
 {
-	ZbDAC_Write((CONVERT_Im(Current) & DAC_WRITE_A), &ZbGPIO_MCB_LDAC);
+	ZbDAC_Write((CONVERT_ImToDAC(Current) & DAC_WRITE_A), &ZbGPIO_MCB_LDAC);
 }
 // ----------------------------------------
 
