@@ -11,45 +11,45 @@
 
 // Functions
 //
-Int16U ZthSB_ReadTcase1()
+_iq ZthSB_ReadTcase1()
 {
-	return CONVERT_Tcase1(ZbSPIB_Read(&ZbGPIO_SB_Tc1_CS));
+	return CONVERT_ADCToTcase1(ZbSPIB_Read(&ZbGPIO_SB_Tc1_CS));
 }
 // ----------------------------------------
 
-Int16U ZthSB_ReadTcase2()
+_iq ZthSB_ReadTcase2()
 {
-	return CONVERT_Tcase2(ZbSPIB_Read(&ZbGPIO_SB_Tc2_CS));
+	return CONVERT_ADCToTcase2(ZbSPIB_Read(&ZbGPIO_SB_Tc2_CS));
 }
 // ----------------------------------------
 
-Int16U ZthSB_ReadTcool1()
+_iq ZthSB_ReadTcool1()
 {
-	return CONVERT_Tcool1(ZbSPID_Read(&ZbGPIO_SB_Tcool1_CS));
+	return CONVERT_ADCToTcool1(ZbSPID_Read(&ZbGPIO_SB_Tcool1_CS));
 }
 // ----------------------------------------
 
-Int16U ZthSB_ReadTcool2()
+_iq ZthSB_ReadTcool2()
 {
-	return CONVERT_Tcool2(ZbSPIA_Read(&ZbGPIO_SB_Tcool2_CS));
+	return CONVERT_ADCToTcool2(ZbSPIA_Read(&ZbGPIO_SB_Tcool2_CS));
 }
 // ----------------------------------------
 
-Int16U ZthSB_ReadTSP()
+_iq ZthSB_ReadTSP()
 {
-	return CONVERT_TSP(ZbSPIA_Read(&ZbGPIO_SB_TSP_CS));
+	return CONVERT_ADCToTSP(ZbSPIA_Read(&ZbGPIO_SB_TSP_CS));
 }
 // ----------------------------------------
 
-Int16U ZthSB_ReadIh()
+_iq ZthSB_ReadIh()
 {
-	return CONVERT_Ih(ZbSPIB_Read(&ZbGPIO_SB_Ih_CS));
+	return CONVERT_ADCToIh(ZbSPIB_Read(&ZbGPIO_SB_Ih_CS));
 }
 // ----------------------------------------
 
-Int16U ZthSB_ReadIm()
+_iq ZthSB_ReadIm()
 {
-	return CONVERT_Im(ZbSPIB_Read(&ZbGPIO_SB_Im_CS));
+	return CONVERT_ADCToIm(ZbSPIB_Read(&ZbGPIO_SB_Im_CS));
 }
 // ----------------------------------------
 
