@@ -4,8 +4,8 @@
 
 // Include
 //
-#include "ZbGPIO.h"
-#include "ZbSPI.h"
+#include "SysConfig.h"
+#include "ZbBoard.h"
 #include "Global.h"
 #include "ConvertUtils.h"
 

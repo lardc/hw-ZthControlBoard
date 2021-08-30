@@ -3,7 +3,8 @@
 
 // Include
 //
-#include "ZwBase.h"
+#include "stdinc.h"
+#include "ZwDSP.h"
 
 // Functions
 //

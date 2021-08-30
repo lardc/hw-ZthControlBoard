@@ -265,97 +265,7 @@ ISRCALL Timer0_ISR(void)
 // timer 1 ISR
 ISRCALL Timer1_ISR(void)
 {
-	static Int32U Qi;
-	static Int32U Qp;
-	static Int16U PulseCounter;
-	static Int16U ReadyCounter;
-	Int16U RegulatorError;
-	Int16U Ih_Current;
-	Int16U DUT_Voltage;
-	Int16U DUT_Power;
-	Int16U RegulatorOut;
-	Int16U Target;
 
-	if(CONTROL_IntState == INTDS_Ihc_Inprocess)
-	{
-		LongTimeTime_CheckValue(&CONFIG_LongTimeTimer1);
-
-		if(~CONFIG_LongTimeTimer1.IhcTimeCounter)
-		{
-			Stop_Ihc();
-		}
-		else
-		{
-			//Measure Ih current and DUT voltage
-			Measure_TSP_Start();
-			Ih_Current = Measure_Im_Ih_Tdut(&ZbGPIO_IHC_CS);
-			DUT_Voltage = Measure_TSP_Finish();
-
-			//Transform in Volts and Amphers
-			Ih_Current = Ih_Current * DataTable[REG_K_IHC_TO_AMPHER] / 1000;
-			DUT_Voltage = DUT_Voltage * DataTable[REG_K_TSP_TO_VOLTAGE] / 1000;
-
-			//PI regulator
-			if (ReadyCounter > DIR_CUR_ERR_TICKS)
-			{
-				DUT_Power = Ih_Current*DUT_Voltage;
-
-				if(!DataTable[REG_H_POWER])
-					DataTable[REG_H_POWER] = DUT_Power;
-
-				RegulatorError = DataTable[REG_H_POWER] - DUT_Power;
-			}
-			else
-			{
-				Target = *(IhcPulseArray+PulseCounter);
-				RegulatorError = (PulseCounter > 0) ? ((int)Target - Ih_Current) : 0;
-			}
-
-
-			if (PulseCounter >= (PULSE_ARRAY_LEN-1))
-			{
-				// Check out the task
-				if (RegulatorError < REGULATOR_ERROR_READY)
-					++ReadyCounter;
-				else
-					ReadyCounter = 0;
-				//
-
-				Qp = (RegulatorError * DataTable[REG_P_TOP_PULSE]) / DataTable[REG_P_TOP_PULSE_D];
-				Qi += (RegulatorError * DataTable[REG_I_TOP_PULSE]) / DataTable[REG_I_TOP_PULSE_D];
-
-			}
-			else
-			{
-				PulseCounter++;
-
-				Qp = (RegulatorError * DataTable[REG_P_FRONT_PULSE]) / DataTable[REG_P_FRONT_PULSE_D];
-				Qi += (RegulatorError * DataTable[REG_I_FRONT_PULSE]) / DataTable[REG_I_FRONT_PULSE_D];
-			}
-
-			// Проверка интегральной составляющей на насыщение
-			if (Qi > QI_SATURATION)
-				Qi = QI_SATURATION;
-			else if (Qi < -QI_SATURATION)
-				Qi = -QI_SATURATION;
-
-			RegulatorOut = (int)(Target + Qp + Qi)*DataTable[REG_K_DAC_OUT];
-
-			Set_MCB_GateDrv_DAC(RegulatorOut, &ZbGPIO_DAC_LDAC);
-		}
-	}
-
-
-	if(CONTROL_IntState == INTDS_Delay_Inprocess)
-	{
-		LongTimeTime_CheckValue(&CONFIG_LongTimeTimer1);
-
-		if(~CONFIG_LongTimeTimer1.IhcTimeCounter)
-		{
-			MeasureBeforeAndAfterPulse(1);
-			ZwTimer_StopT1();
-		}
-	}
 
 	// no PIE
 	TIMER1_ISR_DONE;
@@ -365,30 +275,7 @@ ISRCALL Timer1_ISR(void)
 // timer 2 ISR
 ISRCALL Timer2_ISR(void)
 {
-	if((CONTROL_IntState == INTDS_Ihc_Inprocess)||(CONTROL_IntState == INTDS_Delay_Inprocess))
-	{
-		LongTimeTime_CheckValue(&CONFIG_LongTimeTimer2);
 
-		if(~CONFIG_LongTimeTimer2.IhcTimeCounter)
-		{
-			if(CONTROL_IntState == INTDS_Ihc_Inprocess)
-				CONTROL_IntState == INTDS_Ihc_Ready;
-
-			if(CONTROL_IntState == INTDS_Delay_Inprocess)
-			{
-				CONTROL_IntState == INTDS_Delay_Ready;
-				ZwTimer_StopT2();
-				ZwTimer_ReloadT2();
-			}
-
-			if(CONTROL_IntState == INTDS_Grad_Inprocess)
-			{
-				CONTROL_IntState == INTDS_Grad_Ready;
-				ZwTimer_StopT2();
-				ZwTimer_ReloadT2();
-			}
-		}
-	}
 
 	// no PIE
 	TIMER2_ISR_DONE;

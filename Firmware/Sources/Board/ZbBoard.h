@@ -9,6 +9,8 @@
 #include "stdinc.h"
 //
 #include "ZbGPIO.h"
+#include "ZbSPI.h"
+#include "ZbDAC.h"
 #include "ZbMemory.h"
 
 #endif // __ZB_BOARD_H
