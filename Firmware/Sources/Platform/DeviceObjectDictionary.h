@@ -79,6 +79,11 @@
 #define REG_ADC_T_COOL2_P2			41	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
 #define REG_ADC_T_COOL2_P1			42	// Fine coefficient for Tcool2 quadratic correction P1 x1000
 #define REG_ADC_T_COOL2_P0			43	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
+// 44 - 49
+#define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
+#define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki x1000
+#define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
+#define REG_PI_CTRL_IH_Ki			53	// Heating current PI Ki x1000
 
 
 //
