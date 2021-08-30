@@ -30,10 +30,7 @@
 #define BCCI_TIMEOUT_MS					1000	// in ms
 #define	BCCI_MASTER_TIMEOUT_TICKS_MS	(Int32U)(CS_T0_FREQ/1000*BCCI_TIMEOUT_MS)
 //
-#define PULSE_ARRAY_LEN					10
-#define DIR_CUR_ERR_TICKS				10
-#define REGULATOR_ERROR_READY			1
-#define QI_SATURATION					0xffffffff
+#define DAC_WRITE_DELAY_US				10		// in us
 //--------------------------------------------------------
 
 #endif // __GLOBAL_H

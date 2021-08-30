@@ -8,6 +8,7 @@
 #include "ZwUtils.h"
 #include "Global.h"
 #include "ConvertUtils.h"
+#include "ZbDAC.h"
 
 // Variable
 //
@@ -29,7 +30,7 @@ void ZthDCB_VoltageSet(DCB_GateVoltage Voltage)
 		switch(Voltage)
 		{
 			case GATE_VOLTGE_0V:
-				ZbDAC_Write(DAC_V_MIN_SET | DAC_WRITE_B, &ZbGPIO_DCB_LDAC);
+				ZbDAC_Write(DAC_MIN_VALUE | DAC_WRITE_B, &ZbGPIO_DCB_LDAC);
 				break;
 
 			case GATE_VOLTGE_15V:
@@ -46,18 +47,18 @@ void ZthDCB_VoltageSet(DCB_GateVoltage Voltage)
 }
 // ----------------------------------------
 
-void ZthDCB_SwitchOutput(OutputType Source)
+void ZthDCB_SwitchOutput(DCB_OutputType Source)
 {
 	switch(Source)
 	{
 		case CURRENT_SOURCE:
 			ZthDCBOutputType = CURRENT_SOURCE;
-			ZbDAC_Write(DAC_V_MIN_SET | DAC_WRITE_B, &ZbGPIO_DCB_LDAC);
+			ZbDAC_Write(DAC_MIN_VALUE | DAC_WRITE_B, &ZbGPIO_DCB_LDAC);
 			break;
 
 		case VOLTAGE_SOURCE:
 			ZthDCBOutputType = VOLTAGE_SOURCE;
-			ZbDAC_Write((DAC_V_MIN_SET & DAC_WRITE_A), &ZbGPIO_DCB_LDAC);
+			ZbDAC_Write((DAC_MIN_VALUE & DAC_WRITE_A), &ZbGPIO_DCB_LDAC);
 			break;
 	}
 }
