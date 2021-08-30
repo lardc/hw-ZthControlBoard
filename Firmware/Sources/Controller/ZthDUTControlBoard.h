@@ -5,6 +5,7 @@
 //
 #include "stdinc.h"
 #include "ZwDSP.h"
+#include "IQmathLib.h"
 
 //
 typedef enum
@@ -22,7 +23,7 @@ typedef enum
 
 // Functions
 //
-void ZthDCB_CurrentSet(Int16U Current);
+void ZthDCB_CurrentSet(_iq Current);
 void ZthDCB_VoltageSet(Int16U Voltage);
 void ZthDCB_SwitchOutput(DCB_OutputType Source);
 
