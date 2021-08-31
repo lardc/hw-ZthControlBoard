@@ -104,7 +104,7 @@
 #define REG_WARNING					195	// Warning if present
 #define REG_PROBLEM					196	// Problem if present
 //
-
+#define REG_ACTUAL_CAP_VOLTAGE		200	// Actual capacitors voltage (in V)
 //
 #define REG_CANA_BUSOFF_COUNTER		220 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			221	// CAN status register (32 bit)

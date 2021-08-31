@@ -243,6 +243,9 @@ ISRCALL Timer0_ISR(void)
 {
 	static Int16U LedCounter = 0;
 
+	// Update low-priority tasks
+	CONTROL_UpdateLow();
+
 	// Update time
 	++CONTROL_TimeCounter;
 
