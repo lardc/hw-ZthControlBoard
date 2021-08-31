@@ -12,6 +12,21 @@
 #define ACT_CLR_FAULT				3	// Clear fault (try switch state from FAULT to NONE)
 #define ACT_CLR_WARNING				4	// Clear warning
 //
+#define ACT_DBG_READ_IM				10	// Reading Im raw data
+#define ACT_DBG_READ_IH				11	// Reading Ih raw data
+#define ACT_DBG_READ_TSP			12	// Reading TSP raw data
+#define ACT_DBG_READ_TCASE1			13	// Reading Tcase1 raw data
+#define ACT_DBG_READ_TCASE2			14	// Reading Tcase2 raw data
+#define ACT_DBG_READ_TCOOL1			15	// Reading Tcool1 raw data
+#define ACT_DBG_READ_TCOOL2			16	// Reading Tcool2 raw data
+#define ACT_DBG_READ_PROTECT_DATA	17	// Read state of ZthProtectionBoard
+#define ACT_DBG_GATE_CURRENT		18	// Generate gate current
+#define ACT_DBG_GATE_VOLTAGE_15V	19	// Generate gate voltage 15V
+#define ACT_DBG_GATE_VOLTAGE_20V	20	// Generate gate voltage 20V
+#define ACT_DBG_IM					21	// Generate Im
+#define ACT_DBG_REG					22	// Generate gate pulse for power current source
+#define ACT_DBG_LPS_CTRL			23	// Low power supply control
+//
 #define ACT_START_PROCESS			100	// Start measuring process
 #define ACT_STOP_PROCESS			101	// Stop measuring process
 #define ACT_STOP_HEATING			102	// Stop heating process
@@ -86,13 +101,13 @@
 //
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
-// 44 - 49
+// 46 - 49
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki x1000
 #define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
 #define REG_PI_CTRL_IH_Ki			53	// Heating current PI Ki x1000
 
-
+#define REG_DBG						150	// Debugging register
 //
 #define REG_PWD_1					180	// Unlock password location 1
 #define REG_PWD_2					181	// Unlock password location 2
