@@ -12,6 +12,10 @@
 #define ACT_CLR_FAULT				3	// Clear fault (try switch state from FAULT to NONE)
 #define ACT_CLR_WARNING				4	// Clear warning
 //
+#define ACT_START_PROCESS			100	// Start measuring process
+#define ACT_STOP_PROCESS			101	// Stop measuring process
+#define ACT_STOP_HEATING			102	// Stop heating process
+#define ACT_UPDATE					103	// Update parameters
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -112,7 +116,11 @@
 
 // ENDPOINTS
 //
-
+#define EP_TSP						1	// Endpoint of temperature sensitive parameter
+#define EP_T_CASE1					2	// Endpoint of DUT case 1 temperature
+#define EP_T_CASE2					3	// Endpoint of DUT case 2 temperature
+#define EP_T_COOL1					4	// Endpoint of DUT cooler 1 temperature
+#define EP_T_COOL2					5	// Endpoint of DUT cooler 2 temperature
 //
 
 
