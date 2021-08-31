@@ -12,15 +12,11 @@
 #include "ConvertUtils.h"
 #include "ZthSensingBoard.h"
 
-
-
-// Variables
+// Definitins
 //
-
-
-// Forward functions
-//
-
+#define AVERAGE_ARRAY_SIZE		16
+#define AVERAGE_COUNTER_MASK	AVERAGE_ARRAY_SIZE - 1
+#define AVERAGE_RESULT_SHIFT	4
 
 // Functions
 //
@@ -63,6 +59,36 @@ _iq MEASURE_Im()
 _iq MEASURE_TSP()
 {
 	return CONVERT_ADCToTSP(ZthSB_RawReadTSP());
+}
+// ----------------------------------------
+
+void MEASURE_CapVoltageSamplingStart()
+{
+	ZwADC_StartSEQ1();
+}
+// ----------------------------------------
+
+Int16U MEASURE_CapVoltageSamplingResult()
+{
+	static Int16U AverageCounter = 0;
+	static Int32S DataSum = 0;
+	static Int16U DataArray[AVERAGE_ARRAY_SIZE];
+	pInt16U ADC_DataRaw;
+
+	ADC_DataRaw = ZwADC_GetValues1();
+
+	// Average process
+	AverageCounter++;
+	AverageCounter &= AVERAGE_COUNTER_MASK;
+
+	DataSum -= DataArray[AverageCounter];
+	if(DataSum < 0)
+		DataSum = 0;
+
+	DataArray[AverageCounter] = CONVERT_ADCToCapVolatge(*ADC_DataRaw);
+	DataSum += DataArray[AverageCounter];
+
+	return (DataSum >> AVERAGE_RESULT_SHIFT);
 }
 // ----------------------------------------
 
