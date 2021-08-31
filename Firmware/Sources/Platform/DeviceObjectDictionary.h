@@ -83,6 +83,9 @@
 #define REG_ADC_T_COOL2_P2			41	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
 #define REG_ADC_T_COOL2_P1			42	// Fine coefficient for Tcool2 quadratic correction P1 x1000
 #define REG_ADC_T_COOL2_P0			43	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
+//
+#define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
+#define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
 // 44 - 49
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki x1000

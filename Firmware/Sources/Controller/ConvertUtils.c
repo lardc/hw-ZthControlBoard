@@ -21,8 +21,11 @@ typedef struct __ConvParameters
 	_iq B;
 } ConvParameters, *pConvParameters;
 
+// Variables
+//
 static ConvParameters DAC_ParamsIg, DAC_ParamsIh, DAC_ParamsIm;
 static ConvParameters ADC_ParamsIh, ADC_ParamsIm, ADC_ParamsTSP, ADC_ParamsTcase1, ADC_ParamsTcase2, ADC_ParamsTcool1, ADC_ParamsTcool2;
+_iq CapVoltageK = 0;
 
 // Functions prototypes
 ConvParameters CONVERT_LoadParams(Int16U RegP2, Int16U RegP1, Int16U RegP0, Int16U RegK, Int16U RegB, Int16U RegBDiv);
@@ -33,6 +36,8 @@ Int16U CONVERT_xToDAC(_iq Value, ConvParameters Parameters);
 //
 void CONVERT_Cashe()
 {
+	CapVoltageK = _FPtoIQ2(DataTable[REG_CAP_VOLTAGE_K_N], DataTable[REG_CAP_VOLTAGE_K_D]);
+	//
 	DAC_ParamsIg = CONVERT_LoadParams(REG_DAC_IG_P2, REG_DAC_IG_P1, REG_DAC_IG_P0, REG_DAC_IG_K, REG_DAC_IG_B, 1);
 	DAC_ParamsIh = CONVERT_LoadParams(REG_DAC_IH_P2, REG_DAC_IH_P1, REG_DAC_IH_P0, REG_DAC_IH_K, REG_DAC_IH_B, 1);
 	DAC_ParamsIm = CONVERT_LoadParams(REG_DAC_IM_P2, REG_DAC_IM_P1, REG_DAC_IM_P0, REG_DAC_IM_K, REG_DAC_IM_B, 1);
@@ -104,6 +109,12 @@ _iq CONVERT_ADCToTcool2(Int16U ADCData)
 _iq CONVERT_ADCToTSP(Int16U ADCData)
 {
 	return CONVERT_ADCToX(ADCData, ADC_ParamsTSP);
+}
+// ----------------------------------------
+
+Int16U CONVERT_ADCToCapVolatge(Int16U ADCData)
+{
+	return _IQmpyI32(CapVoltageK, ADCData);
 }
 // ----------------------------------------
 
