@@ -4,52 +4,49 @@
 
 // Include
 //
-#include "SysConfig.h"
 #include "ZbBoard.h"
-#include "Global.h"
-#include "ConvertUtils.h"
 
 // Functions
 //
-_iq ZthSB_ReadTcase1()
+Int16U ZthSB_RawReadTcase1()
 {
-	return CONVERT_ADCToTcase1(ZbSPIB_Read(&ZbGPIO_SB_Tc1_CS));
+	return ZbSPIB_Read(&ZbGPIO_SB_Tc1_CS);
 }
 // ----------------------------------------
 
-_iq ZthSB_ReadTcase2()
+Int16U ZthSB_RawReadTcase2()
 {
-	return CONVERT_ADCToTcase2(ZbSPIB_Read(&ZbGPIO_SB_Tc2_CS));
+	return ZbSPIB_Read(&ZbGPIO_SB_Tc2_CS);
 }
 // ----------------------------------------
 
-_iq ZthSB_ReadTcool1()
+Int16U ZthSB_RawReadTcool1()
 {
-	return CONVERT_ADCToTcool1(ZbSPID_Read(&ZbGPIO_SB_Tcool1_CS));
+	return ZbSPID_Read(&ZbGPIO_SB_Tcool1_CS);
 }
 // ----------------------------------------
 
-_iq ZthSB_ReadTcool2()
+Int16U ZthSB_RawReadTcool2()
 {
-	return CONVERT_ADCToTcool2(ZbSPIA_Read(&ZbGPIO_SB_Tcool2_CS));
+	return ZbSPIA_Read(&ZbGPIO_SB_Tcool2_CS);
 }
 // ----------------------------------------
 
-_iq ZthSB_ReadTSP()
+Int16U ZthSB_RawReadTSP()
 {
-	return CONVERT_ADCToTSP(ZbSPIA_Read(&ZbGPIO_SB_TSP_CS));
+	return ZbSPIA_Read(&ZbGPIO_SB_TSP_CS);
 }
 // ----------------------------------------
 
-_iq ZthSB_ReadIh()
+Int16U ZthSB_RawReadIh()
 {
-	return CONVERT_ADCToIh(ZbSPIB_Read(&ZbGPIO_SB_Ih_CS));
+	return ZbSPIB_Read(&ZbGPIO_SB_Ih_CS);
 }
 // ----------------------------------------
 
-_iq ZthSB_ReadIm()
+Int16U ZthSB_RawReadIm()
 {
-	return CONVERT_ADCToIm(ZbSPIB_Read(&ZbGPIO_SB_Im_CS));
+	return ZbSPIB_Read(&ZbGPIO_SB_Im_CS);
 }
 // ----------------------------------------
 

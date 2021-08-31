@@ -4,17 +4,15 @@
 // Include
 //
 #include "stdinc.h"
-#include "ZwDSP.h"
-#include "IQmathLib.h"
 
 // Functions
 //
-_iq ZthSB_ReadTcase1();
-_iq ZthSB_ReadTcase2();
-_iq ZthSB_ReadTcool1();
-_iq ZthSB_ReadTcool2();
-_iq ZthSB_ReadTSP();
-_iq ZthSB_ReadIh();
-_iq ZthSB_ReadIm();
+Int16U ZthSB_RawReadTcase1();
+Int16U ZthSB_RawReadTcase2();
+Int16U ZthSB_RawReadTcool1();
+Int16U ZthSB_RawReadTcool2();
+Int16U ZthSB_RawReadTSP();
+Int16U ZthSB_RawReadIh();
+Int16U ZthSB_RawReadIm();
 
 #endif /* ZTHSENSINGBOARD_H_ */
