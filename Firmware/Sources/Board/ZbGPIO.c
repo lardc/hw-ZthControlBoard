@@ -142,7 +142,7 @@ void ZbGPIO_SB_Tcool1_CS(Boolean State)
 }
 // ----------------------------------------
 
-void ZbGPIO_SB_Tcoll2_CS(Boolean State)
+void ZbGPIO_SB_Tcool2_CS(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_SB_TCOOL2_CS, State);
 }
