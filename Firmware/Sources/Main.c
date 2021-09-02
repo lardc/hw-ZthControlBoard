@@ -32,8 +32,6 @@ void InitializeController(Boolean GoodClock);
 ISRCALL Timer0_ISR();
 // CPU Timer 1 ISR
 ISRCALL Timer1_ISR();
-// CPU Timer 2 ISR
-ISRCALL Timer2_ISR();
 // CANa Line 0 ISR
 ISRCALL CAN0A_ISR();
 // ILLEGAL ISR
@@ -66,7 +64,6 @@ void main()
 	BEGIN_ISR_MAP
 		ADD_ISR(TINT0, Timer0_ISR);
 		ADD_ISR(TINT1_XINT13, Timer1_ISR);
-		ADD_ISR(TINT2, Timer2_ISR);
 		ADD_ISR(ECAN0INTA, CAN0A_ISR);
 	END_ISR_MAP
 
@@ -131,10 +128,6 @@ void InitializeTimers()
     ZwTimer_InitT1();
 	ZwTimer_SetT1(TIMER1_PERIOD);
 	ZwTimer_EnableInterruptsT1(TRUE);
-
-    ZwTimer_InitT2();
-	ZwTimer_SetT2(TIMER2_PERIOD);
-	ZwTimer_EnableInterruptsT2(TRUE);
 }
 // -----------------------------------------
 
@@ -228,7 +221,6 @@ void InitializeController(Boolean GoodClock)
 #ifdef BOOT_FROM_FLASH
 	#pragma CODE_SECTION(Timer0_ISR, "ramfuncs");
 	#pragma CODE_SECTION(Timer1_ISR, "ramfuncs");
-	#pragma CODE_SECTION(Timer2_ISR, "ramfuncs");
 	#pragma CODE_SECTION(CAN0A_ISR, "ramfuncs");
 	#pragma CODE_SECTION(IllegalInstruction_ISR, "ramfuncs");
 #endif
@@ -276,16 +268,6 @@ ISRCALL Timer1_ISR(void)
 
 	// no PIE
 	TIMER1_ISR_DONE;
-}
-// -----------------------------------------
-
-// timer 2 ISR
-ISRCALL Timer2_ISR(void)
-{
-
-
-	// no PIE
-	TIMER2_ISR_DONE;
 }
 // -----------------------------------------
 
