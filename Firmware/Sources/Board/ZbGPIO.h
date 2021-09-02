@@ -34,7 +34,8 @@ void ZbGPIO_SB_Tc2_CS(Boolean State);
 void ZbGPIO_EEPROM_CS(Boolean State);
 void ZbGPIO_SyncOscilloscope(Boolean State);
 void ZbGPIO_RegisterRCLK(Boolean State);
-Boolean ZbGPIO_IsTransformersOverheated();
+Boolean ZbGPIO_IsTransformer1Overheated();
+Boolean ZbGPIO_IsTransformer2Overheated();
 Boolean ZbGPIO_IsRectifierOverheated();
 Boolean ZbGPIO_IsWater();
 
