@@ -18,6 +18,13 @@
 #include "MeasuringProcesses.h"
 #include "Diagnostic.h"
 
+// Definitions
+//
+#define MODE_ZTH_SEQ_PULSES		0
+#define MODE_ZTH_LONG_PULSE		1
+#define MODE_RTH_SEQ_PULSES		2
+#define MODE_GRADUATION			3
+
 // Variables
 //
 volatile DeviceState CONTROL_State = DS_None;
@@ -27,6 +34,7 @@ static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
 volatile Int16U CONTROL_Mode, CONTROL_DUTType, CONTROL_CoolingMode, CONTROL_ZthPulseWidthMin, CONTROL_ZthPulseWidthMax;
 volatile Int16U CONTROL_ZthPause, CONTROL_PulseWidth, CONTROL_Pause, CONTROL_ImpulseCurrent, CONTROL_HeatingCurrent;
 volatile Int16U CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_Delay, CONTROL_Tmax;
+volatile Int64U CONTROL_PowerOnTimeOut = 0;
 
 //
 #pragma DATA_SECTION(CONTROL_Values_TSP, "data_mem");
@@ -52,6 +60,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
 void CONTROL_CashVariables();
+void CONTROL_LowPowerSupplyControl(Boolean State);
+void CONTROL_CapacitorsVoltageControl();
+void CONTROL_Process();
 
 // Functions
 //
@@ -100,76 +111,14 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 void CONTROL_Idle()
 {
+	// Measurement process
+	CONTROL_Process();
+
 	// Process external interface requests
 	DEVPROFILE_ProcessRequests();
 
 	// Update CAN bus status
 	DEVPROFILE_UpdateCANDiagStatus();
-}
-// ----------------------------------------
-
-void CONTROL_CashVariables()
-{
-	CONTROL_Mode = DataTable[REG_MODE];
-	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
-	CONTROL_CoolingMode = DataTable[REG_COOLING_MODE];
-	CONTROL_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
-	CONTROL_ZthPulseWidthMax = DataTable[REG_ZTH_PULSE_WIDTH_MAX];
-	CONTROL_ZthPause = REG_ZTH_PAUSE;
-	CONTROL_PulseWidth = DataTable[REG_PULSE_WIDTH];
-	CONTROL_Pause = DataTable[REG_PAUSE];
-	CONTROL_ImpulseCurrent = DataTable[REG_IMPULSE_CURRENT];
-	CONTROL_HeatingCurrent = DataTable[REG_HEATING_CURRENT];
-	CONTROL_GateCurrent = DataTable[REG_GATE_CURRENT];
-	CONTROL_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
-	CONTROL_Delay = DataTable[REG_DELAY];
-	CONTROL_Tmax = DataTable[REG_T_MAX];
-}
-// ----------------------------------------
-
-void CONTROL_UpdateLow()
-{
-	// Update capacitor state
-	DataTable[REG_ACTUAL_CAP_VOLTAGE] = MEASURE_CapVoltageSamplingResult();
-	MEASURE_CapVoltageSamplingStart();
-}
-// ----------------------------------------
-
-
-void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
-{
-	DEVPROFILE_NotifyCANaFault(Flag);
-}
-// ----------------------------------------
-
-void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
-{
-	// Set new state
-	CONTROL_State = NewState;
-	CONTROL_SubState = NewSubState;
-	DataTable[REG_DEV_STATE] = NewState;
-}
-// ----------------------------------------
-
-void CONTROL_FillWPPartDefault()
-{
-	// Set states
-	DataTable[REG_DEV_STATE] = DS_None;
-	DataTable[REG_FAULT_REASON] = FAULT_NONE;
-	DataTable[REG_WARNING] = WARNING_NONE;
-}
-// ----------------------------------------
-
-void CONTROL_SwitchToReady()
-{
-	CONTROL_SetDeviceState(DS_Ready, SS_None);
-}
-// ----------------------------------------
-
-void CONTROL_SwitchToFault(Int16U FaultReason, Int16U FaultReasonExt)
-{
-	CONTROL_SetDeviceState(DS_Fault, SS_None);
-	DataTable[REG_FAULT_REASON] = FaultReason;
 }
 // ----------------------------------------
 
@@ -179,7 +128,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+			{
+				CONTROL_LowPowerSupplyControl(TRUE);
+				CONTROL_PowerOnTimeOut = CONTROL_TimeCounter + TIME_POWER_ON;
+
+				CONTROL_SetDeviceState(DS_PowerOn, SS_None);
+			}
 			else if(CONTROL_State != DS_Ready)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -187,6 +141,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_DISABLE_POWER:
 			if(CONTROL_State == DS_Ready)
 			{
+				CONTROL_LowPowerSupplyControl(FALSE);
 				CONTROL_SetDeviceState(DS_None, SS_None);
 			}
 			else if(CONTROL_State != DS_None)
@@ -221,7 +176,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_UPDATE:
 			if (CONTROL_State == DS_InProcess)
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+				CONTROL_CashVariables();
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -246,6 +201,126 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	}
 
 	return TRUE;
+}
+// ----------------------------------------
+
+void CONTROL_Process()
+{
+	if(CONTROL_State == DS_InProcess)
+	{
+		switch(CONTROL_Mode)
+		{
+			case MODE_ZTH_SEQ_PULSES:
+				LOGIC_ZthSequencePulsesProcess();
+				break;
+
+			case MODE_ZTH_LONG_PULSE:
+				LOGIC_ZthLongPulseProcess();
+				break;
+
+			case MODE_RTH_SEQ_PULSES:
+				LOGIC_RthSequenceProcess();
+				break;
+
+			case MODE_GRADUATION:
+				LOGIC_Graduation();
+				break;
+		}
+	}
+}
+// ----------------------------------------
+
+void CONTROL_UpdateLow()
+{
+	CONTROL_CapacitorsVoltageControl();
+}
+// ----------------------------------------
+
+void CONTROL_CapacitorsVoltageControl()
+{
+	Int16U Voltage;
+
+	// Measuring capacitors voltage
+	Voltage = MEASURE_CapVoltageSamplingResult();
+	MEASURE_CapVoltageSamplingStart();
+
+	if(CONTROL_State == DS_PowerOn)
+	{
+		if(Voltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+			CONTROL_SetDeviceState(DS_Ready, SS_None);
+		else
+		{
+			if(CONTROL_TimeCounter >= CONTROL_PowerOnTimeOut)
+			{
+				CONTROL_LowPowerSupplyControl(FALSE);
+				CONTROL_SwitchToFault(FAULT_POWERON);
+			}
+		}
+	}
+
+	DataTable[REG_ACTUAL_CAP_VOLTAGE] = Voltage;
+}
+// ----------------------------------------
+
+void CONTROL_CashVariables()
+{
+	CONTROL_Mode = DataTable[REG_MODE];
+	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
+	CONTROL_CoolingMode = DataTable[REG_COOLING_MODE];
+	CONTROL_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
+	CONTROL_ZthPulseWidthMax = DataTable[REG_ZTH_PULSE_WIDTH_MAX];
+	CONTROL_ZthPause = REG_ZTH_PAUSE;
+	CONTROL_PulseWidth = DataTable[REG_PULSE_WIDTH];
+	CONTROL_Pause = DataTable[REG_PAUSE];
+	CONTROL_ImpulseCurrent = DataTable[REG_IMPULSE_CURRENT];
+	CONTROL_HeatingCurrent = DataTable[REG_HEATING_CURRENT];
+	CONTROL_GateCurrent = DataTable[REG_GATE_CURRENT];
+	CONTROL_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
+	CONTROL_Delay = DataTable[REG_DELAY];
+	CONTROL_Tmax = DataTable[REG_T_MAX];
+}
+// ----------------------------------------
+
+void CONTROL_LowPowerSupplyControl(Boolean State)
+{
+	ZbGPIO_LowPowerSupplyControl(State);
+}
+// ----------------------------------------
+
+void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
+{
+	DEVPROFILE_NotifyCANaFault(Flag);
+}
+// ----------------------------------------
+
+void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
+{
+	// Set new state
+	CONTROL_State = NewState;
+	CONTROL_SubState = NewSubState;
+	DataTable[REG_DEV_STATE] = NewState;
+}
+// ----------------------------------------
+
+void CONTROL_FillWPPartDefault()
+{
+	// Set states
+	DataTable[REG_DEV_STATE] = DS_None;
+	DataTable[REG_FAULT_REASON] = FAULT_NONE;
+	DataTable[REG_WARNING] = WARNING_NONE;
+}
+// ----------------------------------------
+
+void CONTROL_SwitchToReady()
+{
+	CONTROL_SetDeviceState(DS_Ready, SS_None);
+}
+// ----------------------------------------
+
+void CONTROL_SwitchToFault(Int16U FaultReason)
+{
+	CONTROL_SetDeviceState(DS_Fault, SS_None);
+	DataTable[REG_FAULT_REASON] = FaultReason;
 }
 // ----------------------------------------
 

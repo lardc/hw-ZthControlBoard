@@ -101,7 +101,8 @@
 //
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
-// 46 - 49
+#define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in mV)
+// 47 - 49
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki x1000
 #define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
@@ -169,6 +170,7 @@
 // FAULT CODES
 //
 #define FAULT_NONE					0	// No fault
+#define FAULT_POWERON				1	// Power on fault
 
 
 // WARNING CODES
