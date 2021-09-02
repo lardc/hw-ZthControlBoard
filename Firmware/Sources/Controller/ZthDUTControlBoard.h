@@ -24,7 +24,7 @@ typedef enum
 // Functions
 //
 void ZthDCB_CurrentSet(_iq Current);
-void ZthDCB_VoltageSet(Int16U Voltage);
+void ZthDCB_VoltageSet(DCB_GateVoltage Voltage);
 void ZthDCB_SwitchOutput(DCB_OutputType Source);
 
 #endif /* ZTHDUTCONTROLBOARD_H_ */
