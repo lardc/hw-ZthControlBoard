@@ -9,6 +9,7 @@
 #include "ZthDUTControlBoard.h"
 #include "ZthMCurrentBoard.h"
 #include "ZthSensingBoard.h"
+#include "ZthProtectionBoard.h"
 
 
 // Functions
@@ -46,7 +47,7 @@ Boolean DIAG_Process(Int16U Command)
 			break;
 
 		case ACT_DBG_READ_PROTECT_DATA:
-			DataTable[REG_DBG] = ZthPB_ReadState();
+			DataTable[REG_DBG] = ZthPB_FaultCheck();
 			break;
 
 		case ACT_DBG_GATE_CURRENT:
