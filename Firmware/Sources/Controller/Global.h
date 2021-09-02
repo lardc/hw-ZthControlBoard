@@ -21,7 +21,7 @@
 #define UNLOCK_PWD_4					1
 //
 #define EP_COUNT						12
-#define VALUES_x_SIZE					2000
+#define VALUES_x_SIZE					500
 //
 
 #define SCCI_TIMEOUT_MS					100		// in ms
