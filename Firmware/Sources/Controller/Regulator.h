@@ -4,8 +4,6 @@
 // Include
 #include "stdinc.h"
 #include "IQmathLib.h"
-#include "ProjectTypes.h"
-
 
 // Types
 //
@@ -15,6 +13,11 @@ typedef enum __RegulatorSelector
 	SelectIh
 } RegulatorSelector;
 
+typedef struct __CombinedData
+{
+	_iq Im;
+	_iq Ih;
+} CombinedData, *pCombinedData;
 
 // Functions
 //

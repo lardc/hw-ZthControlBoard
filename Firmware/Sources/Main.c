@@ -7,15 +7,12 @@
 //
 #include "ZwDSP.h"
 #include "ZbBoard.h"
-#include "ZbGPIO.h"
 //
 #include "SysConfig.h"
 //
 #include "Controller.h"
-#include "Logic.h"
 #include "MeasuringProcesses.h"
-#include "DeviceObjectDictionary.h"
-#include "DataTable.h"
+#include "Regulator.h"
 
 // FORWARD FUNCTIONS
 // -----------------------------------------
@@ -268,7 +265,14 @@ ISRCALL Timer0_ISR(void)
 // timer 1 ISR
 ISRCALL Timer1_ISR(void)
 {
+	CombinedData Sample;
 
+	// Measuring of heating and measurement currents
+	Sample.Ih = MEASURE_Ih();
+	Sample.Im = MEASURE_Im();
+
+	// Regulator process
+	REGULATOR_Cycle(Sample);
 
 	// no PIE
 	TIMER1_ISR_DONE;

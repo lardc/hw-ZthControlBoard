@@ -340,9 +340,10 @@ void CONTROL_GatePulse(Boolean State)
 
 void CONTROL_MeasuringCurrentProcess(Boolean State)
 {
+	REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
+	REGULATOR_Enable(SelectIm, State);
 	ZthMCB_CurrentSet(CONTROL_MeasuringCurrent);
 	ZthMCB_CurrentControl(State);
-	REGULATOR_Enable(SelectIm, State);
 }
 // ----------------------------------------
 
