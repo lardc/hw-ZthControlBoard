@@ -55,7 +55,10 @@ void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
 void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
 // Switch device to fault state
 void CONTROL_SwitchToFault(Int16U FaultReason, Int16U FaultReasonExt);
+// Set device state
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
+// Processes with low priority
+void CONTROL_UpdateLow();
 
 
 #endif // __CONTROLLER_H

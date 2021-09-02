@@ -106,6 +106,21 @@
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki x1000
 #define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
 #define REG_PI_CTRL_IH_Ki			53	// Heating current PI Ki x1000
+//
+#define REG_MODE					128	// Operating mode (0 - Zth sequence pulses, 1 - Zth long pulse, 2 - Rth sequence pulses, 3 - graduation)
+#define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
+#define REG_COOLING_MODE			130	// Colling mode (0 - one-sided, 1 - double-sided)
+#define REG_ZTH_PULSE_WIDTH_MIN		131	// Width of first pulse (in us)
+#define REG_ZTH_PULSE_WIDTH_MAX		132	// Width of last pulse (in sec)
+#define REG_ZTH_PAUSE				133	// Pause between pulses (in % x10 of REG_ZTH_PULSE_WIDTH_MAX)
+#define REG_PULSE_WIDTH				134	// Width pulse in "Rth sequence pulses" and "graduation" modes (in ms)
+#define REG_PAUSE					135	// Pause between pulses in "Rth sequence pulses" and "graduation" modes (in us)
+#define REG_IMPULSE_CURRENT			136	// Heating current value if pulse width less than 10ms  (in A)
+#define REG_HEATING_CURRENT			137	// Heating current value if pulse width above than 10ms  (in A)
+#define REG_GATE_CURRENT			138	// Gate current value (in mA)
+#define REG_MEASURING_CURRENT		139	// Measuring current value (in mA)
+#define REG_DELAY					140	// Delay in measuring temperature-sensitive parameter (in us)
+#define REG_T_MAX					141	// Maximum DUT temperature (in C x10)
 
 #define REG_DBG						150	// Debugging register
 //

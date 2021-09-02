@@ -16,6 +16,7 @@
 #include "Constraints.h"
 #include "Logic.h"
 #include "MeasuringProcesses.h"
+#include "Diagnostic.h"
 
 // Variables
 //
@@ -23,6 +24,9 @@ volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = SS_None;
 volatile Int64U CONTROL_TimeCounter = 0;
 static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
+volatile Int16U CONTROL_Mode, CONTROL_DUTType, CONTROL_CoolingMode, CONTROL_ZthPulseWidthMin, CONTROL_ZthPulseWidthMax;
+volatile Int16U CONTROL_ZthPause, CONTROL_PulseWidth, CONTROL_Pause, CONTROL_ImpulseCurrent, CONTROL_HeatingCurrent;
+volatile Int16U CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_Delay, CONTROL_Tmax;
 
 //
 #pragma DATA_SECTION(CONTROL_Values_TSP, "data_mem");
@@ -47,6 +51,7 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
+void CONTROL_CashVariables();
 
 // Functions
 //
@@ -93,14 +98,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 }
 // ----------------------------------------
 
-void CONTROL_UpdateLow()
-{
-	// Update capacitor state
-	DataTable[REG_ACTUAL_CAP_VOLTAGE] = MEASURE_ReadCapVoltage();
-	MEASURE_StartSamplingCapVoltage();
-}
-// ----------------------------------------
-
 void CONTROL_Idle()
 {
 	// Process external interface requests
@@ -110,6 +107,34 @@ void CONTROL_Idle()
 	DEVPROFILE_UpdateCANDiagStatus();
 }
 // ----------------------------------------
+
+void CONTROL_CashVariables()
+{
+	CONTROL_Mode = DataTable[REG_MODE];
+	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
+	CONTROL_CoolingMode = DataTable[REG_COOLING_MODE];
+	CONTROL_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
+	CONTROL_ZthPulseWidthMax = DataTable[REG_ZTH_PULSE_WIDTH_MAX];
+	CONTROL_ZthPause = REG_ZTH_PAUSE;
+	CONTROL_PulseWidth = DataTable[REG_PULSE_WIDTH];
+	CONTROL_Pause = DataTable[REG_PAUSE];
+	CONTROL_ImpulseCurrent = DataTable[REG_IMPULSE_CURRENT];
+	CONTROL_HeatingCurrent = DataTable[REG_HEATING_CURRENT];
+	CONTROL_GateCurrent = DataTable[REG_GATE_CURRENT];
+	CONTROL_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
+	CONTROL_Delay = DataTable[REG_DELAY];
+	CONTROL_Tmax = DataTable[REG_T_MAX];
+}
+// ----------------------------------------
+
+void CONTROL_UpdateLow()
+{
+	// Update capacitor state
+	DataTable[REG_ACTUAL_CAP_VOLTAGE] = MEASURE_CapVoltageSamplingResult();
+	MEASURE_CapVoltageSamplingStart();
+}
+// ----------------------------------------
+
 
 void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
 {
@@ -147,7 +172,6 @@ void CONTROL_SwitchToFault(Int16U FaultReason, Int16U FaultReasonExt)
 	DataTable[REG_FAULT_REASON] = FaultReason;
 }
 // ----------------------------------------
-
 
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
@@ -215,7 +239,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		default:
-			return DIAG_Process(ActionID);
+			if (CONTROL_State == DS_None)
+				return DIAG_Process(ActionID);
+			else
+				*UserError = ERR_OPERATION_BLOCKED;
 	}
 
 	return TRUE;
