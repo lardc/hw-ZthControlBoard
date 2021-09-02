@@ -17,6 +17,7 @@
 #include "Logic.h"
 #include "MeasuringProcesses.h"
 #include "Diagnostic.h"
+#include "Regulator.h"
 
 // Definitions
 //
@@ -63,6 +64,7 @@ void CONTROL_CashVariables();
 void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_CapacitorsVoltageControl();
 void CONTROL_Process();
+void CONTROL_StopProcess();
 
 // Functions
 //
@@ -151,6 +153,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_PROCESS:
 			if (CONTROL_State == DS_Ready)
 			{
+				CONTROL_CashVariables();
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
@@ -163,6 +166,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_STOP_PROCESS:
 			if (CONTROL_State == DS_InProcess)
 			{
+				CONTROL_StopProcess();
 				CONTROL_SetDeviceState(DS_Ready, SS_None);
 			}
 			break;
@@ -175,10 +179,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_UPDATE:
-			if (CONTROL_State == DS_InProcess)
 				CONTROL_CashVariables();
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_CLR_FAULT:
@@ -278,6 +279,13 @@ void CONTROL_CashVariables()
 	CONTROL_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
 	CONTROL_Delay = DataTable[REG_DELAY];
 	CONTROL_Tmax = DataTable[REG_T_MAX];
+}
+// ----------------------------------------
+
+void CONTROL_StopProcess()
+{
+	REGULATOR_DisableAll();
+	REGULATOR_ForceOutputsToZero();
 }
 // ----------------------------------------
 
