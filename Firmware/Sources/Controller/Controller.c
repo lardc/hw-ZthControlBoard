@@ -18,6 +18,9 @@
 #include "MeasuringProcesses.h"
 #include "Diagnostic.h"
 #include "Regulator.h"
+#include "ZthDUTControlBoard.h"
+#include "IQmathLib.h"
+#include "IQMathUtils.h"
 
 // Definitions
 //
@@ -32,9 +35,9 @@ volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = SS_None;
 volatile Int64U CONTROL_TimeCounter = 0;
 static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
-volatile Int16U CONTROL_Mode, CONTROL_DUTType, CONTROL_CoolingMode, CONTROL_ZthPulseWidthMin, CONTROL_ZthPulseWidthMax;
-volatile Int16U CONTROL_ZthPause, CONTROL_PulseWidth, CONTROL_Pause, CONTROL_ImpulseCurrent, CONTROL_HeatingCurrent;
-volatile Int16U CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_Delay, CONTROL_Tmax;
+volatile Int16U CONTROL_Mode, CONTROL_DUTType, CONTROL_CoolingMode;
+volatile Int16U CONTROL_ZthPause, CONTROL_PulseWidth, CONTROL_Pause, CONTROL_ZthPulseWidthMin, CONTROL_ZthPulseWidthMax, CONTROL_Delay;
+volatile _iq CONTROL_ImpulseCurrent, CONTROL_HeatingCurrent, CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_GateVoltage, CONTROL_Tmax;
 volatile Int64U CONTROL_PowerOnTimeOut = 0;
 
 //
@@ -65,6 +68,7 @@ void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_CapacitorsVoltageControl();
 void CONTROL_Process();
 void CONTROL_StopProcess();
+void CONTROL_GatePulse(Boolean State);
 
 // Functions
 //
@@ -154,6 +158,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Ready)
 			{
 				CONTROL_CashVariables();
+				CONTROL_GatePulse(TRUE);
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
@@ -268,17 +273,20 @@ void CONTROL_CashVariables()
 	CONTROL_Mode = DataTable[REG_MODE];
 	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
 	CONTROL_CoolingMode = DataTable[REG_COOLING_MODE];
+	//
+	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
+	CONTROL_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
+	CONTROL_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
+	CONTROL_GateCurrent = _IQI(DataTable[REG_GATE_CURRENT]);
+	CONTROL_GateVoltage = _IQI(DataTable[REG_IGBT_VOLTAGE]);
+	CONTROL_Tmax = _IQI(DataTable[REG_T_MAX]);
+	//
 	CONTROL_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
 	CONTROL_ZthPulseWidthMax = DataTable[REG_ZTH_PULSE_WIDTH_MAX];
 	CONTROL_ZthPause = REG_ZTH_PAUSE;
 	CONTROL_PulseWidth = DataTable[REG_PULSE_WIDTH];
 	CONTROL_Pause = DataTable[REG_PAUSE];
-	CONTROL_ImpulseCurrent = DataTable[REG_IMPULSE_CURRENT];
-	CONTROL_HeatingCurrent = DataTable[REG_HEATING_CURRENT];
-	CONTROL_GateCurrent = DataTable[REG_GATE_CURRENT];
-	CONTROL_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
 	CONTROL_Delay = DataTable[REG_DELAY];
-	CONTROL_Tmax = DataTable[REG_T_MAX];
 }
 // ----------------------------------------
 
@@ -286,6 +294,33 @@ void CONTROL_StopProcess()
 {
 	REGULATOR_DisableAll();
 	REGULATOR_ForceOutputsToZero();
+	CONTROL_GatePulse(FALSE);
+}
+// ----------------------------------------
+
+void CONTROL_GatePulse(Boolean State)
+{
+	if(CONTROL_DUTType)
+	{
+		if(State)
+		{
+			ZthDCB_SwitchOutput(VOLTAGE_SOURCE);
+
+			if(CONTROL_GateVoltage)
+				ZthDCB_VoltageSet(GATE_VOLTGE_20V);
+			else
+				ZthDCB_VoltageSet(GATE_VOLTGE_15V);
+		}
+		else
+			ZthDCB_VoltageSet(GATE_VOLTGE_0V);
+	}
+	else
+	{
+		if(State)
+			ZthDCB_CurrentSet(CONTROL_GateCurrent);
+		else
+			ZthDCB_CurrentSet(0);
+	}
 }
 // ----------------------------------------
 

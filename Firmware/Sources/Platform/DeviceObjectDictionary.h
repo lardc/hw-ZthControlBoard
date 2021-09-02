@@ -122,6 +122,7 @@
 #define REG_MEASURING_CURRENT		139	// Measuring current value (in mA)
 #define REG_DELAY					140	// Delay in measuring temperature-sensitive parameter (in us)
 #define REG_T_MAX					141	// Maximum DUT temperature (in C x10)
+#define REG_IGBT_VOLTAGE			142	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 
 #define REG_DBG						150	// Debugging register
 //
