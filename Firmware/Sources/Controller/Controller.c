@@ -19,6 +19,7 @@
 #include "Diagnostic.h"
 #include "Regulator.h"
 #include "ZthDUTControlBoard.h"
+#include "ZthMCurrentBoard.h"
 #include "IQmathLib.h"
 #include "IQMathUtils.h"
 
@@ -68,7 +69,9 @@ void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_CapacitorsVoltageControl();
 void CONTROL_Process();
 void CONTROL_StopProcess();
+void CONTROL_StartProcess();
 void CONTROL_GatePulse(Boolean State);
+void CONTROL_MeasuringCurrentProcess(Boolean State);
 
 // Functions
 //
@@ -157,8 +160,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_PROCESS:
 			if (CONTROL_State == DS_Ready)
 			{
-				CONTROL_CashVariables();
-				CONTROL_GatePulse(TRUE);
+				CONTROL_StartProcess();
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
@@ -290,19 +292,30 @@ void CONTROL_CashVariables()
 }
 // ----------------------------------------
 
+void CONTROL_StartProcess()
+{
+	CONTROL_CashVariables();
+	REGULATOR_InitAll();
+	//
+	CONTROL_GatePulse(TRUE);
+	CONTROL_MeasuringCurrentProcess(TRUE);
+}
+// ----------------------------------------
+
 void CONTROL_StopProcess()
 {
 	REGULATOR_DisableAll();
 	REGULATOR_ForceOutputsToZero();
+	CONTROL_MeasuringCurrentProcess(FALSE);
 	CONTROL_GatePulse(FALSE);
 }
 // ----------------------------------------
 
 void CONTROL_GatePulse(Boolean State)
 {
-	if(CONTROL_DUTType)
+	if(State)
 	{
-		if(State)
+		if(CONTROL_DUTType)
 		{
 			ZthDCB_SwitchOutput(VOLTAGE_SOURCE);
 
@@ -312,15 +325,24 @@ void CONTROL_GatePulse(Boolean State)
 				ZthDCB_VoltageSet(GATE_VOLTGE_15V);
 		}
 		else
-			ZthDCB_VoltageSet(GATE_VOLTGE_0V);
+		{
+			ZthDCB_SwitchOutput(CURRENT_SOURCE);
+			ZthDCB_CurrentSet(CONTROL_GateCurrent);
+		}
 	}
 	else
 	{
-		if(State)
-			ZthDCB_CurrentSet(CONTROL_GateCurrent);
-		else
-			ZthDCB_CurrentSet(0);
+		ZthDCB_CurrentSet(0);
+		ZthDCB_VoltageSet(GATE_VOLTGE_0V);
 	}
+}
+// ----------------------------------------
+
+void CONTROL_MeasuringCurrentProcess(Boolean State)
+{
+	ZthMCB_CurrentSet(CONTROL_MeasuringCurrent);
+	ZthMCB_CurrentControl(State);
+	REGULATOR_Enable(SelectIm, State);
 }
 // ----------------------------------------
 
