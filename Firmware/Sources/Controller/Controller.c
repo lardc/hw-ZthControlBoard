@@ -289,6 +289,8 @@ void CONTROL_CashVariables()
 	CONTROL_PulseWidth = DataTable[REG_PULSE_WIDTH];
 	CONTROL_Pause = DataTable[REG_PAUSE];
 	CONTROL_Delay = DataTable[REG_DELAY];
+
+	REGULATOR_CashVariables();
 }
 // ----------------------------------------
 

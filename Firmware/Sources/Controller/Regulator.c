@@ -30,7 +30,7 @@ typedef struct __RegulatorSettings
 // Variables
 RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
 CombinedData RegulatorSample;
-_iq RegulatorPowerErrorThreshold = 0;
+_iq RegulatorSavedPowerTarget = 0, RegulatorPowerErrorThreshold = 0;
 
 
 // Forward functions
@@ -81,8 +81,11 @@ void REGULATOR_CycleX(RegulatorSelector Selector, CombinedData MeasureSample)
 
 		if(Selector == SelectIh)
 		{
-			if(!RegulatorP.TargetValue && RegulatorIh.TargetValue && (ABS(Error) <= RegulatorPowerErrorThreshold))
-				REGULATOR_Update(SelectP, MeasureSample.P);
+			if(!RegulatorSavedPowerTarget && RegulatorIh.TargetValue && (ABS(Error) <= RegulatorPowerErrorThreshold))
+			{
+				RegulatorSavedPowerTarget = MeasureSample.P;
+				REGULATOR_Update(SelectP, RegulatorSavedPowerTarget);
+			}
 		}
 
 		if(Regulator->Ki)
@@ -198,9 +201,15 @@ void REGULATOR_Init(RegulatorSelector Selector)
 
 		case SelectP:
 			REGULATOR_InitX(&RegulatorP, REGLTR_IH_SAT, REG_PI_CTRL_P_Kp, REG_PI_CTRL_P_Ki);
-			RegulatorPowerErrorThreshold = _FPtoIQ2(DataTable[REG_P_ERROR_THRESHOLD], 10);
 			break;
 	}
+}
+// ----------------------------------------
+
+void REGULATOR_CashVariables()
+{
+	RegulatorSavedPowerTarget = 0;
+	RegulatorPowerErrorThreshold = _FPtoIQ2(DataTable[REG_P_ERROR_THRESHOLD], 10);
 }
 // ----------------------------------------
 
@@ -214,6 +223,8 @@ void REGULATOR_DisableAll()
 
 void REGULATOR_InitAll()
 {
+	REGULATOR_CashVariables();
+
 	REGULATOR_Init(SelectIm);
 	REGULATOR_Init(SelectIh);
 	REGULATOR_Init(SelectP);

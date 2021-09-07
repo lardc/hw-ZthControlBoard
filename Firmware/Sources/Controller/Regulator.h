@@ -27,5 +27,6 @@ void REGULATOR_InitAll();
 void REGULATOR_DisableAll();
 CombinedData REGULATOR_GetControl();
 CombinedData REGULATOR_GetTarget();
+void REGULATOR_CashVariables();;
 
 #endif // __REGULATOR_H
