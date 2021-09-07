@@ -62,6 +62,19 @@ _iq MEASURE_TSP()
 }
 // ----------------------------------------
 
+CombinedData MEASURE_RegulatorsSample()
+{
+	CombinedData Sample;
+
+	Sample.Ih = MEASURE_Ih();
+	Sample.Im = MEASURE_Im();
+	Sample.U = MEASURE_TSP();
+	Sample.P = _IQmpy(Sample.U, Sample.Ih);
+
+	return Sample;
+}
+// ----------------------------------------
+
 void MEASURE_CapVoltageSamplingStart()
 {
 	ZwADC_StartSEQ1();

@@ -104,9 +104,11 @@
 #define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in mV)
 // 47 - 49
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
-#define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki x1000
+#define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki
 #define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
-#define REG_PI_CTRL_IH_Ki			53	// Heating current PI Ki x1000
+#define REG_PI_CTRL_IH_Ki			53	// Heating current PI Ki
+#define REG_PI_CTRL_P_Kp			54	// Heating current PI Kp x1000
+#define REG_PI_CTRL_P_Ki			55	// Heating current PI Ki
 //
 #define REG_MODE					128	// Operating mode (0 - Zth sequence pulses, 1 - Zth long pulse, 2 - Rth sequence pulses, 3 - graduation)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)

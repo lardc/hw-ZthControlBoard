@@ -12,6 +12,15 @@
 #include "Controller.h"
 #include "IQmathLib.h"
 
+// Types
+typedef struct __CombinedData
+{
+	_iq Im;
+	_iq Ih;
+	_iq	U;
+	_iq	P;
+} CombinedData, *pCombinedData;
+
 // Functions
 //
 void MEASURE_CapVoltageSamplingStart();
@@ -23,5 +32,6 @@ _iq MEASURE_Tcool2();
 _iq MEASURE_Ih();
 _iq MEASURE_Im();
 _iq MEASURE_TSP();
+CombinedData MEASURE_RegulatorsSample();
 
 #endif /* MEASURINGPROCESSES_H_ */

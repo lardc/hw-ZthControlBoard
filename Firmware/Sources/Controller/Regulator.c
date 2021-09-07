@@ -19,7 +19,7 @@ typedef struct __RegulatorSettings
 	Boolean Enabled;
 	_iq TargetValue;
 	_iq TargetValuePrev;
-	_iq ErrorI;
+	_iq Error;
 	_iq Kp;
 	_iq Ki;
 	_iq Control;
@@ -28,7 +28,8 @@ typedef struct __RegulatorSettings
 
 
 // Variables
-RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0};
+RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
+CombinedData RegulatorSample;
 
 
 // Forward functions
@@ -43,6 +44,9 @@ void REGULATOR_Cycle(CombinedData MeasureSample)
 {
 	REGULATOR_CycleX(SelectIm, MeasureSample);
 	REGULATOR_CycleX(SelectIh, MeasureSample);
+	REGULATOR_CycleX(SelectP, MeasureSample);
+
+	RegulatorSample = MeasureSample;
 }
 // ----------------------------------------
 
@@ -62,6 +66,11 @@ void REGULATOR_CycleX(RegulatorSelector Selector, CombinedData MeasureSample)
 			Regulator = &RegulatorIh;
 			SampleValue = MeasureSample.Ih;
 			break;
+
+		case SelectP:
+			Regulator = &RegulatorP;
+			SampleValue = MeasureSample.P;
+			break;
 	}
 
 	if(Regulator->Enabled)
@@ -71,16 +80,16 @@ void REGULATOR_CycleX(RegulatorSelector Selector, CombinedData MeasureSample)
 
 		if(Regulator->Ki)
 		{
-			Regulator->ErrorI += Error;
+			Regulator->Error += Error;
 
-			if(_IQabs(Regulator->ErrorI) > REGLTR_ERROR_I_SAT_H)
-				Regulator->ErrorI = (Regulator->ErrorI > 0) ? REGLTR_ERROR_I_SAT_H : _IQmpy(_IQ(-1), REGLTR_ERROR_I_SAT_H);
+			if(_IQabs(Regulator->Error) > REGLTR_ERROR_I_SAT_H)
+				Regulator->Error = (Regulator->Error > 0) ? REGLTR_ERROR_I_SAT_H : _IQmpy(_IQ(-1), REGLTR_ERROR_I_SAT_H);
 
-			ControlI = _IQmpy(Regulator->ErrorI, Regulator->Ki);
+			ControlI = _IQmpy(Regulator->Error, Regulator->Ki);
 		}
 		else
 		{
-			Regulator->ErrorI = 0;
+			Regulator->Error = 0;
 			ControlI = 0;
 		}
 
@@ -105,7 +114,7 @@ void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Regist
 	Regulator->ControlSat 		= ControlSat;
 
 	Regulator->Control 			= 0;
-	Regulator->ErrorI 			= 0;
+	Regulator->Error 			= 0;
 	Regulator->TargetValue		= 0;
 	Regulator->TargetValuePrev	= 0;
 }
@@ -115,8 +124,9 @@ Boolean REGULATOR_IsIErrorSaturated(RegulatorSelector Selector)
 {
 	switch (Selector)
 	{
-		case SelectIm: return (_IQabs(RegulatorIm.ErrorI) == REGLTR_ERROR_I_SAT_H);
-		case SelectIh: return (_IQabs(RegulatorIh.ErrorI) == REGLTR_ERROR_I_SAT_H);
+		case SelectIm: return (_IQabs(RegulatorIm.Error) == REGLTR_ERROR_I_SAT_H);
+		case SelectIh: return (_IQabs(RegulatorIh.Error) == REGLTR_ERROR_I_SAT_H);
+		case SelectP: return (_IQabs(RegulatorIh.Error) == REGLTR_ERROR_I_SAT_H);
 	}
 
 	return FALSE;
@@ -129,6 +139,7 @@ void REGULATOR_Enable(RegulatorSelector Selector, Boolean State)
 	{
 		case SelectIm: RegulatorIm.Enabled = State; break;
 		case SelectIh: RegulatorIh.Enabled = State; break;
+		case SelectP: RegulatorP.Enabled = State; break;
 	}
 }
 // ----------------------------------------
@@ -139,6 +150,7 @@ void REGULATOR_Update(RegulatorSelector Selector, _iq Value)
 	{
 		case SelectIm: RegulatorIm.TargetValue = Value; break;
 		case SelectIh: RegulatorIh.TargetValue = Value; break;
+		case SelectP: RegulatorP.TargetValue = Value; break;
 	}
 }
 // ----------------------------------------
@@ -150,6 +162,11 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 		case SelectIm:
 			RegulatorIm.Control = Value;
 			ZthMCB_CurrentSet(CONVERT_ImToDAC(Value));
+			break;
+
+		case SelectP:
+			RegulatorP.Control = Value;
+			REGULATOR_Update(SelectIh, _IQdiv(RegulatorP.Control, RegulatorSample.U));
 			break;
 
 		case SelectIh:
@@ -171,6 +188,10 @@ void REGULATOR_Init(RegulatorSelector Selector)
 		case SelectIh:
 			REGULATOR_InitX(&RegulatorIh, REGLTR_IH_SAT, REG_PI_CTRL_IH_Kp, REG_PI_CTRL_IH_Ki);
 			break;
+
+		case SelectP:
+			REGULATOR_InitX(&RegulatorP, REGLTR_IH_SAT, REG_PI_CTRL_P_Kp, REG_PI_CTRL_P_Ki);
+			break;
 	}
 }
 // ----------------------------------------
@@ -179,6 +200,7 @@ void REGULATOR_DisableAll()
 {
 	REGULATOR_Enable(SelectIm, FALSE);
 	REGULATOR_Enable(SelectIh, FALSE);
+	REGULATOR_Enable(SelectP, FALSE);
 }
 // ----------------------------------------
 
@@ -186,6 +208,7 @@ void REGULATOR_InitAll()
 {
 	REGULATOR_Init(SelectIm);
 	REGULATOR_Init(SelectIh);
+	REGULATOR_Init(SelectP);
 }
 // ----------------------------------------
 
@@ -193,6 +216,7 @@ void REGULATOR_ForceOutputsToZero()
 {
 	REGULATOR_SetOutput(SelectIm, 0);
 	REGULATOR_SetOutput(SelectIh, 0);
+	REGULATOR_SetOutput(SelectP, 0);
 }
 // ----------------------------------------
 
@@ -202,6 +226,7 @@ CombinedData REGULATOR_GetControl()
 
 	ret.Im = RegulatorIm.Control;
 	ret.Ih = RegulatorIh.Control;
+	ret.P = RegulatorIh.Control;
 
 	return ret;
 }
@@ -213,6 +238,7 @@ CombinedData REGULATOR_GetTarget()
 
 	ret.Im = RegulatorIm.TargetValue;
 	ret.Ih = RegulatorIh.TargetValue;
+	ret.P = RegulatorIh.TargetValue;
 
 	return ret;
 }

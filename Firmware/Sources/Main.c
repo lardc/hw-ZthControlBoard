@@ -257,14 +257,8 @@ ISRCALL Timer0_ISR(void)
 // timer 1 ISR
 ISRCALL Timer1_ISR(void)
 {
-	CombinedData Sample;
-
-	// Measuring of heating and measurement currents
-	Sample.Ih = MEASURE_Ih();
-	Sample.Im = MEASURE_Im();
-
 	// Regulator process
-	REGULATOR_Cycle(Sample);
+	REGULATOR_Cycle(MEASURE_RegulatorsSample());
 
 	// no PIE
 	TIMER1_ISR_DONE;
