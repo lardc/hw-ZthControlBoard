@@ -102,7 +102,9 @@
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
 #define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in mV)
-// 47 - 49
+//
+#define REG_P_ERROR_THRESHOLD		47	// Power error threshold (% x10)
+// 48 - 49
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki
 #define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
