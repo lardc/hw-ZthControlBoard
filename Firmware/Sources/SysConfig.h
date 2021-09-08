@@ -46,6 +46,7 @@
 //--------------------------------------------------------
 #define CS_T0_FREQ			1000		// 1 kHz
 #define CS_T1_FREQ			10000		// 10 kHz
+#define CS_T2_FREQ			1000000		// 1Mhz
 
 #define TIMER0_PERIOD		(1000000L / CS_T0_FREQ)
 #define TIMER1_PERIOD		(1000000L / CS_T1_FREQ)
