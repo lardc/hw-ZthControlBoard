@@ -124,7 +124,7 @@
 #define REG_HEATING_CURRENT			137	// Heating current value if pulse width above than 10ms  (in A)
 #define REG_GATE_CURRENT			138	// Gate current value (in mA)
 #define REG_MEASURING_CURRENT		139	// Measuring current value (in mA)
-#define REG_DELAY					140	// Delay in measuring temperature-sensitive parameter (in us)
+#define REG_DELAY					140	// Delay of measuring temperature-sensitive parameter (in us)
 #define REG_T_MAX					141	// Maximum DUT temperature (in C x10)
 #define REG_IGBT_VOLTAGE			142	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 

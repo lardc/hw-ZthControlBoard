@@ -62,14 +62,34 @@ _iq MEASURE_TSP()
 }
 // ----------------------------------------
 
-CombinedData MEASURE_RegulatorsSample()
+RegulatorsData MEASURE_RegulatorsSample()
 {
-	CombinedData Sample;
+	RegulatorsData Sample;
 
 	Sample.Ih = MEASURE_Ih();
 	Sample.Im = MEASURE_Im();
 	Sample.U = MEASURE_TSP();
 	Sample.P = _IQmpy(Sample.U, Sample.Ih);
+
+	return Sample;
+}
+// ----------------------------------------
+
+CombinedData MEASURE_CombinedData(Boolean DoubleSideCooling)
+{
+	CombinedData Sample;
+
+	Sample.TSP = MEASURE_TSP();
+	Sample.Tcase1 = MEASURE_Tcase1();
+	Sample.Tcool1 = MEASURE_Tcool1();
+	Sample.Tcase2 = 0;
+	Sample.Tcool2 = 0;
+
+	if(DoubleSideCooling)
+	{
+		Sample.Tcase2 = MEASURE_Tcase2();
+		Sample.Tcool2 = MEASURE_Tcool2();
+	}
 
 	return Sample;
 }

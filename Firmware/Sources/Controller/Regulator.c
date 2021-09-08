@@ -29,19 +29,19 @@ typedef struct __RegulatorSettings
 
 // Variables
 RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
-CombinedData RegulatorSample;
+RegulatorsData RegulatorSample;
 _iq RegulatorSavedPowerTarget = 0, RegulatorPowerErrorThreshold = 0;
 
 
 // Forward functions
-void REGULATOR_CycleX(RegulatorSelector Selector, CombinedData MeasureSample);
+void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample);
 void REGULATOR_Init(RegulatorSelector Selector);
 void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki);
 
 
 // Functions
 //
-void REGULATOR_Cycle(CombinedData MeasureSample)
+void REGULATOR_Cycle(RegulatorsData MeasureSample)
 {
 	REGULATOR_CycleX(SelectIm, MeasureSample);
 	REGULATOR_CycleX(SelectIh, MeasureSample);
@@ -51,7 +51,7 @@ void REGULATOR_Cycle(CombinedData MeasureSample)
 }
 // ----------------------------------------
 
-void REGULATOR_CycleX(RegulatorSelector Selector, CombinedData MeasureSample)
+void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 {
 	_iq SampleValue;
 	pRegulatorSettings Regulator;
@@ -224,7 +224,7 @@ void REGULATOR_DisableAll()
 void REGULATOR_InitAll()
 {
 	REGULATOR_CashVariables();
-
+	//
 	REGULATOR_Init(SelectIm);
 	REGULATOR_Init(SelectIh);
 	REGULATOR_Init(SelectP);
@@ -239,9 +239,9 @@ void REGULATOR_ForceOutputsToZero()
 }
 // ----------------------------------------
 
-CombinedData REGULATOR_GetControl()
+RegulatorsData REGULATOR_GetControl()
 {
-	CombinedData ret;
+	RegulatorsData ret;
 
 	ret.Im = RegulatorIm.Control;
 	ret.Ih = RegulatorIh.Control;
@@ -251,9 +251,9 @@ CombinedData REGULATOR_GetControl()
 }
 // ----------------------------------------
 
-CombinedData REGULATOR_GetTarget()
+RegulatorsData REGULATOR_GetTarget()
 {
-	CombinedData ret;
+	RegulatorsData ret;
 
 	ret.Im = RegulatorIm.TargetValue;
 	ret.Ih = RegulatorIh.TargetValue;
