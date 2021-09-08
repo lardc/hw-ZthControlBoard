@@ -26,7 +26,7 @@ typedef struct __CombinedData
 	_iq TSP;
 	_iq Tcase1;
 	_iq Tcase2;
-	_iq Tcoll1;
+	_iq Tcool1;
 	_iq Tcool2;
 }CombinedData, *pCombinedData;
 
