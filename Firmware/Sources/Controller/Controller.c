@@ -14,7 +14,6 @@
 #include "SCCISlave.h"
 #include "DeviceProfile.h"
 #include "Constraints.h"
-#include "Logic.h"
 #include "MeasuringProcesses.h"
 #include "Diagnostic.h"
 #include "Regulator.h"
@@ -33,12 +32,10 @@
 // Variables
 //
 volatile DeviceState CONTROL_State = DS_None;
-volatile DeviceSubState CONTROL_SubState = SS_None;
 volatile Int64U CONTROL_TimeCounter = 0;
 static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
-volatile Int16U CONTROL_Mode, CONTROL_DUTType, CONTROL_CoolingMode;
-volatile Int16U CONTROL_ZthPause, CONTROL_PulseWidth, CONTROL_Pause, CONTROL_ZthPulseWidthMin, CONTROL_ZthPulseWidthMax, CONTROL_Delay;
-volatile _iq CONTROL_ImpulseCurrent, CONTROL_HeatingCurrent, CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_GateVoltage, CONTROL_Tmax;
+volatile Int16U CONTROL_Mode, CONTROL_DUTType;
+volatile _iq CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_GateVoltage;
 volatile Int64U CONTROL_PowerOnTimeOut = 0;
 
 //
@@ -274,22 +271,12 @@ void CONTROL_CashVariables()
 {
 	CONTROL_Mode = DataTable[REG_MODE];
 	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
-	CONTROL_CoolingMode = DataTable[REG_COOLING_MODE];
 	//
 	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
-	CONTROL_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
-	CONTROL_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
 	CONTROL_GateCurrent = _IQI(DataTable[REG_GATE_CURRENT]);
 	CONTROL_GateVoltage = _IQI(DataTable[REG_IGBT_VOLTAGE]);
-	CONTROL_Tmax = _IQI(DataTable[REG_T_MAX]);
 	//
-	CONTROL_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
-	CONTROL_ZthPulseWidthMax = DataTable[REG_ZTH_PULSE_WIDTH_MAX];
-	CONTROL_ZthPause = REG_ZTH_PAUSE;
-	CONTROL_PulseWidth = DataTable[REG_PULSE_WIDTH];
-	CONTROL_Pause = DataTable[REG_PAUSE];
-	CONTROL_Delay = DataTable[REG_DELAY];
-
+	LOGIC_CashVariables();
 	REGULATOR_CashVariables();
 }
 // ----------------------------------------
@@ -365,8 +352,9 @@ void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
 {
 	// Set new state
 	CONTROL_State = NewState;
-	CONTROL_SubState = NewSubState;
 	DataTable[REG_DEV_STATE] = NewState;
+
+	LOGIC_SetState(NewSubState);
 }
 // ----------------------------------------
 

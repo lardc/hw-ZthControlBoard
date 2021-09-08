@@ -10,6 +10,7 @@
 //
 #include "ZwDSP.h"
 #include "Global.h"
+#include "Logic.h"
 
 
 // Types
@@ -25,12 +26,6 @@ typedef enum __DeviceState
 } DeviceState;
 //
 
-typedef enum __DeviceSubState
-{
-	SS_None			= 0
-} DeviceSubState;
-//
-
 typedef void (*FUNC_AsyncDelegate)();
 
 
@@ -38,7 +33,6 @@ typedef void (*FUNC_AsyncDelegate)();
 //
 extern volatile Int64U CONTROL_TimeCounter;
 extern volatile DeviceState CONTROL_State;
-extern volatile DeviceSubState CONTROL_SubState;
 //
 extern volatile Int16U CONTROL_BootLoaderRequest;
 

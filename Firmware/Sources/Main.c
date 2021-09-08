@@ -260,6 +260,9 @@ ISRCALL Timer1_ISR(void)
 	// Regulator process
 	REGULATOR_Cycle(MEASURE_RegulatorsSample());
 
+	// Incrementing time counter
+	LOGIC_IncTimeCounter();
+
 	// no PIE
 	TIMER1_ISR_DONE;
 }
