@@ -151,7 +151,8 @@
 #define REG_ACTUAL_T_CASE2			205	// Actual temperature of DUT case 2 (in C x100)
 #define REG_ACTUAL_T_COOL1			206	// Actual temperature of DUT cooler 1 (in C x100)
 #define REG_ACTUAL_T_COOL2			207	// Actual temperature of DUT cooler 2 (in C x100)
-#define REG_ACTUAL_CAP_VOLTAGE		208	// Actual capacitors voltage (in V)
+#define REG_ACTUAL_TSP				208	// Actual TSP result (in mV)
+#define REG_ACTUAL_CAP_VOLTAGE		209	// Actual capacitors voltage (in V)
 //
 #define REG_CANA_BUSOFF_COUNTER		220 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			221	// CAN status register (32 bit)

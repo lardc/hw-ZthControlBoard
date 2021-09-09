@@ -11,11 +11,12 @@
 #include "DataTable.h"
 #include "DeviceObjectDictionary.h"
 #include "Regulator.h"
-#include "MeasuringProcesses.h"
+#include "IQmathLib.h"
+#include "IQMathUtils.h"
 
 // Definitions
 //
-#define TIME_10MS		10000	// in us
+#define PULSE_WIDTH_10MS		10000	// in us
 
 // Variables
 //
@@ -29,6 +30,20 @@ volatile _iq LOGIC_ImpulseCurrent, LOGIC_HeatingCurrent, LOGIC_Tmax, LOGIC_ZthPa
 volatile Int64U LOGIC_ActualPulseWidth = 0;
 //
 volatile Boolean DelayFlag = FALSE;
+//
+#pragma DATA_SECTION(LOGIC_Values_TSP, "data_mem");
+Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
+#pragma DATA_SECTION(LOGIC_Values_Tcase1, "data_mem");
+Int16U LOGIC_Values_Tcase1[VALUES_x_SIZE];
+#pragma DATA_SECTION(LOGIC_Values_Tcase2, "data_mem");
+Int16U LOGIC_Values_Tcase2[VALUES_x_SIZE];
+#pragma DATA_SECTION(LOGIC_Values_Tcool1, "data_mem");
+Int16U LOGIC_Values_Tcool1[VALUES_x_SIZE];
+#pragma DATA_SECTION(LOGIC_Values_Tcool2, "data_mem");
+Int16U LOGIC_Values_Tcool2[VALUES_x_SIZE];
+volatile Int16U LOGIC_Values_Counter = 0;
+volatile Int16U EP_DataCounter = 0;
+//
 
 // Functions prototypes
 //
@@ -37,11 +52,14 @@ void LOGIC_MeasuringProcess();
 Boolean LOGIC_CoolingProcess();
 void LOGIC_DelayStart(Int64U Delay_us);
 Boolean LOGIC_DelayCheck();
+void LOGIC_SaveData(CombinedData Sample);
 
 // Functions
 //
 Boolean LOGIC_ZthSequencePulsesProcess()
 {
+	Boolean Result = FALSE;
+
 	switch (LOGIC_SubState)
 	{
 		case SS_Heating:
@@ -55,14 +73,20 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess())
+			if(LOGIC_ActualPulseWidth >= LOGIC_ZthPulseWidthMax)
 			{
-
+				LOGIC_SetState(SS_None);
+				Result = TRUE;
+			}
+			else
+			{
+				if(LOGIC_CoolingProcess())
+					LOGIC_SetState(SS_Heating);
 			}
 			break;
 	}
 
-	return FALSE;
+	return Result;
 }
 // ----------------------------------------
 
@@ -90,7 +114,7 @@ Boolean LOGIC_HeatingProcess()
 
 	if(!HeatingProcess)
 	{
-		if(LOGIC_ActualPulseWidth < TIME_10MS)
+		if(LOGIC_ActualPulseWidth < PULSE_WIDTH_10MS)
 			REGULATOR_Update(SelectIh, LOGIC_ImpulseCurrent);
 		else
 			REGULATOR_Update(SelectIh, LOGIC_HeatingCurrent);
@@ -140,6 +164,36 @@ Boolean LOGIC_CoolingProcess(Int64U CoolingTime)
 		return TRUE;
 	else
 		return FALSE;
+}
+// ----------------------------------------
+
+void LOGIC_SaveData(CombinedData Sample)
+{
+	Int16U TSP, Tcase1, Tcase2, Tcool1, Tcool2;
+
+	TSP = _IQint(Sample.TSP);
+	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, 100));
+	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, 100));
+	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, 100));
+	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, 100));
+
+	if(LOGIC_Values_Counter < VALUES_x_SIZE)
+	{
+		LOGIC_Values_TSP[EP_DataCounter]    = TSP;
+		LOGIC_Values_Tcase1[EP_DataCounter] = Tcase1;
+		LOGIC_Values_Tcase2[EP_DataCounter] = Tcase2;
+		LOGIC_Values_Tcool1[EP_DataCounter] = Tcool1;
+		LOGIC_Values_Tcool2[EP_DataCounter] = Tcool2;
+		EP_DataCounter++;
+
+		LOGIC_Values_Counter = EP_DataCounter;
+	}
+
+	DataTable[REG_ACTUAL_TSP]   = TSP;
+	DataTable[REG_ACTUAL_T_CASE1] = Tcase1;
+	DataTable[REG_ACTUAL_T_CASE2] = Tcase2;
+	DataTable[REG_ACTUAL_T_COOL1] = Tcool1;
+	DataTable[REG_ACTUAL_T_COOL2] = Tcool2;
 }
 // ----------------------------------------
 
@@ -193,10 +247,11 @@ void LOGIC_CashVariables()
 
 
 	LOGIC_Tmax = _IQI(DataTable[REG_T_MAX]);
-
-
 	LOGIC_PulseWidth = DataTable[REG_PULSE_WIDTH];
 	LOGIC_Pause = DataTable[REG_PAUSE];
+
+	// Reset variables
+	EP_DataCounter = 0;
 
 }
 // ----------------------------------------

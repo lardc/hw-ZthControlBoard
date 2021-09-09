@@ -4,8 +4,8 @@
 // Include
 //
 #include "stdinc.h"
-#include "IQmathLib.h"
-#include "IQMathUtils.h"
+#include "Global.h"
+#include "MeasuringProcesses.h"
 
 // Types
 //
@@ -21,6 +21,14 @@ typedef enum __DeviceSubState
 // Variables
 //
 extern volatile DeviceSubState LOGIC_SubState;
+//
+extern Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
+extern Int16U LOGIC_Values_Tcase1[VALUES_x_SIZE];
+extern Int16U LOGIC_Values_Tcase2[VALUES_x_SIZE];
+extern Int16U LOGIC_Values_Tcool1[VALUES_x_SIZE];
+extern Int16U LOGIC_Values_Tcool2[VALUES_x_SIZE];
+extern volatile Int16U LOGIC_Values_Counter;
+//
 
 // Functions prototypes
 //

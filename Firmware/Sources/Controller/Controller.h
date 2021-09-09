@@ -9,7 +9,6 @@
 #include "stdinc.h"
 //
 #include "ZwDSP.h"
-#include "Global.h"
 #include "Logic.h"
 
 
@@ -53,6 +52,8 @@ void CONTROL_SwitchToFault(Int16U FaultReason);
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
 // Processes with low priority
 void CONTROL_UpdateLow();
+// Save heating data
+void CONTROL_SaveHeatingData(RegulatorsData Sample);
 
 
 #endif // __CONTROLLER_H

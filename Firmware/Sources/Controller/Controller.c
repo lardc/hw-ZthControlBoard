@@ -8,13 +8,13 @@
 // Includes
 #include "SysConfig.h"
 //
+#include "Global.h"
 #include "ZbBoard.h"
 #include "DeviceObjectDictionary.h"
 #include "DataTable.h"
 #include "SCCISlave.h"
 #include "DeviceProfile.h"
 #include "Constraints.h"
-#include "MeasuringProcesses.h"
 #include "Diagnostic.h"
 #include "Regulator.h"
 #include "ZthDUTControlBoard.h"
@@ -37,21 +37,6 @@ static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
 volatile Int16U CONTROL_Mode, CONTROL_DUTType;
 volatile _iq CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_GateVoltage;
 volatile Int64U CONTROL_PowerOnTimeOut = 0;
-
-//
-#pragma DATA_SECTION(CONTROL_Values_TSP, "data_mem");
-Int16U CONTROL_Values_TSP[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_Tcase1, "data_mem");
-Int16U CONTROL_Values_Tcase1[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_Tcase2, "data_mem");
-Int16U CONTROL_Values_Tcase2[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_Tcool1, "data_mem");
-Int16U CONTROL_Values_Tcool1[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_Tcool2, "data_mem");
-Int16U CONTROL_Values_Tcool2[VALUES_x_SIZE];
-volatile Int16U CONTROL_Values_Counter = 0;
-//
-
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
 volatile Int16U CONTROL_BootLoaderRequest = 0;
@@ -79,10 +64,10 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 	Int16U EPSized[EP_COUNT] = { VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE};
 
-	pInt16U EPCounters[EP_COUNT] = { (pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter,
-			(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter};
+	pInt16U EPCounters[EP_COUNT] = { (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter,
+			(pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter};
 
-	pInt16U EPDatas[EP_COUNT] = { CONTROL_Values_TSP, CONTROL_Values_Tcase1, CONTROL_Values_Tcase2, CONTROL_Values_Tcool1, CONTROL_Values_Tcool2};
+	pInt16U EPDatas[EP_COUNT] = { LOGIC_Values_TSP, LOGIC_Values_Tcase1, LOGIC_Values_Tcase2, LOGIC_Values_Tcool1, LOGIC_Values_Tcool2};
 
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = { &ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM };
@@ -283,7 +268,6 @@ void CONTROL_CashVariables()
 
 void CONTROL_StartProcess()
 {
-	CONTROL_CashVariables();
 	REGULATOR_InitAll();
 	//
 	CONTROL_GatePulse(TRUE);
@@ -377,6 +361,15 @@ void CONTROL_SwitchToFault(Int16U FaultReason)
 {
 	CONTROL_SetDeviceState(DS_Fault, SS_None);
 	DataTable[REG_FAULT_REASON] = FaultReason;
+}
+// ----------------------------------------
+
+void CONTROL_SaveHeatingData(RegulatorsData Sample)
+{
+	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
+	DataTable[REG_ACTUAL_I_DUT] = _IQint(Sample.Ih);
+	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
+	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(Sample.Im);
 }
 // ----------------------------------------
 

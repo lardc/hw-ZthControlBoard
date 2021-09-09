@@ -11,7 +11,6 @@
 #include "SysConfig.h"
 //
 #include "Controller.h"
-#include "MeasuringProcesses.h"
 #include "Regulator.h"
 
 // FORWARD FUNCTIONS
@@ -265,8 +264,13 @@ ISRCALL Timer0_ISR(void)
 // timer 1 ISR
 ISRCALL Timer1_ISR(void)
 {
+	RegulatorsData Sample = MEASURE_RegulatorsSample();
+
 	// Regulator process
-	REGULATOR_Cycle(MEASURE_RegulatorsSample());
+	REGULATOR_Cycle(Sample);
+
+	// Save data to output regusters
+	CONTROL_SaveHeatingData(Sample);
 
 	// Incrementing time counter
 	LOGIC_IncTimeCounter();

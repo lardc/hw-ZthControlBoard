@@ -8,8 +8,6 @@
 //Include
 #include <stdinc.h>
 #include "SysConfig.h"
-#include "Logic.h"
-#include "Controller.h"
 #include "IQmathLib.h"
 
 // Types
@@ -19,7 +17,7 @@ typedef struct __RegulatorsData
 	_iq Ih;
 	_iq	U;
 	_iq	P;
-} RegulatorsData, *pRegulatorsData;
+} RegulatorsData;
 
 typedef struct __CombinedData
 {
@@ -28,7 +26,7 @@ typedef struct __CombinedData
 	_iq Tcase2;
 	_iq Tcool1;
 	_iq Tcool2;
-}CombinedData, *pCombinedData;
+} CombinedData;
 
 // Functions
 //
