@@ -182,6 +182,10 @@
 //
 #define FAULT_NONE					0	// No fault
 #define FAULT_POWERON				1	// Power on fault
+#define FAULT_WATER					2	// There is no water
+#define FAULT_TR1					3	// Transformer 1 is overheated
+#define FAULT_TR2					4	// Transformer 2 is overheated
+#define FAULT_REC					5	// Rectifier is overheated
 
 
 // WARNING CODES

@@ -176,7 +176,7 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 
 		case SelectP:
 			RegulatorP.Control = Value;
-			REGULATOR_Update(SelectIh, _IQdiv(RegulatorP.Control, RegulatorSample.U));
+			REGULATOR_Update(SelectIh, _IQmpy(RegulatorP.Control, RegulatorSample.U));
 			break;
 
 		case SelectIh:

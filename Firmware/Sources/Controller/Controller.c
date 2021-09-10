@@ -19,6 +19,7 @@
 #include "Regulator.h"
 #include "ZthDUTControlBoard.h"
 #include "ZthMCurrentBoard.h"
+#include "ZthProtectionBoard.h"
 #include "IQmathLib.h"
 #include "IQMathUtils.h"
 
@@ -55,6 +56,8 @@ void CONTROL_StartProcess();
 void CONTROL_GatePulse(Boolean State);
 void CONTROL_MeasuringCurrentProcess(Boolean State);
 void CONTROL_ResetOutputRegisters();
+void CONTROL_Protection();
+void CONTROL_ForceStopProcess();
 
 // Functions
 //
@@ -106,6 +109,9 @@ void CONTROL_Idle()
 	// Measurement process
 	CONTROL_Process();
 
+	// Protection check
+	CONTROL_Protection();
+
 	// Process external interface requests
 	DEVPROFILE_ProcessRequests();
 
@@ -156,10 +162,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_STOP_PROCESS:
 			if (CONTROL_State == DS_InProcess)
 			{
-				CONTROL_StopProcess();
-				CONTROL_ResetOutputRegisters();
-
 				CONTROL_SetDeviceState(DS_Ready, SS_None);
+				CONTROL_ForceStopProcess();
 			}
 			break;
 
@@ -367,6 +371,44 @@ void CONTROL_RegulatorProcess()
 		// Incrementing time counter
 		LOGIC_IncTimeCounter();
 	}
+}
+// ----------------------------------------
+
+void CONTROL_Protection()
+{
+	Int16U Fault = ZthPB_FaultCheck();
+
+	if(Fault != PB_FAULT_NONE)
+	{
+		switch(Fault)
+		{
+			case PB_FAULT_WATER:
+				CONTROL_SwitchToFault(FAULT_WATER);
+				break;
+
+			case PB_FAULT_TR1:
+				CONTROL_SwitchToFault(FAULT_TR1);
+				break;
+
+			case PB_FAULT_TR2:
+				CONTROL_SwitchToFault(FAULT_TR2);
+				break;
+
+			case PB_FAULT_REC:
+				CONTROL_SwitchToFault(FAULT_REC);
+				break;
+		}
+
+		CONTROL_ForceStopProcess();
+	}
+}
+// ----------------------------------------
+
+void CONTROL_ForceStopProcess()
+{
+	CONTROL_StopProcess();
+	CONTROL_ResetOutputRegisters();
+	DataTable[REG_OP_RESULT] = OPRESULT_FAIL;
 }
 // ----------------------------------------
 
