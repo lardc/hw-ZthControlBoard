@@ -142,6 +142,7 @@
 #define REG_DISABLE_REASON			194	// Disbale reason in the case DeviceState -> DISABLE
 #define REG_WARNING					195	// Warning if present
 #define REG_PROBLEM					196	// Problem if present
+#define REG_OP_RESULT				197	// Indicates that test is done and there is result or fault
 //
 #define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A)
@@ -171,7 +172,11 @@
 #define EP_T_COOL2					5	// Endpoint of DUT cooler 2 temperature
 //
 
-
+// OPERATION RESULTS
+//
+#define OPRESULT_NONE				0	// No information or not finished
+#define OPRESULT_OK					1	// Operation was successful
+#define OPRESULT_FAIL				2	// Operation failed
 
 // FAULT CODES
 //

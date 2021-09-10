@@ -130,6 +130,7 @@ void InitializeTimers()
     ZwTimer_InitT1();
 	ZwTimer_SetT1(TIMER1_PERIOD);
 	ZwTimer_EnableInterruptsT1(TRUE);
+	ZwTimer_StartT1();
 
 	ZwTimer_InitT2();
 	ZwTimer_SetT2(TIMER2_PERIOD);
@@ -264,16 +265,7 @@ ISRCALL Timer0_ISR(void)
 // timer 1 ISR
 ISRCALL Timer1_ISR(void)
 {
-	RegulatorsData Sample = MEASURE_RegulatorsSample();
-
-	// Regulator process
-	REGULATOR_Cycle(Sample);
-
-	// Save data to output regusters
-	CONTROL_SaveHeatingData(Sample);
-
-	// Incrementing time counter
-	LOGIC_IncTimeCounter();
+	CONTROL_RegulatorProcess();
 
 	// no PIE
 	TIMER1_ISR_DONE;

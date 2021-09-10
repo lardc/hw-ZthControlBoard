@@ -54,6 +54,7 @@ void CONTROL_StopProcess();
 void CONTROL_StartProcess();
 void CONTROL_GatePulse(Boolean State);
 void CONTROL_MeasuringCurrentProcess(Boolean State);
+void CONTROL_ResetOutputRegisters();
 
 // Functions
 //
@@ -143,7 +144,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Ready)
 			{
 				CONTROL_StartProcess();
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+				CONTROL_SetDeviceState(DS_InProcess, SS_Heating);
 			}
 			else
 				if (CONTROL_State == DS_InProcess)
@@ -156,6 +157,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_InProcess)
 			{
 				CONTROL_StopProcess();
+				CONTROL_ResetOutputRegisters();
+
 				CONTROL_SetDeviceState(DS_Ready, SS_None);
 			}
 			break;
@@ -201,19 +204,43 @@ void CONTROL_Process()
 		switch(CONTROL_Mode)
 		{
 			case MODE_ZTH_SEQ_PULSES:
-				LOGIC_ZthSequencePulsesProcess();
+				if(LOGIC_ZthSequencePulsesProcess())
+				{
+					CONTROL_StopProcess();
+					DataTable[REG_OP_RESULT] = OPRESULT_OK;
+
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+				}
 				break;
 
 			case MODE_ZTH_LONG_PULSE:
-				LOGIC_ZthLongPulseProcess();
+				if(LOGIC_ZthLongPulseProcess())
+				{
+					CONTROL_StopProcess();
+					DataTable[REG_OP_RESULT] = OPRESULT_OK;
+
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+				}
 				break;
 
 			case MODE_RTH_SEQ_PULSES:
-				LOGIC_RthSequenceProcess();
+				if(LOGIC_RthSequenceProcess())
+				{
+					CONTROL_StopProcess();
+					DataTable[REG_OP_RESULT] = OPRESULT_OK;
+
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+				}
 				break;
 
 			case MODE_GRADUATION:
-				LOGIC_Graduation();
+				if(LOGIC_Graduation())
+				{
+					CONTROL_StopProcess();
+					DataTable[REG_OP_RESULT] = OPRESULT_OK;
+
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+				}
 				break;
 		}
 	}
@@ -268,6 +295,8 @@ void CONTROL_CashVariables()
 
 void CONTROL_StartProcess()
 {
+	CONTROL_CashVariables();
+	CONTROL_ResetOutputRegisters();
 	REGULATOR_InitAll();
 	//
 	CONTROL_GatePulse(TRUE);
@@ -317,6 +346,44 @@ void CONTROL_MeasuringCurrentProcess(Boolean State)
 	REGULATOR_Enable(SelectIm, State);
 	ZthMCB_CurrentSet(CONTROL_MeasuringCurrent);
 	ZthMCB_CurrentControl(State);
+}
+// ----------------------------------------
+
+void CONTROL_RegulatorProcess()
+{
+	RegulatorsData Sample;
+
+	if(CONTROL_State == DS_InProcess)
+	{
+		// Measurement process
+		Sample = MEASURE_RegulatorsSample();
+
+		// Regulator process
+		REGULATOR_Cycle(Sample);
+
+		// Save data to output regusters
+		CONTROL_SaveHeatingData(Sample);
+
+		// Incrementing time counter
+		LOGIC_IncTimeCounter();
+	}
+}
+// ----------------------------------------
+
+void CONTROL_ResetOutputRegisters()
+{
+	DEVPROFILE_ResetEPReadState();
+
+	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
+	DataTable[REG_ACTUAL_U_DUT] = 0;
+	DataTable[REG_ACTUAL_I_DUT] = 0;
+	DataTable[REG_ACTUAL_P_DUT] = 0;
+	DataTable[REG_ACTUAL_I_MEASUREMENT] = 0;
+	DataTable[REG_ACTUAL_T_CASE1] = 0;
+	DataTable[REG_ACTUAL_T_CASE2] = 0;
+	DataTable[REG_ACTUAL_T_COOL1] = 0;
+	DataTable[REG_ACTUAL_T_COOL2] = 0;
+	DataTable[REG_ACTUAL_TSP] = 0;
 }
 // ----------------------------------------
 

@@ -54,6 +54,8 @@ void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
 void CONTROL_UpdateLow();
 // Save heating data
 void CONTROL_SaveHeatingData(RegulatorsData Sample);
+// Regulator
+void CONTROL_RegulatorProcess();
 
 
 #endif // __CONTROLLER_H

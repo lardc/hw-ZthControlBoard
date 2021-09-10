@@ -53,6 +53,7 @@ Boolean LOGIC_CoolingProcess();
 void LOGIC_DelayStart(Int64U Delay_us);
 Boolean LOGIC_DelayCheck();
 void LOGIC_SaveData(CombinedData Sample);
+void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
 
 // Functions
 //
@@ -81,7 +82,10 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 			else
 			{
 				if(LOGIC_CoolingProcess())
+				{
+					LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
 					LOGIC_SetState(SS_Heating);
+				}
 			}
 			break;
 	}
@@ -123,8 +127,6 @@ Boolean LOGIC_HeatingProcess()
 
 		LOGIC_TimeCounter = 0;
 		HeatingProcess = TRUE;
-
-		ZwTimer_StartT1();
 	}
 
 	if(LOGIC_ActualPulseWidth <= LOGIC_TimeCounter)
@@ -134,8 +136,6 @@ Boolean LOGIC_HeatingProcess()
 		REGULATOR_Enable(SelectP, FALSE);
 
 		HeatingProcess = FALSE;
-
-		ZwTimer_StopT1();
 
 		return TRUE;
 	}
@@ -197,6 +197,29 @@ void LOGIC_SaveData(CombinedData Sample)
 }
 // ----------------------------------------
 
+void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval)
+{
+	Int64U Additive = 0;
+
+	if(*TimeInterval < (Int64U)1e3)
+		Additive = 100;						// 100us
+	else if(*TimeInterval < (Int64U)10e3)
+		Additive = 1e3;						// 1ms
+	else if(*TimeInterval < (Int64U)100e3)
+		Additive = 10e3;					// 10ms
+	else if(*TimeInterval < (Int64U)1e6)
+		Additive = 100e3;					// 100ms
+	else if(*TimeInterval < (Int64U)10e6)
+		Additive = 1e6;						// 1s
+	else if(*TimeInterval < (Int64U)100e6)
+		Additive = 10e6;					// 10s
+	else
+		Additive = 100e6;					// 100s
+
+	*TimeInterval = *TimeInterval + Additive;
+}
+// ----------------------------------------
+
 void LOGIC_DelayStart(Int64U Delay_us)
 {
 	DelayFlag = FALSE;
@@ -250,9 +273,8 @@ void LOGIC_CashVariables()
 	LOGIC_PulseWidth = DataTable[REG_PULSE_WIDTH];
 	LOGIC_Pause = DataTable[REG_PAUSE];
 
-	// Reset variables
+	// Reset variables to default states
 	EP_DataCounter = 0;
-
 }
 // ----------------------------------------
 

@@ -223,8 +223,6 @@ void REGULATOR_DisableAll()
 
 void REGULATOR_InitAll()
 {
-	REGULATOR_CashVariables();
-	//
 	REGULATOR_Init(SelectIm);
 	REGULATOR_Init(SelectIh);
 	REGULATOR_Init(SelectP);
