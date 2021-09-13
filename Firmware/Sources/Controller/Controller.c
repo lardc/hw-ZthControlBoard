@@ -163,7 +163,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_InProcess)
 			{
 				CONTROL_SetDeviceState(DS_Ready, SS_None);
-				CONTROL_ForceStopProcess();
+
+				CONTROL_StopProcess();
+				DataTable[REG_OP_RESULT] = OPRESULT_OK;
 			}
 			break;
 
