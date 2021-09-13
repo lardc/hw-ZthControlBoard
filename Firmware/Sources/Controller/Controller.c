@@ -150,7 +150,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Ready)
 			{
 				CONTROL_StartProcess();
-				CONTROL_SetDeviceState(DS_InProcess, SS_Heating);
+				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
 				if (CONTROL_State == DS_InProcess)

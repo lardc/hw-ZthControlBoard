@@ -63,6 +63,11 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 
 	switch (LOGIC_SubState)
 	{
+		case SS_None:
+			LOGIC_ActualPulseWidth = LOGIC_ZthPulseWidthMin;
+			LOGIC_SetState(SS_Heating);
+			break;
+
 		case SS_Heating:
 			if(LOGIC_HeatingProcess())
 				LOGIC_SetState(SS_Measuring);
@@ -70,23 +75,19 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 
 		case SS_Measuring:
 			LOGIC_MeasuringProcess();
-			LOGIC_SetState(SS_Cooling);
-			break;
 
-		case SS_Cooling:
 			if(LOGIC_ActualPulseWidth >= LOGIC_ZthPulseWidthMax)
 			{
 				LOGIC_SetState(SS_None);
 				Result = TRUE;
 			}
 			else
-			{
-				if(LOGIC_CoolingProcess())
-				{
-					LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
-					LOGIC_SetState(SS_Heating);
-				}
-			}
+				LOGIC_SetState(SS_Cooling);
+			break;
+
+		case SS_Cooling:
+			if(LOGIC_CoolingProcess())
+				LOGIC_SetState(SS_Heating);
 			break;
 	}
 
@@ -145,10 +146,13 @@ void LOGIC_MeasuringProcess()
 }
 // ----------------------------------------
 
-Boolean LOGIC_CoolingProcess(Int64U CoolingTime)
+Boolean LOGIC_CoolingProcess()
 {
 	if(LOGIC_DelayCheck())
+	{
+		LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
 		return TRUE;
+	}
 	else
 		return FALSE;
 }
@@ -260,7 +264,6 @@ void LOGIC_CashVariables()
 {
 	LOGIC_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
 	LOGIC_ZthPulseWidthMax = _IQmpy(DataTable[REG_ZTH_PULSE_WIDTH_MAX], 1000);
-	LOGIC_ActualPulseWidth = LOGIC_ZthPulseWidthMin;
 	//
 	LOGIC_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
 	LOGIC_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
