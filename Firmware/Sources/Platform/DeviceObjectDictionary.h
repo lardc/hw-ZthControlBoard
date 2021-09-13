@@ -120,13 +120,14 @@
 #define REG_ZTH_PAUSE				133	// Pause between pulses (in % x10 of REG_ZTH_PULSE_WIDTH_MAX)
 #define REG_PULSE_WIDTH				134	// Width pulse in "Rth sequence pulses" and "graduation" modes (in ms)
 #define REG_COOLING_TIME			135	// Time between pulses in "Rth sequence pulses" and "graduation" modes (in us)
-#define REG_IMPULSE_CURRENT			136	// Heating current value if pulse width less than 10ms  (in A)
-#define REG_HEATING_CURRENT			137	// Heating current value if pulse width above than 10ms  (in A)
-#define REG_GATE_CURRENT			138	// Gate current value (in mA)
-#define REG_MEASURING_CURRENT		139	// Measuring current value (in mA)
-#define REG_DELAY					140	// Delay of measuring temperature-sensitive parameter (in us)
-#define REG_T_MAX					141	// Maximum DUT temperature (in C x10)
-#define REG_IGBT_VOLTAGE			142	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
+#define REG_GRADUATION_TIME			136	// Graduation period (in sec)
+#define REG_IMPULSE_CURRENT			137	// Heating current value if pulse width less than 10ms  (in A)
+#define REG_HEATING_CURRENT			138	// Heating current value if pulse width above than 10ms  (in A)
+#define REG_GATE_CURRENT			139	// Gate current value (in mA)
+#define REG_MEASURING_CURRENT		140	// Measuring current value (in mA)
+#define REG_DELAY					141	// Delay of measuring temperature-sensitive parameter (in us)
+#define REG_T_MAX					142	// Maximum DUT temperature (in C x10)
+#define REG_IGBT_VOLTAGE			143	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 
 #define REG_DBG						150	// Debugging register
 //
