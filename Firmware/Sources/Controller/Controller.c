@@ -285,7 +285,7 @@ void CONTROL_CashVariables()
 	//
 	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
 	CONTROL_GateCurrent = _IQI(DataTable[REG_GATE_CURRENT]);
-	CONTROL_GateVoltage = _IQI(DataTable[REG_IGBT_VOLTAGE]);
+	CONTROL_GateVoltage = _IQI(DataTable[REG_IGBT_V_GATE]);
 	//
 	LOGIC_CashVariables();
 	REGULATOR_CashVariables();

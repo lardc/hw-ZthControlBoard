@@ -391,7 +391,7 @@ void LOGIC_CashVariables()
 	LOGIC_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
 	//
 	LOGIC_MeasurementDelay = DataTable[REG_DELAY];
-	LOGIC_ZthPause = _IQdiv(_IQI(DataTable[REG_ZTH_PAUSE]), 10);
+	LOGIC_ZthPause = _IQdiv(_IQI(DataTable[REG_ZTH_COOLING_TIME]), 10);
 	LOGIC_CoolingTime = DataTable[REG_COOLING_TIME];
 	LOGIC_GraduationTime = _IQint(_IQmpy(_IQI(DataTable[REG_GRADUATION_TIME]), 1e6));
 	//
