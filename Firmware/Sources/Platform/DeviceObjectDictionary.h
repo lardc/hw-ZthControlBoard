@@ -119,7 +119,7 @@
 #define REG_ZTH_PULSE_WIDTH_MAX		132	// Width of last pulse (in sec)
 #define REG_ZTH_PAUSE				133	// Pause between pulses (in % x10 of REG_ZTH_PULSE_WIDTH_MAX)
 #define REG_PULSE_WIDTH				134	// Width pulse in "Rth sequence pulses" and "graduation" modes (in ms)
-#define REG_PAUSE					135	// Pause between pulses in "Rth sequence pulses" and "graduation" modes (in us)
+#define REG_COOLING_TIME			135	// Time between pulses in "Rth sequence pulses" and "graduation" modes (in us)
 #define REG_IMPULSE_CURRENT			136	// Heating current value if pulse width less than 10ms  (in A)
 #define REG_HEATING_CURRENT			137	// Heating current value if pulse width above than 10ms  (in A)
 #define REG_GATE_CURRENT			138	// Gate current value (in mA)

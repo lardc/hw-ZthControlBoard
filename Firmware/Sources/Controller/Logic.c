@@ -24,7 +24,7 @@ volatile DeviceSubState LOGIC_SubState = SS_None;
 volatile Int64U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 //
 volatile Int16U LOGIC_CoolingMode;
-volatile Int16U LOGIC_PulseWidth, LOGIC_Pause, LOGIC_ZthPulseWidthMin, LOGIC_ZthPulseWidthMax, LOGIC_MeasurementDelay;
+volatile Int16U LOGIC_PulseWidth, LOGIC_CoolingTime, LOGIC_ZthPulseWidthMin, LOGIC_ZthPulseWidthMax, LOGIC_MeasurementDelay;
 volatile _iq LOGIC_ImpulseCurrent, LOGIC_HeatingCurrent, LOGIC_Tmax, LOGIC_ZthPause;
 //
 volatile Int64U LOGIC_ActualPulseWidth = 0;
@@ -61,7 +61,7 @@ void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
 Boolean LOGIC_ZthSequencePulsesProcess()
 {
 	Boolean Result = FALSE;
-	static volatile Int64U CoolingTime = 0;
+	static volatile Int64U CoolingTimeTemp = 0;
 
 	switch (LOGIC_SubState)
 	{
@@ -85,13 +85,13 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 			}
 			else
 			{
-				CoolingTime = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
+				CoolingTimeTemp = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
 				LOGIC_SetState(SS_Cooling);
 			}
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTime))
+			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
 				LOGIC_SetState(SS_Heating);
@@ -106,7 +106,7 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 Boolean LOGIC_ZthLongPulseProcess()
 {
 	Boolean Result = FALSE;
-	static volatile Int64U CoolingTime = 0;
+	static volatile Int64U CoolingTimeTemp = 0;
 
 	switch (LOGIC_SubState)
 	{
@@ -130,13 +130,13 @@ Boolean LOGIC_ZthLongPulseProcess()
 			}
 			else
 			{
-				CoolingTime = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
+				CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
 				LOGIC_SetState(SS_Cooling);
 			}
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTime))
+			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 				LOGIC_SetState(SS_Measuring);
@@ -151,7 +151,7 @@ Boolean LOGIC_ZthLongPulseProcess()
 Boolean LOGIC_RthSequenceProcess()
 {
 	Boolean Result = FALSE;
-	static volatile Int64U CoolingTime = 0;
+	static volatile Int64U CoolingTimeTemp = 0;
 
 	switch (LOGIC_SubState)
 	{
@@ -167,12 +167,12 @@ Boolean LOGIC_RthSequenceProcess()
 
 		case SS_Measuring:
 			LOGIC_MeasuringProcess();
-			CoolingTime = LOGIC_Pause - LOGIC_MeasurementDelay;
+			CoolingTimeTemp = LOGIC_CoolingTime - LOGIC_MeasurementDelay;
 			LOGIC_SetState(SS_Cooling);
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTime))
+			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 				LOGIC_SetState(SS_Heating);
 			break;
 	}
@@ -347,7 +347,7 @@ void LOGIC_CashVariables()
 	//
 	LOGIC_MeasurementDelay = DataTable[REG_DELAY];
 	LOGIC_ZthPause = _IQdiv(DataTable[REG_ZTH_PAUSE], 10);
-	LOGIC_Pause = DataTable[REG_PAUSE];
+	LOGIC_CoolingTime = DataTable[REG_COOLING_TIME];
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 
