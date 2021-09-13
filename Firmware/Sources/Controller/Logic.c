@@ -114,33 +114,20 @@ Boolean LOGIC_Graduation()
 
 Boolean LOGIC_HeatingProcess()
 {
-	static Boolean HeatingProcess = FALSE;
+	static Boolean HeatingState = FALSE;
 
-	if(!HeatingProcess)
+	if(!HeatingState)
 	{
-		if(LOGIC_ActualPulseWidth < PULSE_WIDTH_10MS)
-			REGULATOR_Update(SelectIh, LOGIC_ImpulseCurrent);
-		else
-			REGULATOR_Update(SelectIh, LOGIC_HeatingCurrent);
-		REGULATOR_Enable(SelectIh, TRUE);
-		REGULATOR_Enable(SelectP, TRUE);
-
 		LOGIC_TimeCounter = 0;
-		HeatingProcess = TRUE;
+		HeatingState = TRUE;
 	}
 
 	if(LOGIC_ActualPulseWidth <= LOGIC_TimeCounter)
-	{
-		REGULATOR_Update(SelectIh, 0);
-		REGULATOR_Enable(SelectIh, FALSE);
-		REGULATOR_Enable(SelectP, FALSE);
+		HeatingState = FALSE;
 
-		HeatingProcess = FALSE;
+	LOGIC_Heating(HeatingState);
 
-		return TRUE;
-	}
-	else
-		return FALSE;
+	return !HeatingState;
 }
 // ----------------------------------------
 
@@ -164,6 +151,23 @@ Boolean LOGIC_CoolingProcess(Int64U CoolingTime)
 		return TRUE;
 	else
 		return FALSE;
+}
+// ----------------------------------------
+
+void LOGIC_Heating(Boolean State)
+{
+	if(State)
+	{
+		if(LOGIC_ActualPulseWidth < PULSE_WIDTH_10MS)
+			REGULATOR_Update(SelectIh, LOGIC_ImpulseCurrent);
+		else
+			REGULATOR_Update(SelectIh, LOGIC_HeatingCurrent);
+	}
+	else
+		REGULATOR_Update(SelectIh, 0);
+
+	REGULATOR_Enable(SelectIh, State);
+	REGULATOR_Enable(SelectP, State);
 }
 // ----------------------------------------
 

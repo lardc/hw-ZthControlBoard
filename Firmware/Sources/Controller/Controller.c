@@ -168,8 +168,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_STOP_HEATING:
-			if (CONTROL_State == DS_InProcess)
-				CONTROL_SetDeviceState(DS_Ready, SS_None);
+			if ((CONTROL_State == DS_InProcess) && ((CONTROL_Mode == MODE_ZTH_LONG_PULSE) || (CONTROL_Mode == MODE_GRADUATION)))
+			{
+				CONTROL_SetDeviceState(DS_InProcess, SS_Measuring);
+				LOGIC_Heating(FALSE);
+			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;

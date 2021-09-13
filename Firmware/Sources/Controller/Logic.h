@@ -40,5 +40,6 @@ void LOGIC_CashVariables();
 void LOGIC_SetState(DeviceSubState State);
 void LOGIC_IncTimeCounter();
 void LOGIC_SetDelayFlag();
+void LOGIC_Heating(Boolean State);
 
 #endif // __LOGIC_H
