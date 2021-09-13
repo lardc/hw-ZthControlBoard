@@ -28,6 +28,7 @@ volatile Int16U LOGIC_PulseWidth, LOGIC_Pause, LOGIC_ZthPulseWidthMin, LOGIC_Zth
 volatile _iq LOGIC_ImpulseCurrent, LOGIC_HeatingCurrent, LOGIC_Tmax, LOGIC_ZthPause;
 //
 volatile Int64U LOGIC_ActualPulseWidth = 0;
+volatile Int64U LOGIC_ActualDelayWidth = 0;
 //
 volatile Boolean DelayFlag = FALSE;
 //
@@ -49,7 +50,7 @@ volatile Int16U EP_DataCounter = 0;
 //
 Boolean LOGIC_HeatingProcess();
 void LOGIC_MeasuringProcess();
-Boolean LOGIC_CoolingProcess();
+Boolean LOGIC_CoolingProcess(volatile Int64U *TimeInterval);
 void LOGIC_DelayStart(Int64U Delay_us);
 Boolean LOGIC_DelayCheck();
 void LOGIC_SaveData(CombinedData Sample);
@@ -86,7 +87,7 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess())
+			if(LOGIC_CoolingProcess(&LOGIC_ActualPulseWidth))
 				LOGIC_SetState(SS_Heating);
 			break;
 	}
@@ -97,7 +98,39 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 
 Boolean LOGIC_ZthLongPulseProcess()
 {
-	return FALSE;
+	Boolean Result = FALSE;
+
+	switch (LOGIC_SubState)
+	{
+		case SS_None:
+			LOGIC_ActualPulseWidth = LOGIC_ZthPulseWidthMax;
+			LOGIC_SetState(SS_Heating);
+			break;
+
+		case SS_Heating:
+			if(LOGIC_HeatingProcess())
+				LOGIC_SetState(SS_Measuring);
+			break;
+
+		case SS_Measuring:
+			LOGIC_MeasuringProcess();
+
+			if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
+			{
+				LOGIC_SetState(SS_None);
+				Result = TRUE;
+			}
+			else
+				LOGIC_SetState(SS_Cooling);
+			break;
+
+		case SS_Cooling:
+			if(LOGIC_CoolingProcess(&LOGIC_ActualDelayWidth))
+				LOGIC_SetState(SS_Measuring);
+			break;
+	}
+
+	return Result;
 }
 // ----------------------------------------
 
@@ -146,11 +179,11 @@ void LOGIC_MeasuringProcess()
 }
 // ----------------------------------------
 
-Boolean LOGIC_CoolingProcess()
+Boolean LOGIC_CoolingProcess(volatile Int64U *TimeInterval)
 {
 	if(LOGIC_DelayCheck())
 	{
-		LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
+		LOGIC_CalculateTimeInterval(TimeInterval);
 		return TRUE;
 	}
 	else
