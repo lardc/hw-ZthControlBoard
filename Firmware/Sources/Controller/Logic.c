@@ -50,7 +50,7 @@ volatile Int16U EP_DataCounter = 0;
 //
 Boolean LOGIC_HeatingProcess();
 void LOGIC_MeasuringProcess();
-Boolean LOGIC_CoolingProcess(volatile Int64U *TimeInterval);
+Boolean LOGIC_CoolingProcess(Int64U Pause);
 void LOGIC_DelayStart(Int64U Delay_us);
 Boolean LOGIC_DelayCheck();
 void LOGIC_SaveData(CombinedData Sample);
@@ -61,6 +61,7 @@ void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
 Boolean LOGIC_ZthSequencePulsesProcess()
 {
 	Boolean Result = FALSE;
+	static volatile Int64U CoolingTime = 0;
 
 	switch (LOGIC_SubState)
 	{
@@ -83,12 +84,18 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 				Result = TRUE;
 			}
 			else
+			{
+				CoolingTime = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
 				LOGIC_SetState(SS_Cooling);
+			}
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess(&LOGIC_ActualPulseWidth))
+			if(LOGIC_CoolingProcess(CoolingTime))
+			{
+				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
 				LOGIC_SetState(SS_Heating);
+			}
 			break;
 	}
 
@@ -99,6 +106,7 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 Boolean LOGIC_ZthLongPulseProcess()
 {
 	Boolean Result = FALSE;
+	static volatile Int64U CoolingTime = 0;
 
 	switch (LOGIC_SubState)
 	{
@@ -121,12 +129,18 @@ Boolean LOGIC_ZthLongPulseProcess()
 				Result = TRUE;
 			}
 			else
+			{
+				CoolingTime = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
 				LOGIC_SetState(SS_Cooling);
+			}
 			break;
 
 		case SS_Cooling:
-			if(LOGIC_CoolingProcess(&LOGIC_ActualDelayWidth))
+			if(LOGIC_CoolingProcess(CoolingTime))
+			{
+				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 				LOGIC_SetState(SS_Measuring);
+			}
 			break;
 	}
 
@@ -136,7 +150,34 @@ Boolean LOGIC_ZthLongPulseProcess()
 
 Boolean LOGIC_RthSequenceProcess()
 {
-	return FALSE;
+	Boolean Result = FALSE;
+	static volatile Int64U CoolingTime = 0;
+
+	switch (LOGIC_SubState)
+	{
+		case SS_None:
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidth;
+			LOGIC_SetState(SS_Heating);
+			break;
+
+		case SS_Heating:
+			if(LOGIC_HeatingProcess())
+				LOGIC_SetState(SS_Measuring);
+			break;
+
+		case SS_Measuring:
+			LOGIC_MeasuringProcess();
+			CoolingTime = LOGIC_Pause - LOGIC_MeasurementDelay;
+			LOGIC_SetState(SS_Cooling);
+			break;
+
+		case SS_Cooling:
+			if(LOGIC_CoolingProcess(CoolingTime))
+				LOGIC_SetState(SS_Heating);
+			break;
+	}
+
+	return Result;
 }
 // ----------------------------------------
 
@@ -167,27 +208,29 @@ Boolean LOGIC_HeatingProcess()
 
 void LOGIC_MeasuringProcess()
 {
-	volatile Int64U Pause;
-
-	Pause = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
-
 	LOGIC_DelayStart(LOGIC_MeasurementDelay);
 	while(LOGIC_DelayCheck()){}
-	LOGIC_DelayStart(Pause);
 
 	LOGIC_SaveData(MEASURE_CombinedData(LOGIC_CoolingMode));
 }
 // ----------------------------------------
 
-Boolean LOGIC_CoolingProcess(volatile Int64U *TimeInterval)
+Boolean LOGIC_CoolingProcess(Int64U Pause)
 {
-	if(LOGIC_DelayCheck())
+	static Boolean DelayStartFlag = FALSE;
+
+	if(!DelayStartFlag)
 	{
-		LOGIC_CalculateTimeInterval(TimeInterval);
-		return TRUE;
+		DelayStartFlag = TRUE;
+		LOGIC_DelayStart(Pause);
 	}
 	else
-		return FALSE;
+	{
+		if(LOGIC_DelayCheck())
+			DelayStartFlag = FALSE;
+	}
+
+	return !DelayStartFlag;
 }
 // ----------------------------------------
 
@@ -297,12 +340,14 @@ void LOGIC_CashVariables()
 {
 	LOGIC_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
 	LOGIC_ZthPulseWidthMax = _IQmpy(DataTable[REG_ZTH_PULSE_WIDTH_MAX], 1000);
+	LOGIC_PulseWidth = DataTable[REG_PULSE_WIDTH];
 	//
 	LOGIC_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
 	LOGIC_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
 	//
 	LOGIC_MeasurementDelay = DataTable[REG_DELAY];
 	LOGIC_ZthPause = _IQdiv(DataTable[REG_ZTH_PAUSE], 10);
+	LOGIC_Pause = DataTable[REG_PAUSE];
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 
@@ -310,8 +355,8 @@ void LOGIC_CashVariables()
 
 
 	LOGIC_Tmax = _IQI(DataTable[REG_T_MAX]);
-	LOGIC_PulseWidth = DataTable[REG_PULSE_WIDTH];
-	LOGIC_Pause = DataTable[REG_PAUSE];
+
+
 
 	// Reset variables to default states
 	EP_DataCounter = 0;
