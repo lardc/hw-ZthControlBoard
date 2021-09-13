@@ -51,7 +51,7 @@ void CONTROL_CashVariables();
 void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_CapacitorsVoltageControl();
 void CONTROL_Process();
-void CONTROL_StopProcess();
+void CONTROL_StopProcess(Int16U OpResult);
 void CONTROL_StartProcess();
 void CONTROL_GatePulse(Boolean State);
 void CONTROL_MeasuringCurrentProcess(Boolean State);
@@ -163,9 +163,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_InProcess)
 			{
 				CONTROL_SetDeviceState(DS_Ready, SS_None);
-
-				CONTROL_StopProcess();
-				DataTable[REG_OP_RESULT] = OPRESULT_OK;
+				CONTROL_StopProcess(OPRESULT_OK);
 			}
 			break;
 
@@ -215,40 +213,32 @@ void CONTROL_Process()
 			case MODE_ZTH_SEQ_PULSES:
 				if(LOGIC_ZthSequencePulsesProcess())
 				{
-					CONTROL_StopProcess();
-					DataTable[REG_OP_RESULT] = OPRESULT_OK;
-
 					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
 
 			case MODE_ZTH_LONG_PULSE:
 				if(LOGIC_ZthLongPulseProcess())
 				{
-					CONTROL_StopProcess();
-					DataTable[REG_OP_RESULT] = OPRESULT_OK;
-
 					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
 
 			case MODE_RTH_SEQ_PULSES:
 				if(LOGIC_RthSequenceProcess())
 				{
-					CONTROL_StopProcess();
-					DataTable[REG_OP_RESULT] = OPRESULT_OK;
-
 					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
 
 			case MODE_GRADUATION:
 				if(LOGIC_Graduation())
 				{
-					CONTROL_StopProcess();
-					DataTable[REG_OP_RESULT] = OPRESULT_OK;
-
 					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
 		}
@@ -313,12 +303,14 @@ void CONTROL_StartProcess()
 }
 // ----------------------------------------
 
-void CONTROL_StopProcess()
+void CONTROL_StopProcess(Int16U OpResult)
 {
 	REGULATOR_DisableAll();
 	REGULATOR_ForceOutputsToZero();
 	CONTROL_MeasuringCurrentProcess(FALSE);
 	CONTROL_GatePulse(FALSE);
+
+	DataTable[REG_OP_RESULT] = OpResult;
 }
 // ----------------------------------------
 
@@ -411,9 +403,8 @@ void CONTROL_Protection()
 
 void CONTROL_ForceStopProcess()
 {
-	CONTROL_StopProcess();
+	CONTROL_StopProcess(OPRESULT_FAIL);
 	CONTROL_ResetOutputRegisters();
-	DataTable[REG_OP_RESULT] = OPRESULT_FAIL;
 }
 // ----------------------------------------
 
