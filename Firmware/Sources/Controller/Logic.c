@@ -212,7 +212,7 @@ Boolean LOGIC_Graduation()
 					LOGIC_SetState(SS_Heating);
 			}
 			else
-				if(LOGIC_CoolingProcess(LOGIC_CoolingTime))
+				if(LOGIC_CoolingProcess(CoolingTimeTemp))
 					LOGIC_SetState(SS_Measuring);
 			break;
 
@@ -304,6 +304,7 @@ void LOGIC_SaveData(CombinedData Sample)
 	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, 100));
 	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, 100));
 
+	// Save to endpoints
 	if(LOGIC_Values_Counter < VALUES_x_SIZE)
 	{
 		LOGIC_Values_TSP[EP_DataCounter]    = TSP;
@@ -316,6 +317,7 @@ void LOGIC_SaveData(CombinedData Sample)
 		LOGIC_Values_Counter = EP_DataCounter;
 	}
 
+	// Save to ouput registers
 	DataTable[REG_ACTUAL_TSP]   = TSP;
 	DataTable[REG_ACTUAL_T_CASE1] = Tcase1;
 	DataTable[REG_ACTUAL_T_CASE2] = Tcase2;
