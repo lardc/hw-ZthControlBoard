@@ -382,8 +382,8 @@ void LOGIC_SetDelayFlag()
 void LOGIC_CashVariables()
 {
 	LOGIC_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
-	LOGIC_ZthPulseWidthMax = _IQmpy(_IQI(DataTable[REG_ZTH_PULSE_WIDTH_MAX]), 1000);
-	LOGIC_PulseWidth = DataTable[REG_PULSE_WIDTH];
+	LOGIC_ZthPulseWidthMax = _IQint(_IQmpy(_IQI(DataTable[REG_ZTH_PULSE_WIDTH_MAX]), 1e6));
+	LOGIC_PulseWidth = _IQint(_IQmpy(_IQI(DataTable[REG_PULSE_WIDTH]), 1e3));
 	//
 	LOGIC_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
 	LOGIC_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
@@ -391,7 +391,7 @@ void LOGIC_CashVariables()
 	LOGIC_MeasurementDelay = DataTable[REG_DELAY];
 	LOGIC_ZthPause = _IQdiv(_IQI(DataTable[REG_ZTH_PAUSE]), 10);
 	LOGIC_CoolingTime = DataTable[REG_COOLING_TIME];
-	LOGIC_GraduationTime = _IQmpy(_IQI(DataTable[REG_GRADUATION_TIME]), 1000);
+	LOGIC_GraduationTime = _IQint(_IQmpy(_IQI(DataTable[REG_GRADUATION_TIME]), 1e6));
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 	LOGIC_Tmax = _IQdiv(_IQI(DataTable[REG_T_MAX]), 10);
