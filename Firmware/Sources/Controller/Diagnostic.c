@@ -82,6 +82,12 @@ Boolean DIAG_Process(Int16U Command)
 			ZbGPIO_LowPowerSupplyControl(DataTable[REG_DBG]);
 			break;
 
+		case ACT_DBG_SYNC_OSC:
+			ZbGPIO_SyncOscilloscope(TRUE);
+			DELAY_US(1000);
+			ZbGPIO_SyncOscilloscope(FALSE);
+			break;
+
 		default:
 			return FALSE;
 	}
