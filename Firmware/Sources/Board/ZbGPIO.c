@@ -11,7 +11,7 @@
 void ZbGPIO_Init()
 {
 	// Reset to default state
-	//ZwGPIO_WritePin(PIN_U_GATE_SEL, FALSE);
+	ZwGPIO_WritePin(PIN_U_GATE_SEL, FALSE);
 	ZwGPIO_WritePin(PIN_MCB_SYNC, FALSE);
 	ZwGPIO_WritePin(PIN_LED2, FALSE);
 	ZwGPIO_WritePin(PIN_SB_IM_CS, TRUE);

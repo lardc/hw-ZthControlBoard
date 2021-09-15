@@ -6,6 +6,7 @@
 //
 #include "SysConfig.h"
 #include "Global.h"
+#include "ZbGPIO.h"
 
 // Functions
 //
@@ -39,7 +40,7 @@ void ZbSPIC_Write(Int16U Data, void (*ControlPinCS)(Boolean))
 void ZbSPID_Write(Int16U Data, void (*ControlPinCS)(Boolean))
 {
 	ControlPinCS(FALSE);
-	ZwSPId_Send(&Data, 1, 16, STTNormal);
+	ZwSPId_Send(&Data, 1, 16, STTStream);
 	DELAY_US(DAC_WRITE_DELAY_US);
 	ControlPinCS(TRUE);
 }
@@ -95,7 +96,7 @@ Int16U ZbSPID_Read(void (*ControlPinCS)(Boolean))
 	Int16U DataRAW = 0;
 
 	ControlPinCS(FALSE);
-	ZwSPId_Send(&DataRAW, 1, 16, STTNormal);
+	ZwSPId_Send(&DataRAW, 1, 16, STTStream);
 	while(ZwSPId_GetWordsToReceive() < 1)
 	DELAY_US(1);
 	ZwSPIx_EndReceive(&SpidRegs, &DataRAW, 1);
@@ -105,6 +106,31 @@ Int16U ZbSPID_Read(void (*ControlPinCS)(Boolean))
 }
 // ----------------------------------------
 
+void ZbEEPROM_Write(Int16U *Data, Int16U BufferSize)
+{
+	ZbGPIO_EEPROM_CS(FALSE);
+
+	ZwSPIx_Send(&SpidRegs, Data, BufferSize, MEM_CL, STTNormal);
+	DELAY_US(EPROM_WRITE_DELAY_US);
+
+	ZbGPIO_EEPROM_CS(TRUE);
+}
+// ----------------------------------------
+
+void ZbEEPROM_Read(Int16U *Data, Int16U BufferSize)
+{
+	ZbGPIO_EEPROM_CS(FALSE);
+
+	ZwSPIx_Send(&SpidRegs, Data, BufferSize, MEM_CL, STTNormal);
+	while(ZwSPId_GetWordsToReceive() < BufferSize)
+		DELAY_US(1);
+	ZwSPId_EndReceive(Data, BufferSize);
+
+	DELAY_US(DAC_WRITE_DELAY_US);
+
+	ZbGPIO_EEPROM_CS(TRUE);
+}
+// ----------------------------------------
 
 
 

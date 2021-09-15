@@ -69,6 +69,7 @@
 #define MEM_CL				8 			// 8-bit element width
 #define MEM_PLR				FALSE		// CLK low in idle state (SPI MODE 0)
 #define MEM_PHASE			TRUE		// data output on rising edge (SPI MODE 0)
+#define EPROM_WRITE_DELAY_US	5000
 //--------------------------------------------------------
 
 // SCI-A

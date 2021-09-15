@@ -375,7 +375,7 @@ void CONTROL_Protection()
 {
 	Int16U Fault = ZthPB_FaultCheck();
 
-	if(Fault != PB_FAULT_NONE)
+	if((Fault != PB_FAULT_NONE) && (CONTROL_State == DS_InProcess))
 	{
 		switch(Fault)
 		{

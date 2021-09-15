@@ -6,6 +6,7 @@
 #include "ZbMemory.h"
 //
 #include "SysConfig.h"
+#include "ZbSPI.h"
 
 
 // Constants
@@ -36,7 +37,7 @@ void ZbMemory_EnableWriteEPROM();
 void ZbMemory_Init()
 {
 	// Init SPI-D
-	ZwSPId_Init(TRUE, MEM_EPROM_BAUDRATE, MEM_CL, MEM_PLR, MEM_PHASE, ZW_SPI_INIT_TX | ZW_SPI_INIT_RX | ZW_SPI_INIT_CS, FALSE, FALSE);
+	ZwSPId_Init(TRUE, MEM_EPROM_BAUDRATE, MEM_CL, MEM_PLR, MEM_PHASE, ZW_SPI_INIT_TX | ZW_SPI_INIT_RX | ZW_SPI_INIT_CS, TRUE, FALSE);
 	ZwSPId_InitFIFO(0, 0);
 	ZwSPId_ConfigInterrupts(FALSE, FALSE);
 	ZwSPId_EnableInterrupts(FALSE, FALSE);
@@ -75,9 +76,7 @@ void ZbMemory_WriteValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U Buffe
 	
 		// Do SPI communication
 		dataSize = 3 + MIN(BufferSize - j * EPROM_DATA_SEGMENT, EPROM_DATA_SEGMENT) * 2;
-		ZwSPId_Send(EPROMDataBuffer, dataSize, MEM_CL, STTNormal);
-
-		DELAY_US(EPROM_WRITE_DELAY_US);
+		ZbEEPROM_Write(&EPROMDataBuffer[0], dataSize);
 	}
 
 }
@@ -104,10 +103,7 @@ void ZbMemory_ReadValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U Buffer
 		
 		// Do SPI communication
 		dataSize = 3 + MIN(BufferSize - j * EPROM_DATA_SEGMENT, EPROM_DATA_SEGMENT) * 2;
-		ZwSPId_BeginReceive(EPROMDataBuffer, dataSize, MEM_CL, STTNormal);
-		while(ZwSPId_GetWordsToReceive() < dataSize)
-			DELAY_US(1);
-		ZwSPId_EndReceive(EPROMDataBuffer, dataSize);
+		ZbEEPROM_Read(EPROMDataBuffer, dataSize);
 		
 		// Copy data
 		for(i = 0; i < MIN(BufferSize - j * EPROM_DATA_SEGMENT, EPROM_DATA_SEGMENT); ++i)
@@ -129,7 +125,7 @@ void ZbMemory_EnableWriteEPROM()
 	// Write @Enable@ command
 	EPROMDataBuffer[0] = EPROM_WREN;
 	// Do SPI communication
-	ZwSPId_Send(EPROMDataBuffer, 1, MEM_CL, STTNormal);
+	ZbEEPROM_Write(&EPROMDataBuffer[0], 1);
 }
 // ----------------------------------------
 

@@ -20,7 +20,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v2 USB Emulator/C28xx" value="ZthControlBoard"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v2 USB Emulator_0/C28xx" value="ZthControlBoard"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:ZthControlBoard}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C28xx" value="D:/software\hw-ZthControlBoard\Firmware\Release\ZthControlBoard.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C28xx" value="D:/hw-Software\hw-ZthControlBoard\Firmware\Release\ZthControlBoard.out"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator_0/C28xx" value="D:/proton\Test equipment\Blocking Voltage Tester\Controllers soft\Version 2.0\BVTMainBoard\Release\ZthControlBoard.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/ZthControlBoard"/>

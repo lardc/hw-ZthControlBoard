@@ -83,7 +83,7 @@
 #define PIN_WATER			15
 #define PIN_T_TR1			16
 #define PIN_PS_CTRL			19
-#define PIN_LED1			20
+#define PIN_LED1			21
 #define PIN_MCB_DCB_CS		23
 #define PIN_SB_TCOOL2_CS	24
 #define PIN_SB_IH_CS		25

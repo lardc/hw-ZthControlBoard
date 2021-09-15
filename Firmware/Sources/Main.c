@@ -163,30 +163,28 @@ void InitializeADC()
 void InitializeSPI()
 {
 	// Init SPI-A
-	ZwSPIa_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX | ZW_SPI_INIT_CS, TRUE, FALSE);
+	ZwSPIa_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, FALSE, FALSE);
 	ZwSPIa_InitFIFO(0, 0);
 	ZwSPIa_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIa_EnableInterrupts(FALSE, FALSE);
 
 	// Init SPI-B
-	ZwSPIb_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, TRUE, FALSE);
+	ZwSPIb_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, FALSE, FALSE);
 	ZwSPIb_InitFIFO(0, 0);
 	ZwSPIb_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIb_EnableInterrupts(FALSE, FALSE);
 
 	// Init SPI-C
-	ZwSPIc_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_TX | ZW_SPI_INIT_CS, TRUE, FALSE);
+	ZwSPIc_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_TX, FALSE, FALSE);
 	ZwSPIc_InitFIFO(0, 0);
 	ZwSPIc_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIc_EnableInterrupts(FALSE, FALSE);
 
 	// Init SPI-D
-	ZwSPId_Init(TRUE, IO_BAUDRATE_OUT, IO_CL_DEF, IO_PLR, IO_PHASE, ZW_SPI_INIT_RX, TRUE, FALSE);
+	ZwSPId_Init(TRUE, MEM_EPROM_BAUDRATE, MEM_CL, MEM_PLR, MEM_PHASE, ZW_SPI_INIT_TX | ZW_SPI_INIT_RX, FALSE, FALSE);
 	ZwSPId_InitFIFO(0, 0);
 	ZwSPId_ConfigInterrupts(FALSE, FALSE);
 	ZwSPId_EnableInterrupts(FALSE, FALSE);
-
-
 
 	// Common (ABCD)
 	ZwSPI_EnableInterruptsGlobal(FALSE);
@@ -209,8 +207,6 @@ void InitializeCAN()
 
 void InitializeBoard()
 {
-	// Init DAC
-	ZbMemory_Init();
 	// Init on-board GPIO
 	ZbGPIO_Init();
 }
