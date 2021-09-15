@@ -1,4 +1,4 @@
-﻿// -----------------------------------------
+// -----------------------------------------
 // Parameters of BCCI interface
 // ----------------------------------------
 
@@ -9,8 +9,10 @@
 
 // Constants
 //
-#define DEVICE_CAN_ADDRESS			4
+#define DEVICE_CAN_ADDRESS			10
 #define DEV_ADDR_MPY				(1 << 10)
 #define CAN_ACCEPTANCE_MASK			0xFFFFFC00
+//
+#define BCCI_BLOCK_MAX_VAL_16_W		3
 
 #endif // __BCCI_PARAMS_H

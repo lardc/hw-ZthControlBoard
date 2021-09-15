@@ -102,7 +102,7 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="ZthControlBoard_bootloader.com.ti.ccstudio.buildDefinitions.C2000.ProjectType.306444035" name="C2000" projectType="com.ti.ccstudio.buildDefinitions.C2000.ProjectType"/>
+		<project id="QrrtqSyncBoard_bootloader.com.ti.ccstudio.buildDefinitions.C2000.ProjectType.306444035" name="C2000" projectType="com.ti.ccstudio.buildDefinitions.C2000.ProjectType"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.language.mapping">
 		<project-mappings>

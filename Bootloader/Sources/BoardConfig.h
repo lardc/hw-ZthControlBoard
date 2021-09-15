@@ -1,4 +1,4 @@
-﻿// -----------------------------------------
+// -----------------------------------------
 // Board parameters
 // ----------------------------------------
 
@@ -10,7 +10,6 @@
 
 // Program build mode
 //
-#define BOOT_ALT_ADDRESS
 #define BOOT_FROM_FLASH					// normal mode
 #define RAM_CACHE_SPI_ABCD				// cache SPI-A(BCD) functions
 
@@ -27,16 +26,15 @@
 #define HWUSE_SCI_A
 
 // IO debug LED
-#define DBG_LED				3
+#define DBG_LED				21
 
 // IO placement
-
 #define SCI_A_QSEL			GPAQSEL2
 #define SCI_A_MUX			GPAMUX2
-#define SCI_A_RX			GPIO28
 #define SCI_A_TX			GPIO29
+#define SCI_A_RX			GPIO28
 #define SCI_A_MUX_SELECTOR	1
 
-
+// GPIO pins
 
 #endif // __BOARD_CONFIG_H
