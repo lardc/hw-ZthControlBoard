@@ -116,8 +116,10 @@ Boolean InitializeCPU()
 		ZwPIE_Prepare();
     }
    	
-	// Config flash
+    // Configure flash
 	ZW_FLASH_CODE_SHADOW;
+	ZW_FLASH_MATH_SHADOW;
+	ZW_FLASH_MATH_TR_SHADOW;
 	ZW_FLASH_OPTIMIZE(FLASH_FWAIT, FLASH_OTPWAIT);
 
    	return clockInitResult;

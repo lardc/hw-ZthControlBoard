@@ -124,7 +124,7 @@ void MEASURE_CapVoltageSamplingResult(Int16U * const restrict pResults)
 
 	MEASURE_CapVoltage = DataSum >> AVERAGE_RESULT_SHIFT;
 
-	DataTable[REG_ACTUAL_CAP_VOLTAGE] = ADC_DataRaw;
+	DataTable[REG_ACTUAL_CAP_VOLTAGE] = MEASURE_CapVoltage;
 }
 // ----------------------------------------
 

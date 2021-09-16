@@ -9,7 +9,7 @@
 
 // Functions
 //
-void CONVERT_Cashe();
+void CONVERT_CasheVariables();
 Int16U CONVERT_IgToDAC(_iq Current);
 Int16U CONVERT_IhToDAC(_iq Current);
 Int16U CONVERT_ImToDAC(_iq Current);

@@ -22,6 +22,7 @@
 #include "ZthProtectionBoard.h"
 #include "IQmathLib.h"
 #include "IQMathUtils.h"
+#include "ConvertUtils.h"
 
 // Definitions
 //
@@ -102,6 +103,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 		CONTROL_SetDeviceState(DS_Disabled, SS_None);
 	}
 
+	CONTROL_CashVariables();
 	ZwADC_SubscribeToResults1(&MEASURE_CapVoltageSamplingResult);
 }
 // ----------------------------------------
@@ -280,6 +282,7 @@ void CONTROL_CashVariables()
 	//
 	LOGIC_CashVariables();
 	REGULATOR_CashVariables();
+	CONVERT_CasheVariables();
 }
 // ----------------------------------------
 

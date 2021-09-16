@@ -7,7 +7,6 @@
 #include "DeviceObjectDictionary.h"
 #include "DataTable.h"
 #include "stdlib.h"
-#include "IQmathLib.h"
 #include "IQmathUtils.h"
 #include "ZbDAC.h"
 
@@ -34,7 +33,7 @@ Int16U CONVERT_xToDAC(_iq Value, ConvParameters Parameters);
 
 // Functions
 //
-void CONVERT_Cashe()
+void CONVERT_CasheVariables()
 {
 	CapVoltageK = _FPtoIQ2(DataTable[REG_CAP_VOLTAGE_K_N], DataTable[REG_CAP_VOLTAGE_K_D]);
 	//
@@ -114,7 +113,7 @@ _iq CONVERT_ADCToTSP(Int16U ADCData)
 
 Int16U CONVERT_ADCToCapVolatge(Int16U ADCData)
 {
-	return _IQmpyI32(CapVoltageK, ADCData);
+	return (Int16U)_IQint(_IQmpyI32(CapVoltageK, ADCData));
 }
 // ----------------------------------------
 
