@@ -75,7 +75,7 @@ Boolean DIAG_Process(Int16U Command)
 		case ACT_DBG_REG:
 			ZbDAC_Write(DataTable[REG_DBG], &ZbGPIO_RegisterRCLK, TRUE);
 			DELAY_US(10000);
-			ZbDAC_Write(0, &ZbGPIO_RegisterRCLK, TRUE);
+			ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
 			break;
 
 		case ACT_DBG_LPS_CTRL:
