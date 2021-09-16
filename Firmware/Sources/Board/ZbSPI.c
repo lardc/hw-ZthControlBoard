@@ -8,6 +8,9 @@
 #include "Global.h"
 #include "ZbGPIO.h"
 
+// Functions prototypes
+Int32U ZbSPIx_Read(volatile struct SPI_REGS *SpixRegs, void (*ControlPinCS)(Boolean));
+
 // Functions
 //
 void ZbSPIA_Write(Int16U Data, void (*ControlPinCS)(Boolean))
@@ -46,61 +49,45 @@ void ZbSPID_Write(Int16U Data, void (*ControlPinCS)(Boolean))
 }
 // ----------------------------------------
 
-Int16U ZbSPIA_Read(void (*ControlPinCS)(Boolean))
+Int32U ZbSPIA_Read(void (*ControlPinCS)(Boolean))
 {
-	Int16U DataRAW = 0;
-
-	ControlPinCS(FALSE);
-	ZwSPIx_Send(&SpiaRegs, &DataRAW, 1, IO_CL_DEF, STTNormal);
-	while(ZwSPIa_GetWordsToReceive() < 1)
-	DELAY_US(1);
-	ZwSPIx_EndReceive(&SpiaRegs, &DataRAW, 1);
-	ControlPinCS(TRUE);
-
-	return DataRAW;
+	return ZbSPIx_Read(&SpiaRegs, ControlPinCS);
 }
 // ----------------------------------------
 
-Int16U ZbSPIB_Read(void (*ControlPinCS)(Boolean))
+Int32U ZbSPIB_Read(void (*ControlPinCS)(Boolean))
 {
-	Int16U DataRAW = 0;
-
-	ControlPinCS(FALSE);
-	ZwSPIx_Send(&SpibRegs, &DataRAW, 1, IO_CL_DEF, STTNormal);
-	while(ZwSPIb_GetWordsToReceive() < 1)
-	DELAY_US(1);
-	ZwSPIx_EndReceive(&SpibRegs, &DataRAW, 1);
-	ControlPinCS(TRUE);
-
-	return DataRAW;
+	return ZbSPIx_Read(&SpibRegs, ControlPinCS);
 }
 // ----------------------------------------
 
-Int16U ZbSPIC_Read(void (*ControlPinCS)(Boolean))
+Int32U ZbSPIC_Read(void (*ControlPinCS)(Boolean))
 {
-	Int16U DataRAW = 0;
-
-	ControlPinCS(FALSE);
-	ZwSPIx_Send(&SpicRegs, &DataRAW, 1, IO_CL_DEF, STTNormal);
-	while(ZwSPIc_GetWordsToReceive() < 1)
-	DELAY_US(1);
-	ZwSPIx_EndReceive(&SpicRegs, &DataRAW, 1);
-	ControlPinCS(TRUE);
-
-	return DataRAW;
+	return ZbSPIx_Read(&SpicRegs, ControlPinCS);
 }
 // ----------------------------------------
 
-Int16U ZbSPID_Read(void (*ControlPinCS)(Boolean))
+Int32U ZbSPID_Read(void (*ControlPinCS)(Boolean))
 {
-	Int16U DataRAW = 0;
+	return ZbSPIx_Read(&SpidRegs, ControlPinCS);
+}
+// ----------------------------------------
+
+Int32U ZbSPIx_Read(volatile struct SPI_REGS *SpixRegs, void (*ControlPinCS)(Boolean))
+{
+	Int32U DataRAW = 0;
+	Int16U Buffer[3] = {0};
 
 	ControlPinCS(FALSE);
-	ZwSPIx_Send(&SpidRegs, &DataRAW, 1, IO_CL_DEF, STTNormal);
-	while(ZwSPId_GetWordsToReceive() < 1)
+
+	ZwSPIx_Send(SpixRegs, &Buffer[0], 3, IO_CL_DEF, STTNormal);
+	while(ZwSPId_GetWordsToReceive() < 3)
 	DELAY_US(1);
-	ZwSPIx_EndReceive(&SpidRegs, &DataRAW, 1);
+	ZwSPIx_EndReceive(&SpidRegs, &Buffer[0], 3);
+
 	ControlPinCS(TRUE);
+
+	DataRAW = (Int32U)Buffer[0] << 16 | Buffer[1] << 8 | Buffer[2];
 
 	return DataRAW;
 }
@@ -110,7 +97,7 @@ void ZbEEPROM_Write(Int16U *Data, Int16U BufferSize)
 {
 	ZbGPIO_EEPROM_CS(FALSE);
 
-	ZwSPIx_Send(&SpidRegs, Data, BufferSize, MEM_CL, STTNormal);
+	ZwSPIx_Send(&SpidRegs, Data, BufferSize, IO_CL_DEF, STTNormal);
 	DELAY_US(EPROM_WRITE_DELAY_US);
 
 	ZbGPIO_EEPROM_CS(TRUE);
@@ -121,7 +108,7 @@ void ZbEEPROM_Read(Int16U *Data, Int16U BufferSize)
 {
 	ZbGPIO_EEPROM_CS(FALSE);
 
-	ZwSPIx_Send(&SpidRegs, Data, BufferSize, MEM_CL, STTNormal);
+	ZwSPIx_Send(&SpidRegs, Data, BufferSize, IO_CL_DEF, STTNormal);
 	while(ZwSPId_GetWordsToReceive() < BufferSize)
 		DELAY_US(1);
 	ZwSPId_EndReceive(Data, BufferSize);
