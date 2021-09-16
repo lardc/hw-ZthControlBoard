@@ -113,7 +113,7 @@
 #define IO_BAUDRATE_IN		3125000L	// SPI clock = 3.125 MHz
 #define IO_PLR				FALSE		// CLK low in idle state (SPI MODE 0)
 #define IO_PHASE			TRUE		// data output on rising edge (SPI MODE 0)
-#define IO_CL_DEF			16			// Default char length
+#define IO_CL_DEF			8			// Default char length
 #define EIO_DEFAULT_VALUE	0x00
 #define IIO_DEFAULT_VALUE	0x3F
 #define IO_OUT_WRITE_DELAY	4			// 4 us
