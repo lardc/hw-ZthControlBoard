@@ -156,7 +156,7 @@ void ZbGPIO_SB_Ih_CS(Boolean State)
 
 void ZbGPIO_SB_Tc1_CS(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_SB_TK2_CS, State);
+	ZwGPIO_WritePin(PIN_SB_TK1_CS, State);
 }
 // ----------------------------------------
 
