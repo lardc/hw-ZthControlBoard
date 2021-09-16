@@ -186,19 +186,13 @@ void ZbGPIO_RegisterRCLK(Boolean State)
 
 Boolean ZbGPIO_IsTransformer1Overheated()
 {
-	if(ZwGPIO_ReadPin(PIN_T_TR1))
-		return TRUE;
-	else
-		return FALSE;
+	return ZwGPIO_ReadPin(PIN_T_TR1);
 }
 // ----------------------------------------
 
 Boolean ZbGPIO_IsTransformer2Overheated()
 {
-	if(ZwGPIO_ReadPin(PIN_T_TR2))
-		return TRUE;
-	else
-		return FALSE;
+	return ZwGPIO_ReadPin(PIN_T_TR2);
 }
 // ----------------------------------------
 
