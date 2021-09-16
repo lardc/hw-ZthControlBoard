@@ -49,7 +49,7 @@ void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
 void CONTROL_CashVariables();
 void CONTROL_LowPowerSupplyControl(Boolean State);
-void CONTROL_CapacitorsVoltageControl();
+void CONTROL_PowerOnProcess();
 void CONTROL_Process();
 void CONTROL_StopProcess(Int16U OpResult);
 void CONTROL_StartProcess();
@@ -101,6 +101,8 @@ void CONTROL_Init(Boolean BadClockDetected)
 		DataTable[REG_DISABLE_REASON] = DISABLE_BAD_CLOCK;
 		CONTROL_SetDeviceState(DS_Disabled, SS_None);
 	}
+
+	ZwADC_SubscribeToResults1(&MEASURE_CapVoltageSamplingResult);
 }
 // ----------------------------------------
 
@@ -111,6 +113,9 @@ void CONTROL_Idle()
 
 	// Protection check
 	CONTROL_Protection();
+
+	// Power on process
+	CONTROL_PowerOnProcess();
 
 	// Process external interface requests
 	DEVPROFILE_ProcessRequests();
@@ -246,23 +251,11 @@ void CONTROL_Process()
 }
 // ----------------------------------------
 
-void CONTROL_UpdateLow()
+void CONTROL_PowerOnProcess()
 {
-	CONTROL_CapacitorsVoltageControl();
-}
-// ----------------------------------------
-
-void CONTROL_CapacitorsVoltageControl()
-{
-	Int16U Voltage;
-
-	// Measuring capacitors voltage
-	Voltage = MEASURE_CapVoltageSamplingResult();
-	MEASURE_CapVoltageSamplingStart();
-
 	if(CONTROL_State == DS_PowerOn)
 	{
-		if(Voltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+		if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
 			CONTROL_SetDeviceState(DS_Ready, SS_None);
 		else
 		{
@@ -273,8 +266,6 @@ void CONTROL_CapacitorsVoltageControl()
 			}
 		}
 	}
-
-	DataTable[REG_ACTUAL_CAP_VOLTAGE] = Voltage;
 }
 // ----------------------------------------
 

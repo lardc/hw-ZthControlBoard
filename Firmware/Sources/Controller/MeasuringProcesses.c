@@ -18,6 +18,9 @@
 #define AVERAGE_COUNTER_MASK	AVERAGE_ARRAY_SIZE - 1
 #define AVERAGE_RESULT_SHIFT	4
 
+// Variables
+Int16U MEASURE_CapVoltage = 0;
+
 // Functions
 //
 _iq MEASURE_Tcase1()
@@ -101,14 +104,12 @@ void MEASURE_CapVoltageSamplingStart()
 }
 // ----------------------------------------
 
-Int16U MEASURE_CapVoltageSamplingResult()
+void MEASURE_CapVoltageSamplingResult(Int16U * const restrict pResults)
 {
 	static Int16U AverageCounter = 0;
 	static Int32S DataSum = 0;
 	static Int16U DataArray[AVERAGE_ARRAY_SIZE];
-	pInt16U ADC_DataRaw;
-
-	ADC_DataRaw = ZwADC_GetValues1();
+	Int16U ADC_DataRaw = *(Int16U *)pResults;
 
 	// Average process
 	AverageCounter++;
@@ -118,10 +119,12 @@ Int16U MEASURE_CapVoltageSamplingResult()
 	if(DataSum < 0)
 		DataSum = 0;
 
-	DataArray[AverageCounter] = CONVERT_ADCToCapVolatge(*ADC_DataRaw);
+	DataArray[AverageCounter] = CONVERT_ADCToCapVolatge(ADC_DataRaw);
 	DataSum += DataArray[AverageCounter];
 
-	return (DataSum >> AVERAGE_RESULT_SHIFT);
+	MEASURE_CapVoltage = DataSum >> AVERAGE_RESULT_SHIFT;
+
+	DataTable[REG_ACTUAL_CAP_VOLTAGE] = ADC_DataRaw;
 }
 // ----------------------------------------
 

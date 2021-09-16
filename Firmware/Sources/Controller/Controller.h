@@ -50,8 +50,6 @@ void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
 void CONTROL_SwitchToFault(Int16U FaultReason);
 // Set device state
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
-// Processes with low priority
-void CONTROL_UpdateLow();
 // Save heating data
 void CONTROL_SaveHeatingData(RegulatorsData Sample);
 // Regulator

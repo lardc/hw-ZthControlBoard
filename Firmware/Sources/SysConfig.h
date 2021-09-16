@@ -23,9 +23,10 @@
 
 // Power control
 //--------------------------------------------------------
-#define SYS_PUMOD			ZW_POWER_SPID_CLK | \
-							ZW_POWER_SCIA_CLK | ZW_POWER_SCIB_CLK | \
-							ZW_POWER_CANA_CLK | ZW_POWER_CANB_CLK
+#define SYS_PUMOD			ZW_POWER_ADC_CLK  | ZW_POWER_SPIA_CLK | \
+							ZW_POWER_SPIA_CLK | ZW_POWER_SPIB_CLK | \
+							ZW_POWER_SPIC_CLK | ZW_POWER_SPID_CLK | \
+							ZW_POWER_SCIA_CLK | ZW_POWER_CANA_CLK
 
 #define SYS_WD_PRESCALER	0x07
 //--------------------------------------------------------

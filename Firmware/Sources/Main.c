@@ -35,6 +35,8 @@ ISRCALL Timer1_ISR();
 ISRCALL Timer2_ISR();
 // CANa Line 0 ISR
 ISRCALL CAN0A_ISR();
+// ADC SEQ1 ISR
+ISRCALL SEQ1_ISR();
 // ILLEGAL ISR
 ISRCALL IllegalInstruction_ISR();
 // -----------------------------------------
@@ -67,6 +69,7 @@ void main()
 		ADD_ISR(TINT1_XINT13, Timer1_ISR);
 		ADD_ISR(TINT2, Timer2_ISR);
 		ADD_ISR(ECAN0INTA, CAN0A_ISR);
+		ADD_ISR(SEQ1INT, SEQ1_ISR);
 	END_ISR_MAP
 
 	// Initialize controller logic
@@ -230,14 +233,14 @@ void InitializeController(Boolean GoodClock)
 #endif
 //
 #pragma INTERRUPT(Timer0_ISR, HPI);
+#pragma INTERRUPT(SEQ1_ISR, HPI);
 
 // timer 0 ISR
 ISRCALL Timer0_ISR(void)
 {
 	static Int16U LedCounter = 0;
 
-	// Update low-priority tasks
-	CONTROL_UpdateLow();
+	MEASURE_CapVoltageSamplingStart();
 
 	// Update time
 	++CONTROL_TimeCounter;
@@ -287,6 +290,19 @@ ISRCALL CAN0A_ISR(void)
 
 	// allow other interrupts from group 9
 	CAN_ISR_DONE;
+}
+// -----------------------------------------
+
+// ADC SEQ1 ISR
+ISRCALL SEQ1_ISR(void)
+{
+	// Handle interrupt
+	ZwADC_ProcessInterruptSEQ1();
+	// Dispatch results
+	ZwADC_Dispatch1();
+
+	// allow other interrupts from group 1
+	ADC_ISR_DONE;
 }
 // -----------------------------------------
 

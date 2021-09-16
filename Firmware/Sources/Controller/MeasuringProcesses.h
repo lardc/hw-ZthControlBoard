@@ -28,10 +28,13 @@ typedef struct __CombinedData
 	_iq Tcool2;
 } CombinedData;
 
+// Variables
+extern Int16U MEASURE_CapVoltage;
+
 // Functions
 //
 void MEASURE_CapVoltageSamplingStart();
-Int16U MEASURE_CapVoltageSamplingResult();
+void MEASURE_CapVoltageSamplingResult(Int16U * const restrict pResults);
 _iq MEASURE_Tcase1();
 _iq MEASURE_Tcase2();
 _iq MEASURE_Tcool1();
