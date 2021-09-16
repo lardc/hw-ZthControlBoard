@@ -17,7 +17,7 @@ void ZbDAC_Write(Int16U Data, void (*ControlPinLDAC)(Boolean))
 
 	// Strobe to latch
 	ControlPinLDAC(FALSE);
-	DELAY_US(1);
+	DELAY_US(5);
 	ControlPinLDAC(TRUE);
 }
 // ----------------------------------------
