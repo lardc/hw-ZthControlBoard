@@ -11,14 +11,14 @@
 
 // Functions
 //
-void ZbDAC_Write(Int16U Data, void (*ControlPinLDAC)(Boolean))
+void ZbDAC_Write(Int16U Data, void (*ControlPinLDAC)(Boolean), Boolean Invert)
 {
 	ZbSPIC_Write(Data, &ZbGPIO_DCB_MCB_CS);
 
 	// Strobe to latch
-	ControlPinLDAC(FALSE);
+	ControlPinLDAC(Invert);
 	DELAY_US(5);
-	ControlPinLDAC(TRUE);
+	ControlPinLDAC(!Invert);
 }
 // ----------------------------------------
 

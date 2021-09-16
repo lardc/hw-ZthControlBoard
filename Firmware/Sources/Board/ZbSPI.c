@@ -34,8 +34,14 @@ void ZbSPIB_Write(Int16U Data, void (*ControlPinCS)(Boolean))
 
 void ZbSPIC_Write(Int16U Data, void (*ControlPinCS)(Boolean))
 {
+	Int16U ByteH, ByteL;
+
+	ByteH = Data >> 8;
+	ByteL = Data & 0xFF;
+
 	ControlPinCS(FALSE);
-	ZwSPIx_Send(&SpicRegs, &Data, 1, IO_CL_DEF, STTNormal);
+	ZwSPIx_Send(&SpicRegs, &ByteH, 1, IO_CL_DEF, STTNormal);
+	ZwSPIx_Send(&SpicRegs, &ByteL, 1, IO_CL_DEF, STTNormal);
 	DELAY_US(DAC_WRITE_DELAY_US);
 	ControlPinCS(TRUE);
 }

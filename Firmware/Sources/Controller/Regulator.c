@@ -181,7 +181,7 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 
 		case SelectIh:
 			RegulatorIh.Control = Value;
-			ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK);
+			ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE);
 			break;
 	}
 }

@@ -14,6 +14,6 @@
 
 // Functions
 //
-void ZbDAC_Write(Int16U Data, void (*ControlPinLDAC)(Boolean));
+void ZbDAC_Write(Int16U Data, void (*ControlPinLDAC)(Boolean), Boolean Invert);
 
 #endif /* ZBDAC_H_ */
