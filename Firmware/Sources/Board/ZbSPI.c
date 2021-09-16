@@ -10,6 +10,7 @@
 
 // Functions prototypes
 Int32U ZbSPIx_Read(volatile struct SPI_REGS *SpixRegs, void (*ControlPinCS)(Boolean));
+Int16U ZbSPIx_GetWordsToReceive(volatile struct SPI_REGS *SpixRegs);
 
 // Functions
 //
@@ -81,15 +82,21 @@ Int32U ZbSPIx_Read(volatile struct SPI_REGS *SpixRegs, void (*ControlPinCS)(Bool
 	ControlPinCS(FALSE);
 
 	ZwSPIx_Send(SpixRegs, &Buffer[0], 3, IO_CL_DEF, STTNormal);
-	while(ZwSPId_GetWordsToReceive() < 3)
+	while(ZbSPIx_GetWordsToReceive(SpixRegs) < 3)
 	DELAY_US(1);
-	ZwSPIx_EndReceive(&SpidRegs, &Buffer[0], 3);
+	ZwSPIx_EndReceive(SpixRegs, &Buffer[0], 3);
 
 	ControlPinCS(TRUE);
 
 	DataRAW = (Int32U)Buffer[0] << 16 | Buffer[1] << 8 | Buffer[2];
 
 	return DataRAW;
+}
+// ----------------------------------------
+
+Int16U ZbSPIx_GetWordsToReceive(volatile struct SPI_REGS *SpixRegs)
+{
+	return SpixRegs->SPIFFRX.bit.RXFFST;
 }
 // ----------------------------------------
 
