@@ -27,6 +27,7 @@
 #define ACT_DBG_REG					22	// Generate gate pulse for power current source
 #define ACT_DBG_LPS_CTRL			23	// Low power supply control
 #define ACT_DBG_SYNC_OSC			24	// Generate pulse for oscilloscope
+#define ACT_DBG_READ_PROTECTION		25	// Read signals states from ZthProtectionBoard
 //
 #define ACT_START_PROCESS			100	// Start measuring process
 #define ACT_STOP_PROCESS			101	// Stop measuring process

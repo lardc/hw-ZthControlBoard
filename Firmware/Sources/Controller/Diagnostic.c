@@ -75,7 +75,7 @@ Boolean DIAG_Process(Int16U Command)
 		case ACT_DBG_REG:
 			ZbDAC_Write(DataTable[REG_DBG], &ZbGPIO_RegisterRCLK);
 			DELAY_US(10000);
-			ZbDAC_Write(DataTable[REG_DBG], &ZbGPIO_RegisterRCLK);
+			//ZbDAC_Write(DataTable[REG_DBG], &ZbGPIO_RegisterRCLK);
 			break;
 
 		case ACT_DBG_LPS_CTRL:
@@ -86,6 +86,10 @@ Boolean DIAG_Process(Int16U Command)
 			ZbGPIO_SyncOscilloscope(TRUE);
 			DELAY_US(1000);
 			ZbGPIO_SyncOscilloscope(FALSE);
+			break;
+
+		case ACT_DBG_READ_PROTECTION:
+			DataTable[REG_DBG] = ZthPB_FaultCheck();
 			break;
 
 		default:
