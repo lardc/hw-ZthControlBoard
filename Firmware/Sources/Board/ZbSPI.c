@@ -94,7 +94,7 @@ Int32U ZbSPIx_Read(volatile struct SPI_REGS *SpixRegs, void (*ControlPinCS)(Bool
 
 	ControlPinCS(TRUE);
 
-	DataRAW = (Int32U)Buffer[0] << 16 | Buffer[1] << 8 | Buffer[2];
+	DataRAW = ((Int32U)Buffer[0] << 16 | Buffer[1] << 8 | Buffer[2]) >> 1;
 
 	return DataRAW;
 }
