@@ -29,6 +29,10 @@
 #define ACT_DBG_SYNC_OSC			24	// Generate pulse for oscilloscope
 #define ACT_DBG_READ_PROTECTION		25	// Read signals states from ZthProtectionBoard
 //
+#define ACT_START_IM				50	// Start generating Im
+#define ACT_START_IH				51	// Start generating Ih
+#define ACT_START_IG				52	// Start generating Ig
+//
 #define ACT_START_PROCESS			100	// Start measuring process
 #define ACT_STOP_PROCESS			101	// Stop measuring process
 #define ACT_STOP_HEATING			102	// Stop heating process
@@ -114,7 +118,9 @@
 #define REG_PI_CTRL_P_Kp			54	// Heating current PI Kp x1000
 #define REG_PI_CTRL_P_Ki			55	// Heating current PI Ki
 //
-#define REG_MODE					128	// Operating mode (0 - Zth sequence pulses, 1 - Zth long pulse, 2 - Rth sequence pulses, 3 - graduation)
+#define REG_MUTE_PROTECTION			60	// Ignore protection
+//
+#define REG_MODE					128	// Operating mode (0 - independent, 1 - Zth sequence pulses, 2 - Zth long pulse, 3 - Rth sequence pulses, 4 - graduation)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
 #define REG_COOLING_MODE			130	// Colling mode (0 - one-sided, 1 - double-sided)
 #define REG_ZTH_PULSE_WIDTH_MIN		131	// Width of first pulse (in us)
@@ -130,7 +136,7 @@
 #define REG_DELAY					141	// Delay of measuring temperature-sensitive parameter (in us)
 #define REG_T_MAX					142	// Maximum DUT temperature (in C x10)
 #define REG_IGBT_V_GATE				143	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
-
+//
 #define REG_DBG						150	// Debugging register
 //
 #define REG_PWD_1					180	// Unlock password location 1

@@ -129,7 +129,7 @@ typedef struct __TableItemConstraint
 #define REG_P_KI_MAX			INT16U_MAX
 #define REG_P_KI_DEF			0
 //
-#define MODE_GRADUATION			3
+#define MODE_GRADUATION			4
 #define DUT_THYRISTOR			0
 #define DUT_IGBT				1
 #define COOLING_ONE_SIDE		0

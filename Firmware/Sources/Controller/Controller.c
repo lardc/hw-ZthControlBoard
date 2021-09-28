@@ -26,10 +26,11 @@
 
 // Definitions
 //
-#define MODE_ZTH_SEQ_PULSES		0
-#define MODE_ZTH_LONG_PULSE		1
-#define MODE_RTH_SEQ_PULSES		2
-#define MODE_GRADUATION			3
+#define MODE_INDEPENDENT		0
+#define MODE_ZTH_SEQ_PULSES		1
+#define MODE_ZTH_LONG_PULSE		2
+#define MODE_RTH_SEQ_PULSES		3
+#define MODE_GRADUATION			4
 
 // Variables
 //
@@ -200,6 +201,20 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 
+		case ACT_START_IM:
+			CONTROL_CashVariables();
+
+			if(CONTROL_Mode == MODE_INDEPENDENT)
+			{
+				REGULATOR_InitAll();
+				REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
+				REGULATOR_Enable(SelectIm, TRUE);
+				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+			}
+			else
+				*UserError = ERR_OPERATION_BLOCKED;
+			break;
+
 		default:
 			if (CONTROL_State == DS_None)
 				return DIAG_Process(ActionID);
@@ -301,7 +316,6 @@ void CONTROL_StopProcess(Int16U OpResult)
 {
 	REGULATOR_DisableAll();
 	REGULATOR_ForceOutputsToZero();
-	CONTROL_MeasuringCurrentProcess(FALSE);
 	CONTROL_GatePulse(FALSE);
 
 	DataTable[REG_OP_RESULT] = OpResult;
@@ -348,6 +362,8 @@ void CONTROL_RegulatorProcess()
 {
 	RegulatorsData Sample;
 
+	ZbGPIO_SwitchLED2(TRUE);
+
 	if(CONTROL_State == DS_InProcess)
 	{
 		// Measurement process
@@ -362,6 +378,8 @@ void CONTROL_RegulatorProcess()
 		// Incrementing time counter
 		LOGIC_IncTimeCounter();
 	}
+
+	ZbGPIO_SwitchLED2(FALSE);
 }
 // ----------------------------------------
 
@@ -369,7 +387,7 @@ void CONTROL_Protection()
 {
 	Int16U Fault = ZthPB_FaultCheck();
 
-	if((Fault != PB_FAULT_NONE) && (CONTROL_State == DS_InProcess))
+	if((!DataTable[REG_MUTE_PROTECTION]) && (Fault != PB_FAULT_NONE) && (CONTROL_State == DS_InProcess))
 	{
 		switch(Fault)
 		{
