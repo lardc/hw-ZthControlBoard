@@ -171,7 +171,7 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 	{
 		case SelectIm:
 			RegulatorIm.Control = Value;
-			ZthMCB_CurrentSet(CONVERT_ImToDAC(Value));
+			ZthMCB_CurrentSet(Value);
 			break;
 
 		case SelectP:

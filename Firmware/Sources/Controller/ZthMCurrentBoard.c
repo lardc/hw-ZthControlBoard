@@ -14,7 +14,7 @@
 //
 void ZthMCB_CurrentSet(_iq Current)
 {
-	ZbDAC_Write((CONVERT_ImToDAC(Current) & DAC_WRITE_A), &ZbGPIO_MCB_LDAC, FALSE);
+	ZbDAC_Write((CONVERT_ImToDAC(Current) | DAC_WRITE_A), &ZbGPIO_MCB_LDAC, FALSE);
 }
 // ----------------------------------------
 
