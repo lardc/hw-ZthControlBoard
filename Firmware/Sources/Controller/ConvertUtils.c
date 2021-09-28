@@ -119,7 +119,7 @@ Int16U CONVERT_ADCToCapVolatge(Int16U ADCData)
 
 _iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters)
 {
-	_iq tmp = _IQdiv((_IQI(ADCInput) - Parameters.B), Parameters.K);
+	_iq tmp = _IQmpy(_IQI(ADCInput), Parameters.K) + Parameters.B;
 	_iq tmp2 = _IQdiv(tmp, _IQ(1000.0f));
 
 	_iq val = _IQmpy(tmp2, _IQmpy(tmp2, Parameters.P2)) + _IQmpy(tmp, Parameters.P1) + Parameters.P0;
@@ -147,12 +147,12 @@ ConvParameters CONVERT_LoadParams(Int16U RegP2, Int16U RegP1, Int16U RegP0, Int1
 {
 	ConvParameters ret;
 
-	ret.P2	= _IQI((Int16S)DataTable[RegP2]);
+	ret.P2	= _IQI(DataTable[RegP2]);
 	ret.P1	= _FPtoIQ2(DataTable[RegP1], 1000);
 	ret.P0	= _IQI((Int16S)DataTable[RegP0]);
 	//
 	ret.K	= _FPtoIQ2(DataTable[RegK], 1000);
-	ret.B	= _FPtoIQ2((Int16S)DataTable[RegB], RegBDiv);
+	ret.B	= _FPtoIQ2(DataTable[RegB], RegBDiv);
 
 	return ret;
 }
