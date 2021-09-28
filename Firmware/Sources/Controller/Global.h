@@ -30,7 +30,7 @@
 #define BCCI_TIMEOUT_MS					1000	// in ms
 #define	BCCI_MASTER_TIMEOUT_TICKS_MS	(Int32U)(CS_T0_FREQ/1000*BCCI_TIMEOUT_MS)
 //
-#define DAC_WRITE_DELAY_US				10		// in us
+#define DAC_WRITE_DELAY_US				3		// in us
 //
 #define TIME_POWER_ON					60000	// in ms
 #define TIME_DELAY_MAX			(Int64U)4e9		// in us

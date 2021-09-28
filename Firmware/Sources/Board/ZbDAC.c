@@ -17,7 +17,6 @@ void ZbDAC_Write(Int16U Data, void (*ControlPinLDAC)(Boolean), Boolean Invert)
 
 	// Strobe to latch
 	ControlPinLDAC(Invert);
-	DELAY_US(5);
 	ControlPinLDAC(!Invert);
 }
 // ----------------------------------------
