@@ -14,12 +14,26 @@
 
 // Definitins
 //
-#define AVERAGE_ARRAY_SIZE		16
-#define AVERAGE_COUNTER_MASK	AVERAGE_ARRAY_SIZE - 1
-#define AVERAGE_RESULT_SHIFT	4
+#define AVERAGE_DEGREE			20
+
+// Structs
+typedef struct __MovingAverageFilter
+{
+	_iq Sample;
+	Int16U Counter;
+	_iq DataSum;
+	_iq Array[AVERAGE_DEGREE];
+}MovingAverageFilter, *pMovingAverageFilter;
+
+MovingAverageFilter AvgCapacitorsVoltage = {0};
+MovingAverageFilter AvgMeasurementCurrent = {0};
 
 // Variables
 Int16U MEASURE_CapVoltage = 0;
+
+// Functions prototypes
+//
+_iq MEASURE_AveragingProcess(pMovingAverageFilter Data);
 
 // Functions
 //
@@ -55,7 +69,8 @@ _iq MEASURE_Ih()
 
 _iq MEASURE_Im()
 {
-	return CONVERT_ADCToIm(ZthSB_RawReadIm());
+	AvgMeasurementCurrent.Sample = CONVERT_ADCToIm(ZthSB_RawReadIm());
+	return MEASURE_AveragingProcess(&AvgMeasurementCurrent);
 }
 // ----------------------------------------
 
@@ -106,25 +121,40 @@ void MEASURE_CapVoltageSamplingStart()
 
 void MEASURE_CapVoltageSamplingResult(Int16U * const restrict pResults)
 {
-	static Int16U AverageCounter = 0;
-	static Int32S DataSum = 0;
-	static Int16U DataArray[AVERAGE_ARRAY_SIZE];
-	Int16U ADC_DataRaw = *(Int16U *)pResults;
+	AvgCapacitorsVoltage.Sample = CONVERT_ADCToCapVolatge(*(Int16U *)pResults);
+	MEASURE_CapVoltage = DataTable[REG_ACTUAL_CAP_VOLTAGE] = _IQint(MEASURE_AveragingProcess(&AvgCapacitorsVoltage));
+}
+// ----------------------------------------
 
-	// Average process
-	AverageCounter++;
-	AverageCounter &= AVERAGE_COUNTER_MASK;
+_iq MEASURE_AveragingProcess(pMovingAverageFilter Data)
+{
+	Data->DataSum -= Data->Array[Data->Counter];
+	Data->Array[Data->Counter] = Data->Sample;
+	Data->DataSum += Data->Array[Data->Counter];
 
-	DataSum -= DataArray[AverageCounter];
-	if(DataSum < 0)
-		DataSum = 0;
+	Data->Counter++;
+	if(Data->Counter >= AVERAGE_DEGREE)
+		Data->Counter = 0;
 
-	DataArray[AverageCounter] = CONVERT_ADCToCapVolatge(ADC_DataRaw);
-	DataSum += DataArray[AverageCounter];
+	return _IQdiv(Data->DataSum, _IQI(AVERAGE_DEGREE));;
+}
+// ----------------------------------------
 
-	MEASURE_CapVoltage = DataSum >> AVERAGE_RESULT_SHIFT;
+void MEASURE_VariablesPrepare()
+{
+	Int16U i;
 
-	DataTable[REG_ACTUAL_CAP_VOLTAGE] = MEASURE_CapVoltage;
+	for(i = 0; i < AVERAGE_DEGREE; i++)
+	{
+		AvgMeasurementCurrent.Array[i] = 0;
+		AvgCapacitorsVoltage.Array[i] = 0;
+	}
+
+	AvgMeasurementCurrent.Counter = 0;
+	AvgMeasurementCurrent.DataSum = 0;
+
+	AvgCapacitorsVoltage.Counter = 0;
+	AvgCapacitorsVoltage.DataSum = 0;
 }
 // ----------------------------------------
 

@@ -9,6 +9,7 @@
 #include <stdinc.h>
 #include "SysConfig.h"
 #include "IQmathLib.h"
+#include "IQmathUtils.h"
 
 // Types
 typedef struct __RegulatorsData
@@ -44,5 +45,6 @@ _iq MEASURE_Im();
 _iq MEASURE_TSP();
 RegulatorsData MEASURE_RegulatorsSample();
 CombinedData MEASURE_CombinedData(Boolean DoubleSideCooling);
+void MEASURE_VariablesPrepare();
 
 #endif /* MEASURINGPROCESSES_H_ */
