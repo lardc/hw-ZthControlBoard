@@ -298,6 +298,7 @@ void CONTROL_CashVariables()
 	LOGIC_CashVariables();
 	REGULATOR_CashVariables();
 	CONVERT_CasheVariables();
+	MEASURE_VariablesPrepare();
 }
 // ----------------------------------------
 
@@ -486,7 +487,7 @@ void CONTROL_SaveHeatingData(RegulatorsData Sample)
 	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
 	DataTable[REG_ACTUAL_I_DUT] = _IQint(Sample.Ih);
 	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
-	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(Sample.Im);
+	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
 }
 // ----------------------------------------
 

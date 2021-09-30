@@ -78,7 +78,7 @@
 #define REG_ADC_IM_P1				21	// Fine coefficient for Im quadratic correction P1 x1000
 #define REG_ADC_IM_P0				22	// Fine coefficient for Im quadratic correction P0 (in mA)
 #define REG_ADC_IM_K				23	// Conversion coefficient K for Im x1000
-#define REG_ADC_IM_B				24	// Conversion offset for Im (in mA)
+#define REG_ADC_IM_B				24	// Conversion offset for Im (in mA x100)
 //
 #define REG_ADC_TSP_P2				25	// Fine coefficient for TSP quadratic correction P2 x1e6
 #define REG_ADC_TSP_P1				26	// Fine coefficient for TSP quadratic correction P1 x1000
@@ -156,7 +156,7 @@
 #define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A)
 #define REG_ACTUAL_P_DUT			202	// Actual DUT power dissipation (in W)
-#define REG_ACTUAL_I_MEASUREMENT	203	// Actual measurement current (in mA)
+#define REG_ACTUAL_I_MEASUREMENT	203	// Actual measurement current (in mA x10)
 #define REG_ACTUAL_T_CASE1			204	// Actual temperature of DUT case 1 (in C x100)
 #define REG_ACTUAL_T_CASE2			205	// Actual temperature of DUT case 2 (in C x100)
 #define REG_ACTUAL_T_COOL1			206	// Actual temperature of DUT cooler 1 (in C x100)
