@@ -215,6 +215,18 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
+		case ACT_START_GATE:
+			CONTROL_CashVariables();
+
+			if(CONTROL_Mode == MODE_INDEPENDENT)
+			{
+				CONTROL_GatePulse(TRUE);
+				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+			}
+			else
+				*UserError = ERR_OPERATION_BLOCKED;
+			break;
+
 		default:
 			if (CONTROL_State == DS_None)
 				return DIAG_Process(ActionID);
@@ -293,7 +305,7 @@ void CONTROL_CashVariables()
 	//
 	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
 	CONTROL_GateCurrent = _IQI(DataTable[REG_GATE_CURRENT]);
-	CONTROL_GateVoltage = _IQI(DataTable[REG_IGBT_V_GATE]);
+	CONTROL_GateVoltage = DataTable[REG_IGBT_V_GATE];
 	//
 	LOGIC_CashVariables();
 	REGULATOR_CashVariables();

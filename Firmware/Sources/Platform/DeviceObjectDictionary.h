@@ -31,7 +31,7 @@
 //
 #define ACT_START_IM				50	// Start generating Im
 #define ACT_START_IH				51	// Start generating Ih
-#define ACT_START_IG				52	// Start generating Ig
+#define ACT_START_GATE				52	// Start generating Ig
 //
 #define ACT_START_PROCESS			100	// Start measuring process
 #define ACT_STOP_PROCESS			101	// Stop measuring process

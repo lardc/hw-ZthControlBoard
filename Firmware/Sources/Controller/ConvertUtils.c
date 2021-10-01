@@ -42,7 +42,7 @@ void CONVERT_CasheVariables()
 	DAC_ParamsIm = CONVERT_LoadParams(REG_DAC_IM_P2, REG_DAC_IM_P1, REG_DAC_IM_P0, REG_DAC_IM_K, REG_DAC_IM_B, 1);
 	//
 	ADC_ParamsIh = CONVERT_LoadParams(REG_ADC_IH_P2, REG_ADC_IH_P1, REG_ADC_IH_P0, REG_ADC_IH_K, REG_ADC_IH_B, 1);
-	ADC_ParamsIm = CONVERT_LoadParams(REG_ADC_IM_P2, REG_ADC_IM_P1, REG_ADC_IM_P0, REG_ADC_IM_K, REG_ADC_IM_B, 1);
+	ADC_ParamsIm = CONVERT_LoadParams(REG_ADC_IM_P2, REG_ADC_IM_P1, REG_ADC_IM_P0, REG_ADC_IM_K, REG_ADC_IM_B, 100);
 	ADC_ParamsTSP = CONVERT_LoadParams(REG_ADC_TSP_P2, REG_ADC_TSP_P1, REG_ADC_TSP_P0, REG_ADC_TSP_K, REG_ADC_TSP_B, 1);
 	ADC_ParamsTcase1 = CONVERT_LoadParams(REG_ADC_T_CASE1_P2, REG_ADC_T_CASE1_P1, REG_ADC_T_CASE1_P0, REG_ADC_T_K, REG_ADC_T_B, 100);
 	ADC_ParamsTcase2 = CONVERT_LoadParams(REG_ADC_T_CASE2_P2, REG_ADC_T_CASE2_P1, REG_ADC_T_CASE2_P0, REG_ADC_T_K, REG_ADC_T_B, 100);
@@ -111,9 +111,9 @@ _iq CONVERT_ADCToTSP(Int16U ADCData)
 }
 // ----------------------------------------
 
-Int16U CONVERT_ADCToCapVolatge(Int16U ADCData)
+_iq CONVERT_ADCToCapVolatge(Int16U ADCData)
 {
-	return (Int16U)_IQint(_IQmpyI32(CapVoltageK, ADCData));
+	return _IQmpyI32(CapVoltageK, ADCData);
 }
 // ----------------------------------------
 
@@ -147,9 +147,9 @@ ConvParameters CONVERT_LoadParams(Int16U RegP2, Int16U RegP1, Int16U RegP0, Int1
 {
 	ConvParameters ret;
 
-	ret.P2	= _IQI(DataTable[RegP2]);
+	ret.P2	= _IQI((Int16S)DataTable[RegP2]);
 	ret.P1	= _FPtoIQ2(DataTable[RegP1], 1000);
-	ret.P0	= _IQI((Int16S)DataTable[RegP0]);
+	ret.P0	= _FPtoIQ2(DataTable[RegP0], 100);
 	//
 	ret.K	= _FPtoIQ2(DataTable[RegK], 1000);
 	ret.B	= _FPtoIQ2(DataTable[RegB], RegBDiv);

@@ -20,6 +20,6 @@ _iq CONVERT_ADCToTcase2(Int16U ADCData);
 _iq CONVERT_ADCToTcool1(Int16U ADCData);
 _iq CONVERT_ADCToTcool2(Int16U ADCData);
 _iq CONVERT_ADCToTSP(Int16U ADCData);
-Int16U CONVERT_ADCToCapVolatge(Int16U ADCData);
+_iq CONVERT_ADCToCapVolatge(Int16U ADCData);
 
 #endif /* CONVERTUTILS_H_ */
