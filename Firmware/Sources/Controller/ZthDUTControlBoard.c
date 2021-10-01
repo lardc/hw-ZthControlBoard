@@ -18,7 +18,7 @@ DCB_OutputType	ZthDCBOutputType = VOLTAGE_SOURCE;
 void ZthDCB_CurrentSet(_iq Current)
 {
 	if(ZthDCBOutputType == CURRENT_SOURCE)
-		ZbDAC_Write(CONVERT_IgToDAC(Current) & DAC_WRITE_A, &ZbGPIO_DCB_LDAC, FALSE);
+		ZbDAC_Write(CONVERT_IgToDAC(Current) | DAC_WRITE_A, &ZbGPIO_DCB_LDAC, FALSE);
 }
 // ----------------------------------------
 
