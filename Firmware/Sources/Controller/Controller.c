@@ -106,6 +106,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 	CONTROL_CashVariables();
 	ZwADC_SubscribeToResults1(&MEASURE_CapVoltageSamplingResult);
+	REGULATOR_ForceOutputsToZero();
 }
 // ----------------------------------------
 
@@ -209,6 +210,20 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				REGULATOR_InitAll();
 				REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
 				REGULATOR_Enable(SelectIm, TRUE);
+				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+			}
+			else
+				*UserError = ERR_OPERATION_BLOCKED;
+			break;
+
+		case ACT_START_IH:
+			CONTROL_CashVariables();
+
+			if(CONTROL_Mode == MODE_INDEPENDENT)
+			{
+				REGULATOR_InitAll();
+				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_HEATING_CURRENT]));
+				REGULATOR_Enable(SelectIh, TRUE);
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
@@ -497,7 +512,7 @@ void CONTROL_SwitchToFault(Int16U FaultReason)
 void CONTROL_SaveHeatingData(RegulatorsData Sample)
 {
 	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
-	DataTable[REG_ACTUAL_I_DUT] = _IQint(Sample.Ih);
+	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
 	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
 	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
 }
