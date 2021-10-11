@@ -56,23 +56,25 @@
 #define REG_DAC_IG_K				3	// Conversion coefficient K for Ig x1000
 #define REG_DAC_IG_B				4	// Conversion offset for Ig (in mA)
 //
-#define REG_DAC_IH_P2				5	// Fine coefficient for Ih quadratic correction P2 x1e6
-#define REG_DAC_IH_P1				6	// Fine coefficient for Ih quadratic correction P1 x1000
-#define REG_DAC_IH_P0				7	// Fine coefficient for Ih quadratic correction P0 (in A)
-#define REG_DAC_IH_K				8	// Conversion coefficient K for Ih x1000
-#define REG_DAC_IH_B				9	// Conversion offset for Ih (in A)
+#define REG_DAC_IH_K				5	// Conversion coefficient K for Ih x1000
+#define REG_DAC_IH_B				6	// Conversion offset for Ih (in A)
 //
-#define REG_DAC_IM_P2				10	// Fine coefficient for Im quadratic correction P2 x1e6
-#define REG_DAC_IM_P1				11	// Fine coefficient for Im quadratic correction P1 x1000
-#define REG_DAC_IM_P0				12	// Fine coefficient for Im quadratic correction P0 (in mA)
-#define REG_DAC_IM_K				13	// Conversion coefficient K for Im x1000
-#define REG_DAC_IM_B				14	// Conversion offset for Im (in mA)
+#define REG_DAC_IM_K				7	// Conversion coefficient K for Im x1000
+#define REG_DAC_IM_B				8	// Conversion offset for Im (in mA)
 //
-#define REG_ADC_IH_P2				15	// Fine coefficient for Ih quadratic correction P2 x1e6
-#define REG_ADC_IH_P1				16	// Fine coefficient for Ih quadratic correction P1 x1000
-#define REG_ADC_IH_P0				17	// Fine coefficient for Ih quadratic correction P0 (in A)
-#define REG_ADC_IH_K				18	// Conversion coefficient K for Ih x1000
-#define REG_ADC_IH_B				19	// Conversion offset for Ih (in A)
+#define REG_IH_RANGE_THRESHOLD		9	// Heating current range threshold (in A)
+//
+#define REG_ADC_IH_R0_P2			10	// Fine coefficient for Ih quadratic correction P2 x1e6
+#define REG_ADC_IH_R0_P1			11	// Fine coefficient for Ih quadratic correction P1 x1000
+#define REG_ADC_IH_R0_P0			12	// Fine coefficient for Ih quadratic correction P0 (in A)
+#define REG_ADC_IH_R0_K				13	// Conversion coefficient K for Ih x1000
+#define REG_ADC_IH_R0_B				14	// Conversion offset for Ih (in A)
+//
+#define REG_ADC_IH_R1_P2			15	// Fine coefficient for Ih quadratic correction P2 x1e6
+#define REG_ADC_IH_R1_P1			16	// Fine coefficient for Ih quadratic correction P1 x1000
+#define REG_ADC_IH_R1_P0			17	// Fine coefficient for Ih quadratic correction P0 (in A)
+#define REG_ADC_IH_R1_K				18	// Conversion coefficient K for Ih x1000
+#define REG_ADC_IH_R1_B				19	// Conversion offset for Ih (in A)
 //
 #define REG_ADC_IM_P2				20	// Fine coefficient for Im quadratic correction P2 x1e6
 #define REG_ADC_IM_P1				21	// Fine coefficient for Im quadratic correction P1 x1000

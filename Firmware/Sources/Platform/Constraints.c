@@ -18,21 +18,21 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
                                     		   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 2
                                     		   {DAC_IG_K_MIN, DAC_IG_K_MAX, DAC_IG_K_DEF},										// 3
                                     		   {DAC_IG_B_MIN, DAC_IG_B_MAX, DAC_IG_B_DEF},										// 4
-											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 5
-											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 6
-											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 7
-                                    		   {DAC_IH_K_MIN, DAC_IH_K_MAX, DAC_IH_K_DEF},										// 8
-                                    		   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 9
+                                    		   {DAC_IH_K_MIN, DAC_IH_K_MAX, DAC_IH_K_DEF},										// 5
+                                    		   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 6
+											   {DAC_IM_K_MIN, DAC_IM_K_MAX, DAC_IM_K_DEF},										// 7
+											   {DAC_IM_B_MIN, DAC_IM_B_MAX, DAC_IM_B_DEF},										// 8
+											   {IMPULSE_CURRENT_MIN, IMPULSE_CURRENT_MAX, IH_RANGE_THRESHOLD_DEF},				// 9
 											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 10
 											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 11
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 12
-											   {DAC_IM_K_MIN, DAC_IM_K_MAX, DAC_IM_K_DEF},										// 13
-											   {DAC_IM_B_MIN, DAC_IM_B_MAX, DAC_IM_B_DEF},										// 14
+											   {ADC_IH_R0_K_MIN, ADC_IH_R0_K_MAX, ADC_IH_R0_K_DEF},								// 13
+											   {ADC_IH_R0_B_MIN, ADC_IH_R0_B_MAX, ADC_IH_R0_B_DEF},								// 14
 											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 15
 											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 16
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 17
-											   {ADC_IH_K_MIN, ADC_IH_K_MAX, ADC_IH_K_DEF},										// 18
-											   {ADC_IH_B_MIN, ADC_IH_B_MAX, ADC_IH_B_DEF},										// 19
+											   {ADC_IH_R1_K_MIN, ADC_IH_R1_K_MAX, ADC_IH_R1_K_DEF},								// 18
+											   {ADC_IH_R1_B_MIN, ADC_IH_R1_B_MAX, ADC_IH_R1_B_DEF},								// 19
 											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 20
 											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 21
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 22

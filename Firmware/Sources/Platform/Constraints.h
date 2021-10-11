@@ -57,9 +57,13 @@ typedef struct __TableItemConstraint
 #define DAC_IM_B_MAX			INT16U_MAX
 #define DAC_IM_B_DEF			0
 //
-#define ADC_IH_K_MIN			0
-#define ADC_IH_K_MAX			INT16U_MAX
-#define ADC_IH_K_DEF			1000
+#define ADC_IH_R0_K_MIN			0
+#define ADC_IH_R0_K_MAX			INT16U_MAX
+#define ADC_IH_R0_K_DEF			1000
+//
+#define ADC_IH_R1_K_MIN			0
+#define ADC_IH_R1_K_MAX			INT16U_MAX
+#define ADC_IH_R1_K_DEF			1000
 //
 #define ADC_IM_K_MIN			0
 #define ADC_IM_K_MAX			INT16U_MAX
@@ -73,9 +77,13 @@ typedef struct __TableItemConstraint
 #define ADC_T_K_MAX				INT16U_MAX
 #define ADC_T_K_DEF				1000
 //
-#define ADC_IH_B_MIN			0
-#define ADC_IH_B_MAX			INT16U_MAX
-#define ADC_IH_B_DEF			1000
+#define ADC_IH_R0_B_MIN			0
+#define ADC_IH_R0_B_MAX			INT16U_MAX
+#define ADC_IH_R0_B_DEF			1000
+//
+#define ADC_IH_R1_B_MIN			0
+#define ADC_IH_R1_B_MAX			INT16U_MAX
+#define ADC_IH_R1_B_DEF			1000
 //
 #define ADC_IM_B_MIN			0
 #define ADC_IM_B_MAX			INT16U_MAX
@@ -134,6 +142,7 @@ typedef struct __TableItemConstraint
 #define DUT_IGBT				1
 #define COOLING_ONE_SIDE		0
 #define COOLING_DOUBLE_SIDE		1
+#define IH_RANGE_THRESHOLD_DEF	500
 //
 #define ZTH_PULSE_MIN_WIDTH_MIN	100
 #define ZTH_PULSE_MIN_WIDTH_MAX	10000
@@ -154,17 +163,17 @@ typedef struct __TableItemConstraint
 #define GRADUATION_TIME_MIN		10
 #define GRADUATION_TIME_MAX		100
 //
-#define IMPULSE_CURRENT_MIN		100
+#define IMPULSE_CURRENT_MIN		50
 #define IMPULSE_CURRENT_MAX		2500
 //
-#define HEATING_CURRENT_MIN		100
+#define HEATING_CURRENT_MIN		50
 #define HEATING_CURRENT_MAX		1000
 //
 #define GATE_CURRENT_MIN		500
 #define GATE_CURRENT_MAX		3000
 #define GATE_CURRENT_DEF		1000
 //
-#define MEASURING_CURRENT_MIN	500
+#define MEASURING_CURRENT_MIN	0
 #define	MEASURING_CURRENT_MAX	5000
 #define MEASURING_CURRENT_DEF	2000
 //

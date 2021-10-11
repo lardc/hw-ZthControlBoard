@@ -21,5 +21,6 @@ _iq CONVERT_ADCToTcool1(Int16U ADCData);
 _iq CONVERT_ADCToTcool2(Int16U ADCData);
 _iq CONVERT_ADCToTSP(Int16U ADCData);
 _iq CONVERT_ADCToCapVolatge(Int16U ADCData);
+void CONVERT_IhSetRangeParams(Boolean Range);
 
 #endif /* CONVERTUTILS_H_ */

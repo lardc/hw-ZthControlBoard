@@ -13,7 +13,7 @@ void ZbGPIO_Init()
 	// Reset to default state
 	ZwGPIO_WritePin(PIN_U_GATE_SEL, FALSE);
 	ZwGPIO_WritePin(PIN_MCB_SYNC, FALSE);
-	ZwGPIO_WritePin(PIN_LED2, FALSE);
+	ZwGPIO_WritePin(PIN_IH_RANGE, FALSE);
 	ZwGPIO_WritePin(PIN_SB_IM_CS, TRUE);
 	ZwGPIO_WritePin(PIN_SB_TSP_CS, TRUE);
 	ZwGPIO_WritePin(PIN_DCB_LDAC, TRUE);
@@ -33,7 +33,7 @@ void ZbGPIO_Init()
    	// Configure pins to output
 	ZwGPIO_PinToOutput(PIN_U_GATE_SEL);
 	ZwGPIO_PinToOutput(PIN_MCB_SYNC);
-	ZwGPIO_PinToOutput(PIN_LED2);
+	ZwGPIO_PinToOutput(PIN_IH_RANGE);
 	ZwGPIO_PinToOutput(PIN_SB_IM_CS);
 	ZwGPIO_PinToOutput(PIN_SB_TSP_CS);
 	ZwGPIO_PinToOutput(PIN_DCB_LDAC);
@@ -64,21 +64,9 @@ void ZbGPIO_SwitchLED1(Boolean Set)
 }
 // ----------------------------------------
 
-void ZbGPIO_SwitchLED2(Boolean Set)
-{
-	ZwGPIO_WritePin(PIN_LED2, Set);
-}
-// ----------------------------------------
-
 void ZbGPIO_ToggleLED1()
 {
 	ZwGPIO_TogglePin(PIN_LED1);
-}
-// ----------------------------------------
-
-void ZbGPIO_ToggleLED2()
-{
-	ZwGPIO_TogglePin(PIN_LED2);
 }
 // ----------------------------------------
 
@@ -151,6 +139,12 @@ void ZbGPIO_SB_Tcool2_CS(Boolean State)
 void ZbGPIO_SB_Ih_CS(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_SB_IH_CS, State);
+}
+// ----------------------------------------
+
+void ZbGPIO_SB_Ih_Range(Boolean Set)
+{
+	ZwGPIO_WritePin(PIN_IH_RANGE, !Set);
 }
 // ----------------------------------------
 

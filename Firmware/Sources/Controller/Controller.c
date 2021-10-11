@@ -60,6 +60,7 @@ void CONTROL_MeasuringCurrentProcess(Boolean State);
 void CONTROL_ResetOutputRegisters();
 void CONTROL_Protection();
 void CONTROL_ForceStopProcess();
+void CONTROL_PrepareProcess();
 
 // Functions
 //
@@ -104,7 +105,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 		CONTROL_SetDeviceState(DS_Disabled, SS_None);
 	}
 
-	CONTROL_CashVariables();
+	CONTROL_PrepareProcess();
 	ZwADC_SubscribeToResults1(&MEASURE_CapVoltageSamplingResult);
 	REGULATOR_ForceOutputsToZero();
 }
@@ -187,7 +188,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_UPDATE:
-				CONTROL_CashVariables();
+			CONTROL_PrepareProcess();
 			break;
 
 		case ACT_CLR_FAULT:
@@ -203,7 +204,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IM:
-			CONTROL_CashVariables();
+			CONTROL_PrepareProcess();
 
 			if(CONTROL_Mode == MODE_INDEPENDENT)
 			{
@@ -217,7 +218,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IH:
-			CONTROL_CashVariables();
+			CONTROL_PrepareProcess();
 
 			if(CONTROL_Mode == MODE_INDEPENDENT)
 			{
@@ -231,7 +232,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_GATE:
-			CONTROL_CashVariables();
+			CONTROL_PrepareProcess();
 
 			if(CONTROL_Mode == MODE_INDEPENDENT)
 			{
@@ -331,14 +332,21 @@ void CONTROL_CashVariables()
 
 void CONTROL_StartProcess()
 {
-	CONTROL_CashVariables();
+	CONTROL_PrepareProcess();
 	CONTROL_ResetOutputRegisters();
-	REGULATOR_InitAll();
 	//
 	CONTROL_GatePulse(TRUE);
 	CONTROL_MeasuringCurrentProcess(TRUE);
 }
 // ----------------------------------------
+
+void CONTROL_PrepareProcess()
+{
+	CONTROL_CashVariables();
+	REGULATOR_InitAll();
+	//
+	LOGIC_HeatingCurrentSetRange(LOGIC_ImpulseCurrent);
+}
 
 void CONTROL_StopProcess(Int16U OpResult)
 {
@@ -390,8 +398,6 @@ void CONTROL_RegulatorProcess()
 {
 	RegulatorsData Sample;
 
-	ZbGPIO_SwitchLED2(TRUE);
-
 	if(CONTROL_State == DS_InProcess)
 	{
 		// Measurement process
@@ -406,8 +412,6 @@ void CONTROL_RegulatorProcess()
 		// Incrementing time counter
 		LOGIC_IncTimeCounter();
 	}
-
-	ZbGPIO_SwitchLED2(FALSE);
 }
 // ----------------------------------------
 
