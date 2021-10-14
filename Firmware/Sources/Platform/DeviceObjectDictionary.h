@@ -109,7 +109,7 @@
 //
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
-#define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in mV)
+#define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in V x10)
 //
 #define REG_P_ERROR_THRESHOLD		47	// Power error threshold (% x10)
 // 48 - 49
@@ -156,7 +156,7 @@
 #define REG_OP_RESULT				197	// Indicates that test is done and there is result or fault
 //
 #define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
-#define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A)
+#define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A x10)
 #define REG_ACTUAL_P_DUT			202	// Actual DUT power dissipation (in W)
 #define REG_ACTUAL_I_MEASUREMENT	203	// Actual measurement current (in mA x10)
 #define REG_ACTUAL_T_CASE1			204	// Actual temperature of DUT case 1 (in C x100)
@@ -181,6 +181,8 @@
 #define EP_T_CASE2					3	// Endpoint of DUT case 2 temperature
 #define EP_T_COOL1					4	// Endpoint of DUT cooler 1 temperature
 #define EP_T_COOL2					5	// Endpoint of DUT cooler 2 temperature
+//
+#define EP_ERR_IH					6	// Endpoint of regulator error
 //
 
 // OPERATION RESULTS

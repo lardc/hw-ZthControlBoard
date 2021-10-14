@@ -106,8 +106,8 @@ typedef struct __TableItemConstraint
 #define CAP_VOLTAGE_K_D_DEF		1000
 //
 #define CAP_V_THRESHOLD_MIN		0
-#define CAP_V_THRESHOLD_MAX		25000
-#define	CAP_V_THRESHOLD_DEF		12000
+#define CAP_V_THRESHOLD_MAX		250
+#define	CAP_V_THRESHOLD_DEF		120
 //
 #define P_ERR_THRESHOLD_MIN		0
 #define P_ERR_THRESHOLD_MAX		100
@@ -167,7 +167,7 @@ typedef struct __TableItemConstraint
 #define IMPULSE_CURRENT_MAX		2500
 //
 #define HEATING_CURRENT_MIN		50
-#define HEATING_CURRENT_MAX		1000
+#define HEATING_CURRENT_MAX		65535//1000
 //
 #define GATE_CURRENT_MIN		500
 #define GATE_CURRENT_MAX		3000
