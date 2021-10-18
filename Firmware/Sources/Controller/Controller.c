@@ -23,6 +23,7 @@
 #include "IQmathLib.h"
 #include "IQMathUtils.h"
 #include "ConvertUtils.h"
+#include "Regulator.h"
 
 // Definitions
 //
@@ -67,14 +68,17 @@ void CONTROL_PrepareProcess();
 void CONTROL_Init(Boolean BadClockDetected)
 {
 	// Variables for endpoint configuration
-	Int16U EPIndexes[EP_COUNT] = { EP_TSP, EP_T_CASE1, EP_T_CASE2, EP_T_COOL1, EP_T_COOL2};
+	Int16U EPIndexes[EP_COUNT] = { EP_TSP, EP_T_CASE1, EP_T_CASE2, EP_T_COOL1, EP_T_COOL2, EP_ERR_IM, EP_ERR_IH, EP_ERR_P};
 
-	Int16U EPSized[EP_COUNT] = { VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE};
+	Int16U EPSized[EP_COUNT] = { VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE,
+			REGULATOR_VALUES_SIZE, REGULATOR_VALUES_SIZE, REGULATOR_VALUES_SIZE};
 
 	pInt16U EPCounters[EP_COUNT] = { (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter,
-			(pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter};
+			(pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&REGULATOR_ErrorIm_Counter,
+			(pInt16U)&REGULATOR_ErrorIh_Counter, (pInt16U)&REGULATOR_ErrorP_Counter};
 
-	pInt16U EPDatas[EP_COUNT] = { LOGIC_Values_TSP, LOGIC_Values_Tcase1, LOGIC_Values_Tcase2, LOGIC_Values_Tcool1, LOGIC_Values_Tcool2};
+	pInt16U EPDatas[EP_COUNT] = { LOGIC_Values_TSP, LOGIC_Values_Tcase1, LOGIC_Values_Tcase2, LOGIC_Values_Tcool1, LOGIC_Values_Tcool2,
+			REGULATOR_ErrorIm, REGULATOR_ErrorIh, REGULATOR_ErrorP};
 
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = { &ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM };
@@ -219,11 +223,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_START_IH:
 			CONTROL_PrepareProcess();
+			CONTROL_ResetOutputRegisters();
 
 			if(CONTROL_Mode == MODE_INDEPENDENT)
 			{
 				REGULATOR_InitAll();
-				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_HEATING_CURRENT]));
+				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_IMPULSE_CURRENT]));
 				REGULATOR_Enable(SelectIh, TRUE);
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
@@ -454,8 +459,6 @@ void CONTROL_ForceStopProcess()
 
 void CONTROL_ResetOutputRegisters()
 {
-	DEVPROFILE_ResetEPReadState();
-
 	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
 	DataTable[REG_ACTUAL_U_DUT] = 0;
 	DataTable[REG_ACTUAL_I_DUT] = 0;
@@ -466,6 +469,9 @@ void CONTROL_ResetOutputRegisters()
 	DataTable[REG_ACTUAL_T_COOL1] = 0;
 	DataTable[REG_ACTUAL_T_COOL2] = 0;
 	DataTable[REG_ACTUAL_TSP] = 0;
+
+	DEVPROFILE_ResetScopes(0);
+	DEVPROFILE_ResetEPReadState();
 }
 // ----------------------------------------
 

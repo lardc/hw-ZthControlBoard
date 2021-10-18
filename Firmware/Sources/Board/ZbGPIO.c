@@ -28,7 +28,7 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_SB_TK2_CS, TRUE);
 	ZwGPIO_WritePin(PIN_EEPROM_CS, TRUE);
 	ZwGPIO_WritePin(PIN_SYNC_OSC, FALSE);
-	ZwGPIO_WritePin(PIN_REG_RCLK, TRUE);
+	ZwGPIO_WritePin(PIN_REG_RCLK, FALSE);
 
    	// Configure pins to output
 	ZwGPIO_PinToOutput(PIN_U_GATE_SEL);

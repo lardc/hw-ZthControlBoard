@@ -154,20 +154,17 @@ void DEVPROFILE_ResetControlSection()
 }
 // ----------------------------------------
 
-void DEVPROFILE_ResetScopes(Int16U ResetPosition, Int16U ScopeMask)
+void DEVPROFILE_ResetScopes(Int16U ResetPosition)
 {
 	Int16U i;
 
 	for(i = 0; i < EP_COUNT; ++i)
 	{
-		if((1 << i) & ScopeMask)
-		{
-			*(RS232_EPState.EPs[i].pDataCounter) = ResetPosition;
-			*(CAN_EPState.EPs[i].pDataCounter) = ResetPosition;
+		*(RS232_EPState.EPs[i].pDataCounter) = ResetPosition;
+		*(CAN_EPState.EPs[i].pDataCounter) = ResetPosition;
 
-			MemZero16(RS232_EPState.EPs[i].Data, RS232_EPState.EPs[i].Size);
-			MemZero16(CAN_EPState.EPs[i].Data, CAN_EPState.EPs[i].Size);
-		}
+		MemZero16(RS232_EPState.EPs[i].Data, RS232_EPState.EPs[i].Size);
+		MemZero16(CAN_EPState.EPs[i].Data, CAN_EPState.EPs[i].Size);
 	}
 }
 // ----------------------------------------

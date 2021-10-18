@@ -10,7 +10,6 @@
 #include "IQmathLib.h"
 #include "IQmathUtils.h"
 #include "ZthMCurrentBoard.h"
-#include "Global.h"
 
 
 // Types
@@ -24,6 +23,8 @@ typedef struct __RegulatorSettings
 	_iq Ki;
 	_iq Control;
 	_iq ControlSat;
+	Int16U *ErrorArray;
+	Int16U *ArrayCounter;
 } RegulatorSettings, *pRegulatorSettings;
 
 
@@ -31,12 +32,23 @@ typedef struct __RegulatorSettings
 RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
 RegulatorsData RegulatorSample;
 _iq RegulatorSavedPowerTarget = 0, RegulatorPowerErrorThreshold = 0;
-
+//
+#pragma DATA_SECTION(REGULATOR_ErrorIh, "data_mem");
+Int16U REGULATOR_ErrorIh[VALUES_x_SIZE];
+#pragma DATA_SECTION(REGULATOR_ErrorIm, "data_mem");
+Int16U REGULATOR_ErrorIm[VALUES_x_SIZE];
+#pragma DATA_SECTION(REGULATOR_ErrorP, "data_mem");
+Int16U REGULATOR_ErrorP[VALUES_x_SIZE];
+Int16U REGULATOR_ErrorIm_Counter = 0;
+Int16U REGULATOR_ErrorIh_Counter = 0;
+Int16U REGULATOR_ErrorP_Counter = 0;
+//
 
 // Forward functions
 void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample);
 void REGULATOR_Init(RegulatorSelector Selector);
-void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki);
+void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki, Int16U *Array, Int16U *ArrayCounter);
+void REGULATOR_SaveErr(pRegulatorSettings Regulator, _iq Error);
 
 
 // Functions
@@ -79,6 +91,8 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		_iq ControlI = 0;
 		_iq Error = Regulator->TargetValuePrev - SampleValue;
 
+		REGULATOR_SaveErr(Regulator, Error);
+
 		if(Selector == SelectIh)
 		{
 			if(!RegulatorSavedPowerTarget && RegulatorIh.TargetValue && (ABS(Error) <= RegulatorPowerErrorThreshold))
@@ -116,7 +130,7 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 }
 // ----------------------------------------
 
-void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki)
+void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki, Int16U *Array, Int16U *ArrayCounter)
 {
 	Regulator->Enabled			= FALSE;
 	Regulator->Kp				= _FPtoIQ2(DataTable[Register_Kp], 1000);
@@ -127,6 +141,9 @@ void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Regist
 	Regulator->Error 			= 0;
 	Regulator->TargetValue		= 0;
 	Regulator->TargetValuePrev	= 0;
+
+	Regulator->ErrorArray		= Array;
+	Regulator->ArrayCounter		= ArrayCounter;
 }
 // ----------------------------------------
 
@@ -196,15 +213,15 @@ void REGULATOR_Init(RegulatorSelector Selector)
 	switch (Selector)
 	{
 		case SelectIm:
-			REGULATOR_InitX(&RegulatorIm, REGLTR_IM_SAT, REG_PI_CTRL_IM_Kp, REG_PI_CTRL_IM_Ki);
+			REGULATOR_InitX(&RegulatorIm, REGLTR_IM_SAT, REG_PI_CTRL_IM_Kp, REG_PI_CTRL_IM_Ki, &REGULATOR_ErrorIm[0], &REGULATOR_ErrorIm_Counter);
 			break;
 
 		case SelectIh:
-			REGULATOR_InitX(&RegulatorIh, REGLTR_IH_SAT, REG_PI_CTRL_IH_Kp, REG_PI_CTRL_IH_Ki);
+			REGULATOR_InitX(&RegulatorIh, REGLTR_IH_SAT, REG_PI_CTRL_IH_Kp, REG_PI_CTRL_IH_Ki, &REGULATOR_ErrorIh[0], &REGULATOR_ErrorIh_Counter);
 			break;
 
 		case SelectP:
-			REGULATOR_InitX(&RegulatorP, REGLTR_IH_SAT, REG_PI_CTRL_P_Kp, REG_PI_CTRL_P_Ki);
+			REGULATOR_InitX(&RegulatorP, REGLTR_IH_SAT, REG_PI_CTRL_P_Kp, REG_PI_CTRL_P_Ki, &REGULATOR_ErrorP[0], &REGULATOR_ErrorP_Counter);
 			break;
 	}
 }
@@ -262,5 +279,30 @@ RegulatorsData REGULATOR_GetTarget()
 	ret.P = RegulatorP.TargetValue;
 
 	return ret;
+}
+// ----------------------------------------
+
+void REGULATOR_SaveErr(pRegulatorSettings Regulator, _iq Error)
+{
+	static Int16U ScopeLogStep = 0, LocalCounter = 0;
+
+	if (*Regulator->ArrayCounter == 0)
+		LocalCounter = 0;
+
+	if (ScopeLogStep++ >= DataTable[REG_SCOPE_STEP])
+	{
+		ScopeLogStep = 0;
+
+		*(Regulator->ErrorArray + *Regulator->ArrayCounter) = _IQint(_IQmpy(Error, _IQI(100)));
+		*Regulator->ArrayCounter = LocalCounter;
+
+		++LocalCounter;
+	}
+
+	if (*Regulator->ArrayCounter < REGULATOR_VALUES_SIZE)
+		*Regulator->ArrayCounter = LocalCounter;
+
+	if (LocalCounter >= REGULATOR_VALUES_SIZE)
+		LocalCounter = 0;
 }
 // ----------------------------------------

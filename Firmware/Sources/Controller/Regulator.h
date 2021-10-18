@@ -5,6 +5,7 @@
 #include "stdinc.h"
 #include "IQmathLib.h"
 #include "MeasuringProcesses.h"
+#include "Global.h"
 
 // Types
 //
@@ -14,6 +15,15 @@ typedef enum __RegulatorSelector
 	SelectIh,
 	SelectP
 } RegulatorSelector;
+
+// Variables
+//
+extern Int16U REGULATOR_ErrorIm[VALUES_x_SIZE];
+extern Int16U REGULATOR_ErrorIh[VALUES_x_SIZE];
+extern Int16U REGULATOR_ErrorP[VALUES_x_SIZE];
+extern Int16U REGULATOR_ErrorIm_Counter;
+extern Int16U REGULATOR_ErrorIh_Counter;
+extern Int16U REGULATOR_ErrorP_Counter;
 
 // Functions
 //

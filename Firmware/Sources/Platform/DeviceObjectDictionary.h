@@ -121,6 +121,7 @@
 #define REG_PI_CTRL_P_Ki			55	// Heating current PI Ki
 //
 #define REG_MUTE_PROTECTION			60	// Ignore protection
+#define REG_SCOPE_STEP				61	// Scope step
 //
 #define REG_MODE					128	// Operating mode (0 - independent, 1 - Zth sequence pulses, 2 - Zth long pulse, 3 - Rth sequence pulses, 4 - graduation)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
@@ -182,7 +183,9 @@
 #define EP_T_COOL1					4	// Endpoint of DUT cooler 1 temperature
 #define EP_T_COOL2					5	// Endpoint of DUT cooler 2 temperature
 //
-#define EP_ERR_IH					6	// Endpoint of regulator error
+#define EP_ERR_IM					6	// Endpoint of Im regulator error
+#define EP_ERR_IH					7	// Endpoint of Ih regulator error
+#define EP_ERR_P					8	// Endpoint of P regulator error
 //
 
 // OPERATION RESULTS

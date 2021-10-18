@@ -20,8 +20,9 @@
 #define UNLOCK_PWD_3					1
 #define UNLOCK_PWD_4					1
 //
-#define EP_COUNT						12
+#define EP_COUNT						8
 #define VALUES_x_SIZE					500
+#define REGULATOR_VALUES_SIZE			500
 //
 
 #define SCCI_TIMEOUT_MS					100		// in ms
@@ -38,8 +39,8 @@
 
 // Regulator parameters
 //--------------------------------------------------------
-#define REGLTR_IM_SAT					_IQ(20000.0f)	// Насыщение выхода регулятора Im (в мА)
-#define REGLTR_IH_SAT					_IQ(1200.0f)	// Насыщение выхода регулятора Ih (в мА)
+#define REGLTR_IM_SAT					_IQ(6000.0f)	// Насыщение выхода регулятора Im (в мА)
+#define REGLTR_IH_SAT					_IQ(5000.0f)	// Насыщение выхода регулятора Ih (в А)
 #define REGLTR_ERROR_I_SAT_H			_IQ(20000.0f)	// Значение насыщения для интегральной составляющей регулятора
 //--------------------------------------------------------
 
