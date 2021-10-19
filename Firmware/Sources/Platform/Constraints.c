@@ -74,7 +74,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {0, 0, 0},																		// 58
 											   {0, 0, 0},																		// 59
 											   {FALSE, TRUE, FALSE},															// 60
-											   {0, 0, 0},																		// 61
+											   {0, INT16U_MAX, 0},																// 61
 											   {0, 0, 0},																		// 62
 											   {0, 0, 0},																		// 63
 											   {0, 0, 0},																		// 64
@@ -145,24 +145,24 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 
 const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START] =
                                       {
-                                    		   {0, MODE_GRADUATION, 0},															// 128
+                                    		   {0, MODE_IGATE, 0},																// 128
 											   {DUT_THYRISTOR, DUT_IGBT, DUT_THYRISTOR},										// 129
 											   {COOLING_ONE_SIDE, COOLING_DOUBLE_SIDE, COOLING_ONE_SIDE},						// 130
 											   {ZTH_PULSE_MIN_WIDTH_MIN, ZTH_PULSE_MIN_WIDTH_MAX, 0},							// 131
-											   {ZTH_PULSE_MAX_WIDTH_MIN, ZTH_PULSE_MAX_WIDTH_MAX, 0},							// 132
-											   {ZTH_COOLING_TIME_MIN, ZTH_COOLING_TIME_MAX, ZTH_COOLING_TIME_DEF},				// 133
-											   {PULSE_WIDTH_MIN, PULSE_WIDTH_MAX, 0},											// 134
-											   {COOLING_TIME_MIN, COOLING_TIME_MAX, 0},											// 135
-											   {GRADUATION_TIME_MIN, GRADUATION_TIME_MAX, 0},									// 136
-											   {IMPULSE_CURRENT_MIN, IMPULSE_CURRENT_MAX, 0},									// 137
-											   {HEATING_CURRENT_MIN, HEATING_CURRENT_MAX, 0},									// 138
-											   {GATE_CURRENT_MIN, GATE_CURRENT_MAX, GATE_CURRENT_DEF},							// 139
-                                    		   {MEASURING_CURRENT_MIN, MEASURING_CURRENT_MAX, MEASURING_CURRENT_DEF},			// 140
-                                    		   {DELAY_MIN, DELAY_MAX, DELAY_DEF},												// 141
-                                    		   {T_MIN, T_MAX, T_DEF},															// 142
-                                    		   {IGBT_V_GATE_15V, IGBT_V_GATE_20V, IGBT_V_GATE_15V},								// 143
-                                    		   {0, 0, 0},																		// 144
-                                    		   {0, 0, 0},																		// 145
+											   {0, INT16U_MAX, 0},																// 132
+											   {0, INT16U_MAX, 0},																// 133
+											   {ZTH_COOLING_TIME_MIN, ZTH_COOLING_TIME_MAX, ZTH_COOLING_TIME_DEF},				// 134
+											   {0, INT16U_MAX, 0},																// 135
+											   {0, INT16U_MAX, 0},																// 136
+											   {COOLING_TIME_MIN, COOLING_TIME_MAX, 0},											// 137
+											   {GRADUATION_TIME_MIN, GRADUATION_TIME_MAX, 0},									// 138
+											   {IMPULSE_CURRENT_MIN, IMPULSE_CURRENT_MAX, 0},									// 139
+											   {HEATING_CURRENT_MIN, HEATING_CURRENT_MAX, 0},									// 140
+											   {GATE_CURRENT_MIN, GATE_CURRENT_MAX, GATE_CURRENT_DEF},							// 141
+                                    		   {MEASURING_CURRENT_MIN, MEASURING_CURRENT_MAX, MEASURING_CURRENT_DEF},			// 142
+                                    		   {DELAY_MIN, DELAY_MAX, DELAY_DEF},												// 143
+                                    		   {T_MIN, T_MAX, T_DEF},															// 144
+                                    		   {IGBT_V_GATE_15V, IGBT_V_GATE_20V, IGBT_V_GATE_15V},								// 145
                                     		   {0, 0, 0},																		// 146
                                     		   {0, 0, 0},																		// 147
 											   {0, 0, 0},																		// 148

@@ -27,11 +27,13 @@
 
 // Definitions
 //
-#define MODE_INDEPENDENT		0
-#define MODE_ZTH_SEQ_PULSES		1
-#define MODE_ZTH_LONG_PULSE		2
-#define MODE_RTH_SEQ_PULSES		3
-#define MODE_GRADUATION			4
+#define MODE_ZTH_SEQ_PULSES		0
+#define MODE_ZTH_LONG_PULSE		1
+#define MODE_RTH_SEQ_PULSES		2
+#define MODE_GRADUATION			3
+#define MODE_IM					4
+#define MODE_IH					5
+#define MODE_IGATE				6
 
 // Variables
 //
@@ -208,13 +210,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IM:
-			CONTROL_PrepareProcess();
-
-			if(CONTROL_Mode == MODE_INDEPENDENT)
+			if (CONTROL_State == DS_Ready)
 			{
+				CONTROL_PrepareProcess();
+				CONTROL_ResetOutputRegisters();
 				REGULATOR_InitAll();
 				REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
-				REGULATOR_Enable(SelectIm, TRUE);
+
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
@@ -222,14 +224,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IH:
-			CONTROL_PrepareProcess();
-			CONTROL_ResetOutputRegisters();
-
-			if(CONTROL_Mode == MODE_INDEPENDENT)
+			if (CONTROL_State == DS_Ready)
 			{
+				CONTROL_PrepareProcess();
+				CONTROL_ResetOutputRegisters();
 				REGULATOR_InitAll();
 				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_IMPULSE_CURRENT]));
-				REGULATOR_Enable(SelectIh, TRUE);
+
 				CONTROL_SetDeviceState(DS_InProcess, SS_None);
 			}
 			else
@@ -238,14 +239,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_START_GATE:
 			CONTROL_PrepareProcess();
-
-			if(CONTROL_Mode == MODE_INDEPENDENT)
-			{
-				CONTROL_GatePulse(TRUE);
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
-			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
+			CONTROL_GatePulse(TRUE);
 			break;
 
 		default:
@@ -265,6 +259,22 @@ void CONTROL_Process()
 	{
 		switch(CONTROL_Mode)
 		{
+			case MODE_IM:
+				if(LOGIC_MeasurementCurrentProcess())
+				{
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
+				}
+				break;
+
+			case MODE_IH:
+				if(LOGIC_HeatingCurrentProcess())
+				{
+					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
+				}
+				break;
+
 			case MODE_ZTH_SEQ_PULSES:
 				if(LOGIC_ZthSequencePulsesProcess())
 				{

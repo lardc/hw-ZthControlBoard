@@ -137,7 +137,7 @@ typedef struct __TableItemConstraint
 #define REG_P_KI_MAX			INT16U_MAX
 #define REG_P_KI_DEF			0
 //
-#define MODE_GRADUATION			4
+#define MODE_IGATE				6
 #define DUT_THYRISTOR			0
 #define DUT_IGBT				1
 #define COOLING_ONE_SIDE		0
@@ -164,7 +164,7 @@ typedef struct __TableItemConstraint
 #define GRADUATION_TIME_MAX		100
 //
 #define IMPULSE_CURRENT_MIN		50
-#define IMPULSE_CURRENT_MAX		2500
+#define IMPULSE_CURRENT_MAX		65535//2500
 //
 #define HEATING_CURRENT_MIN		50
 #define HEATING_CURRENT_MAX		65535//1000
