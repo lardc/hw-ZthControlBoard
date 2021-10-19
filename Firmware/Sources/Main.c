@@ -138,7 +138,6 @@ void InitializeTimers()
 	ZwTimer_StartT1();
 
 	ZwTimer_InitT2();
-	ZwTimer_SetT2(TIMER2_PERIOD);
 	ZwTimer_EnableInterruptsT2(TRUE);
 }
 // -----------------------------------------
