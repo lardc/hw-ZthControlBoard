@@ -19,31 +19,31 @@ Boolean DIAG_Process(Int16U Command)
 	switch (Command)
 	{
 		case ACT_DBG_READ_IM:
-			DataTable[REG_DBG] = ZthSB_RawReadIm();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Im(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_IH:
-			DataTable[REG_DBG] = ZthSB_RawReadIh();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Ih(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TSP:
-			DataTable[REG_DBG] = ZthSB_RawReadTSP();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_TSP(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCASE1:
-			DataTable[REG_DBG] = ZthSB_RawReadTcase1();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase1(), 100));
 			break;
 
 		case ACT_DBG_READ_TCASE2:
-			DataTable[REG_DBG] = ZthSB_RawReadTcase2();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase2(), 100));
 			break;
 
 		case ACT_DBG_READ_TCOOL1:
-			DataTable[REG_DBG] = ZthSB_RawReadTcool1();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool1(), 100));
 			break;
 
 		case ACT_DBG_READ_TCOOL2:
-			DataTable[REG_DBG] = ZthSB_RawReadTcool2();
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool2(), 100));
 			break;
 
 		case ACT_DBG_READ_PROTECT_DATA:
@@ -74,8 +74,8 @@ Boolean DIAG_Process(Int16U Command)
 
 		case ACT_DBG_REG:
 			ZbDAC_Write(DataTable[REG_DBG], &ZbGPIO_RegisterRCLK, TRUE);
-			DELAY_US(10000);
-			ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
+			//DELAY_US(10000);
+			//ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
 			break;
 
 		case ACT_DBG_LPS_CTRL:

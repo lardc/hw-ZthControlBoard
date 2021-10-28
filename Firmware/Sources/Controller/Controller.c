@@ -244,7 +244,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		default:
 			if (CONTROL_State == DS_None)
+			{
+				CONTROL_CashVariables();
 				return DIAG_Process(ActionID);
+			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 	}
@@ -531,7 +534,7 @@ void CONTROL_SwitchToFault(Int16U FaultReason)
 
 void CONTROL_SaveHeatingData(RegulatorsData Sample)
 {
-	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
+	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
 	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
 	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
 	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
