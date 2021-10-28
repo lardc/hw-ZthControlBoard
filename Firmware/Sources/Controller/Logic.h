@@ -42,7 +42,7 @@ Boolean LOGIC_RthSequenceProcess();
 Boolean LOGIC_Graduation();
 Boolean LOGIC_MeasurementCurrentProcess();
 Boolean LOGIC_HeatingCurrentProcess();
-void LOGIC_CashVariables();
+void LOGIC_CacheVariables();
 void LOGIC_SetState(DeviceSubState State);
 void LOGIC_IncTimeCounter();
 void LOGIC_SetDelayFlag();

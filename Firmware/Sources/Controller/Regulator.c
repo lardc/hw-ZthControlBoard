@@ -227,7 +227,7 @@ void REGULATOR_Init(RegulatorSelector Selector)
 }
 // ----------------------------------------
 
-void REGULATOR_CashVariables()
+void REGULATOR_CacheVariables()
 {
 	RegulatorSavedPowerTarget = 0;
 	RegulatorPowerErrorThreshold = _FPtoIQ2(DataTable[REG_P_ERROR_THRESHOLD], 10);

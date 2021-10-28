@@ -419,7 +419,7 @@ void LOGIC_SetDelayFlag()
 }
 // ----------------------------------------
 
-void LOGIC_CashVariables()
+void LOGIC_CacheVariables()
 {
 	LOGIC_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
 	//

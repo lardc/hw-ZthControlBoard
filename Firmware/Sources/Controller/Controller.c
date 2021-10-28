@@ -52,7 +52,7 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
-void CONTROL_CashVariables();
+void CONTROL_CasheVariables();
 void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_PowerOnProcess();
 void CONTROL_Process();
@@ -245,7 +245,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		default:
 			if (CONTROL_State == DS_None)
 			{
-				CONTROL_CashVariables();
+				CONTROL_CasheVariables();
 				return DIAG_Process(ActionID);
 			}
 			else
@@ -332,7 +332,7 @@ void CONTROL_PowerOnProcess()
 }
 // ----------------------------------------
 
-void CONTROL_CashVariables()
+void CONTROL_CasheVariables()
 {
 	CONTROL_Mode = DataTable[REG_MODE];
 	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
@@ -341,9 +341,9 @@ void CONTROL_CashVariables()
 	CONTROL_GateCurrent = _IQI(DataTable[REG_GATE_CURRENT]);
 	CONTROL_GateVoltage = DataTable[REG_IGBT_V_GATE];
 	//
-	LOGIC_CashVariables();
-	REGULATOR_CashVariables();
-	CONVERT_CasheVariables();
+	LOGIC_CacheVariables();
+	REGULATOR_CacheVariables();
+	CONVERT_CacheVariables();
 	MEASURE_VariablesPrepare();
 }
 // ----------------------------------------
@@ -360,7 +360,7 @@ void CONTROL_StartProcess()
 
 void CONTROL_PrepareProcess()
 {
-	CONTROL_CashVariables();
+	CONTROL_CasheVariables();
 	REGULATOR_InitAll();
 	//
 	LOGIC_HeatingCurrentSetRange(LOGIC_ImpulseCurrent);

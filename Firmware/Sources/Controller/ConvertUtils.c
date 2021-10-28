@@ -35,7 +35,7 @@ Int16U CONVERT_xToDAC(_iq Value, ConvParameters Parameters);
 
 // Functions
 //
-void CONVERT_CasheVariables()
+void CONVERT_CacheVariables()
 {
 	CapVoltageK = _FPtoIQ2(DataTable[REG_CAP_VOLTAGE_K_N], DataTable[REG_CAP_VOLTAGE_K_D]);
 	//
