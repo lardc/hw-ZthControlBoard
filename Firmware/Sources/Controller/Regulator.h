@@ -37,6 +37,6 @@ void REGULATOR_InitAll();
 void REGULATOR_DisableAll();
 RegulatorsData REGULATOR_GetControl();
 RegulatorsData REGULATOR_GetTarget();
-void REGULATOR_CacheVariables();;
+void REGULATOR_CacheVariables();
 
 #endif // __REGULATOR_H

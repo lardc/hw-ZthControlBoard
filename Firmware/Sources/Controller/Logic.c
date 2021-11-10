@@ -26,7 +26,7 @@ volatile DeviceSubState LOGIC_SubState = SS_None;
 volatile Int64U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 //
 volatile Int16U LOGIC_CoolingMode;
-volatile Int32U LOGIC_PulseWidth, LOGIC_CoolingTime, LOGIC_ZthPulseWidthMin, LOGIC_ZthPulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationTime;
+volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationPeriodMin;
 volatile _iq LOGIC_ImpulseCurrent, LOGIC_HeatingCurrent, LOGIC_Tmax, LOGIC_ZthPause;
 //
 volatile Int64U LOGIC_ActualPulseWidth = 0;
@@ -63,13 +63,13 @@ Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth
 //
 Boolean LOGIC_MeasurementCurrentProcess()
 {
-	return LOGIC_IndependentProcesses(SelectIm, LOGIC_PulseWidth);
+	return LOGIC_IndependentProcesses(SelectIm, LOGIC_PulseWidthMax);
 }
 // ----------------------------------------
 
 Boolean LOGIC_HeatingCurrentProcess()
 {
-	return LOGIC_IndependentProcesses(SelectIh, LOGIC_PulseWidth);
+	return LOGIC_IndependentProcesses(SelectIh, LOGIC_PulseWidthMax);
 }
 // ----------------------------------------
 
@@ -106,7 +106,7 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 	switch (LOGIC_SubState)
 	{
 		case SS_None:
-			LOGIC_ActualPulseWidth = LOGIC_ZthPulseWidthMin;
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
 			LOGIC_SetState(SS_Heating);
 			break;
 
@@ -118,7 +118,7 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 		case SS_Measuring:
 			LOGIC_MeasuringProcess();
 
-			if(LOGIC_ActualPulseWidth >= LOGIC_ZthPulseWidthMax)
+			if(LOGIC_ActualPulseWidth >= LOGIC_PulseWidthMax)
 			{
 				LOGIC_SetState(SS_None);
 				Result = TRUE;
@@ -151,7 +151,7 @@ Boolean LOGIC_ZthLongPulseProcess()
 	switch (LOGIC_SubState)
 	{
 		case SS_None:
-			LOGIC_ActualPulseWidth = LOGIC_ZthPulseWidthMax;
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
 			LOGIC_SetState(SS_Heating);
 			break;
 
@@ -196,7 +196,7 @@ Boolean LOGIC_RthSequenceProcess()
 	switch (LOGIC_SubState)
 	{
 		case SS_None:
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidth;
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
 			LOGIC_SetState(SS_Heating);
 			break;
 
@@ -207,7 +207,7 @@ Boolean LOGIC_RthSequenceProcess()
 
 		case SS_Measuring:
 			LOGIC_MeasuringProcess();
-			CoolingTimeTemp = LOGIC_CoolingTime - LOGIC_MeasurementDelay;
+			CoolingTimeTemp = LOGIC_Pause - LOGIC_MeasurementDelay;
 			LOGIC_SetState(SS_Cooling);
 			break;
 
@@ -230,7 +230,7 @@ Boolean LOGIC_Graduation()
 	switch (LOGIC_SubState)
 	{
 		case SS_None:
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidth;
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
 			HeatingProcess = TRUE;
 			LOGIC_SetState(SS_Heating);
 			break;
@@ -248,7 +248,7 @@ Boolean LOGIC_Graduation()
 		case SS_Cooling:
 			if(HeatingProcess)
 			{
-				if(LOGIC_CoolingProcess(LOGIC_CoolingTime))
+				if(LOGIC_CoolingProcess(LOGIC_Pause))
 					LOGIC_SetState(SS_Heating);
 			}
 			else
@@ -258,7 +258,7 @@ Boolean LOGIC_Graduation()
 
 		case SS_Measuring:
 			LOGIC_MeasuringProcess();
-			CoolingTimeTemp = LOGIC_GraduationTime - LOGIC_MeasurementDelay;
+			CoolingTimeTemp = LOGIC_GraduationPeriodMin - LOGIC_MeasurementDelay;
 			HeatingProcess = FALSE;
 			LOGIC_SetState(SS_Cooling);
 			break;
@@ -421,21 +421,18 @@ void LOGIC_SetDelayFlag()
 
 void LOGIC_CacheVariables()
 {
-	LOGIC_ZthPulseWidthMin = DataTable[REG_ZTH_PULSE_WIDTH_MIN];
+	LOGIC_PulseWidthMin = DataTable[REG_PULSE_WIDTH_MIN];
 	//
-	LOGIC_ZthPulseWidthMax = DataTable[REG_ZTH_PULSE_WIDTH_MAX_H];
-	LOGIC_ZthPulseWidthMax = (LOGIC_ZthPulseWidthMax << 16) | DataTable[REG_ZTH_PULSE_WIDTH_MAX_L];
-	//
-	LOGIC_PulseWidth = DataTable[REG_PULSE_WIDTH_H];
-	LOGIC_PulseWidth = (LOGIC_PulseWidth << 16) | DataTable[REG_PULSE_WIDTH_L];
+	LOGIC_PulseWidthMax = DataTable[REG_PULSE_WIDTH_MAX_H];
+	LOGIC_PulseWidthMax = (LOGIC_PulseWidthMax << 16) | DataTable[REG_PULSE_WIDTH_MAX_L];
 	//
 	LOGIC_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
 	LOGIC_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
 	//
-	LOGIC_MeasurementDelay = DataTable[REG_DELAY];
-	LOGIC_ZthPause = DataTable[REG_ZTH_COOLING_TIME] * 10;
-	LOGIC_CoolingTime = DataTable[REG_COOLING_TIME];
-	LOGIC_GraduationTime = DataTable[REG_GRADUATION_TIME] * 1000000;
+	LOGIC_MeasurementDelay = DataTable[REG_MEASUREMENT_DELAY];
+	LOGIC_ZthPause = DataTable[REG_ZTH_PAUSE] * 10;
+	LOGIC_Pause = DataTable[REG_PAUSE];
+	LOGIC_GraduationPeriodMin = DataTable[REG_GRADUATION_PERIOD_MIN] * 1000000;
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 	LOGIC_Tmax = DataTable[REG_T_MAX] * 10;
