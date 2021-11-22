@@ -27,10 +27,10 @@ Boolean DRCU_UpdateState(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *
 }
 //-----------------------------
 
-void DRCU_ResetFault(Boolean Emulate, Int16U NodeIDReg, Int16U StateStorage, volatile LogicState *CurrentLogicState,
+void DRCU_ResetFault(Boolean RegEmulate, Int16U NodeIDReg, Int16U StateStorage, volatile LogicState *CurrentLogicState,
 		LogicState NextLogicState)
 {
-	if(!Emulate && StateStorage == DRCU_DS_Fault)
+	if(!DataTable[RegEmulate] && StateStorage == DRCU_DS_Fault)
 	{
 		if(HLI_CAN_CallAction(DataTable[NodeIDReg], DRCU_ACT_CLR_FAULT))
 			*CurrentLogicState = NextLogicState;
@@ -40,10 +40,10 @@ void DRCU_ResetFault(Boolean Emulate, Int16U NodeIDReg, Int16U StateStorage, vol
 }
 //-----------------------------
 
-void DRCU_PowerOn(Boolean Emulate, Int16U NodeIDReg, volatile Int16U *StateStorage,
+void DRCU_PowerOn(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage,
 		volatile LogicState *CurrentLogicState, Int16U FaultCode, LogicState NextLogicState)
 {
-	if(!Emulate)
+	if(!DataTable[RegEmulate])
 	{
 		switch(*StateStorage)
 		{
@@ -78,10 +78,10 @@ void DRCU_PowerOn(Boolean Emulate, Int16U NodeIDReg, volatile Int16U *StateStora
 }
 //-----------------------------
 
-void DRCU_PowerOff(Boolean Emulate, Int16U NodeIDReg, volatile Int16U *StateStorage,
+void DRCU_PowerOff(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage,
 		volatile LogicState *CurrentLogicState, Int16U FaultCode, LogicState NextLogicState)
 {
-	if(!Emulate)
+	if(!DataTable[RegEmulate])
 	{
 		switch(*StateStorage)
 		{
@@ -107,10 +107,10 @@ void DRCU_PowerOff(Boolean Emulate, Int16U NodeIDReg, volatile Int16U *StateStor
 }
 //-----------------------------
 
-void DRCU_Config(Boolean Emulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U Current,
+void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U Current,
 		volatile LogicState *CurrentLogicState, LogicState NextLogicState)
 {
-	if(!Emulate)
+	if(!DataTable[RegEmulate])
 	{
 		if(HLI_CAN_Write16(DataTable[NodeIDReg], DRCU_REG_CURRENT_SETPOINT, Current))
 				if(HLI_CAN_CallAction(DataTable[NodeIDReg], DCRU_ACT_CONFIG))
