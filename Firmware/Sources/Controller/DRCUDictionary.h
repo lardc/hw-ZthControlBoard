@@ -18,14 +18,4 @@
 #define DRCU_REG_WARNING					195		// Warning
 #define DRCU_REG_PROBLEM					196		// Problem code
 
-// States
-typedef enum __DRCUDeviceState
-{
-	DRCU_DS_None			= 0,
-	DRCU_DS_Fault			= 1,
-	DRCU_DS_Disabled		= 2,
-	DRCU_DS_PowerPrepare	= 3,
-	DRCU_DS_Ready			= 4,
-} DRCUDeviceState;
-
 #endif // __DRCU_DICTIONARY_H
