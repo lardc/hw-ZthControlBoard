@@ -24,7 +24,9 @@
 #define VALUES_x_SIZE					500
 #define REGULATOR_VALUES_SIZE			500
 //
-
+#define	NODEID_SCCI_SCOPE				0
+//
+#define	SCCI_MASTER_TIMEOUT_TICKS_MS	500		// in ms
 #define SCCI_TIMEOUT_MS					100		// in ms
 #define	SCCI_SLAVE_TIMEOUT_TICKS_MS		(Int32U)(CS_T0_FREQ/1000*SCCI_TIMEOUT_MS)
 //
