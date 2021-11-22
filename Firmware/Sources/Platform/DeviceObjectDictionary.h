@@ -122,6 +122,8 @@
 //
 #define REG_MUTE_PROTECTION			60	// Ignore protection
 #define REG_SCOPE_STEP				61	// Scope step
+#define REG_DRCU_EMULATE			62	// DRCU emulate flag
+#define REG_DRCU_NODE_ID			63	// DRCU CAN node ID
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
@@ -202,6 +204,10 @@
 #define FAULT_TR1					3	// Transformer 1 is overheated
 #define FAULT_TR2					4	// Transformer 2 is overheated
 #define FAULT_REC					5	// Rectifier is overheated
+//
+#define FAULT_DRCU_PWRON			10	// DRCU power on fault
+#define FAULT_DRCU_WRONG_STATE		11	// DRCU wrong state
+#define FAULT_DRCU_WAIT_STATE		12	// DRCU waot state timeout
 
 
 // WARNING CODES
