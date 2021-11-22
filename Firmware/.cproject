@@ -124,6 +124,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.OPT_FOR_SPEED.686428826" name="Speed vs. size trade-offs (--opt_for_speed, -mf)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.OPT_FOR_SPEED" value="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.OPT_FOR_SPEED.5" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.INCLUDE_PATH.380945174" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.INCLUDE_PATH" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Sources}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Sources/Interfaces - Custom}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Sources/Platform}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Sources/Controller}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Sources/Board}&quot;"/>
