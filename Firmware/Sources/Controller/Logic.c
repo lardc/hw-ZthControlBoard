@@ -15,6 +15,9 @@
 #include "IQMathUtils.h"
 #include "ConvertUtils.h"
 #include "ZbGPIO.h"
+#include "DRCU.h"
+#include "Controller.h"
+#include "HighLevelInterface.h"
 
 // Definitions
 //
@@ -22,9 +25,12 @@
 
 // Variables
 //
-volatile DeviceSubState LOGIC_SubState = SS_None;
+volatile LogicState LOGIC_State = LS_None;
+volatile DRCUDeviceState LOGIC_ExtDeviceState;
 volatile Int64U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
+volatile Int64U Timeout;
 //
+Int16U LOGIC_DRCU_State;
 volatile Int16U LOGIC_CoolingMode;
 volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationPeriodMin;
 volatile _iq LOGIC_ImpulseCurrent, LOGIC_HeatingCurrent, LOGIC_Tmax, LOGIC_ZthPause;
@@ -58,6 +64,7 @@ Boolean LOGIC_CheckTimeCounter();
 void LOGIC_SaveData(CombinedData Sample);
 void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
 Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth);
+void LOGIC_HandleCommunicationError();
 
 // Functions
 //
@@ -77,18 +84,18 @@ Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth
 {
 	Boolean Result = FALSE;
 
-	switch (LOGIC_SubState)
+	switch (LOGIC_State)
 	{
-	case SS_None:
+	case LS_None:
 		REGULATOR_Enable(Selector, TRUE);
 		LOGIC_StartTimeCounter(PulseWidth);
-		LOGIC_SetState(SS_IndependentProcesses);
+		LOGIC_SetState(LS_IndependentProcesses);
 		break;
 
-	case SS_IndependentProcesses:
+	case LS_IndependentProcesses:
 		if(LOGIC_CheckTimeCounter())
 		{
-			LOGIC_SetState(SS_None);
+			LOGIC_SetState(LS_None);
 			Result = TRUE;
 		}
 		break;
@@ -103,38 +110,38 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 	Boolean Result = FALSE;
 	static volatile Int64U CoolingTimeTemp = 0;
 
-	switch (LOGIC_SubState)
+	switch (LOGIC_State)
 	{
-		case SS_None:
+		case LS_None:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
-			LOGIC_SetState(SS_Heating);
+			LOGIC_SetState(LS_Heating);
 			break;
 
-		case SS_Heating:
+		case LS_Heating:
 			if(LOGIC_HeatingProcess())
-				LOGIC_SetState(SS_Measuring);
+				LOGIC_SetState(LS_Measuring);
 			break;
 
-		case SS_Measuring:
+		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 
 			if(LOGIC_ActualPulseWidth >= LOGIC_PulseWidthMax)
 			{
-				LOGIC_SetState(SS_None);
+				LOGIC_SetState(LS_None);
 				Result = TRUE;
 			}
 			else
 			{
 				CoolingTimeTemp = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
-				LOGIC_SetState(SS_Cooling);
+				LOGIC_SetState(LS_Cooling);
 			}
 			break;
 
-		case SS_Cooling:
+		case LS_Cooling:
 			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
-				LOGIC_SetState(SS_Heating);
+				LOGIC_SetState(LS_Heating);
 			}
 			break;
 	}
@@ -148,38 +155,38 @@ Boolean LOGIC_ZthLongPulseProcess()
 	Boolean Result = FALSE;
 	static volatile Int64U CoolingTimeTemp = 0;
 
-	switch (LOGIC_SubState)
+	switch (LOGIC_State)
 	{
-		case SS_None:
+		case LS_None:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(SS_Heating);
+			LOGIC_SetState(LS_Heating);
 			break;
 
-		case SS_Heating:
+		case LS_Heating:
 			if(LOGIC_HeatingProcess())
-				LOGIC_SetState(SS_Measuring);
+				LOGIC_SetState(LS_Measuring);
 			break;
 
-		case SS_Measuring:
+		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 
 			if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
 			{
-				LOGIC_SetState(SS_None);
+				LOGIC_SetState(LS_None);
 				Result = TRUE;
 			}
 			else
 			{
 				CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
-				LOGIC_SetState(SS_Cooling);
+				LOGIC_SetState(LS_Cooling);
 			}
 			break;
 
-		case SS_Cooling:
+		case LS_Cooling:
 			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
-				LOGIC_SetState(SS_Measuring);
+				LOGIC_SetState(LS_Measuring);
 			}
 			break;
 	}
@@ -193,27 +200,27 @@ Boolean LOGIC_RthSequenceProcess()
 	Boolean Result = FALSE;
 	static volatile Int64U CoolingTimeTemp = 0;
 
-	switch (LOGIC_SubState)
+	switch (LOGIC_State)
 	{
-		case SS_None:
+		case LS_None:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(SS_Heating);
+			LOGIC_SetState(LS_Heating);
 			break;
 
-		case SS_Heating:
+		case LS_Heating:
 			if(LOGIC_HeatingProcess())
-				LOGIC_SetState(SS_Measuring);
+				LOGIC_SetState(LS_Measuring);
 			break;
 
-		case SS_Measuring:
+		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 			CoolingTimeTemp = LOGIC_Pause - LOGIC_MeasurementDelay;
-			LOGIC_SetState(SS_Cooling);
+			LOGIC_SetState(LS_Cooling);
 			break;
 
-		case SS_Cooling:
+		case LS_Cooling:
 			if(LOGIC_CoolingProcess(CoolingTimeTemp))
-				LOGIC_SetState(SS_Heating);
+				LOGIC_SetState(LS_Heating);
 			break;
 	}
 
@@ -227,40 +234,40 @@ Boolean LOGIC_Graduation()
 	static volatile Int64U CoolingTimeTemp = 0;
 	static Boolean HeatingProcess = FALSE;
 
-	switch (LOGIC_SubState)
+	switch (LOGIC_State)
 	{
-		case SS_None:
+		case LS_None:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
 			HeatingProcess = TRUE;
-			LOGIC_SetState(SS_Heating);
+			LOGIC_SetState(LS_Heating);
 			break;
 
-		case SS_Heating:
+		case LS_Heating:
 			if(LOGIC_HeatingProcess())
 			{
 				if((MEASURE_Tcase1() >= LOGIC_Tmax) || (MEASURE_Tcase2() >= LOGIC_Tmax))
-					LOGIC_SetState(SS_Measuring);
+					LOGIC_SetState(LS_Measuring);
 				else
-					LOGIC_SetState(SS_Cooling);
+					LOGIC_SetState(LS_Cooling);
 			}
 			break;
 
-		case SS_Cooling:
+		case LS_Cooling:
 			if(HeatingProcess)
 			{
 				if(LOGIC_CoolingProcess(LOGIC_Pause))
-					LOGIC_SetState(SS_Heating);
+					LOGIC_SetState(LS_Heating);
 			}
 			else
 				if(LOGIC_CoolingProcess(CoolingTimeTemp))
-					LOGIC_SetState(SS_Measuring);
+					LOGIC_SetState(LS_Measuring);
 			break;
 
-		case SS_Measuring:
+		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 			CoolingTimeTemp = LOGIC_GraduationPeriodMin - LOGIC_MeasurementDelay;
 			HeatingProcess = FALSE;
-			LOGIC_SetState(SS_Cooling);
+			LOGIC_SetState(LS_Cooling);
 			break;
 	}
 
@@ -401,9 +408,9 @@ Boolean LOGIC_CheckTimeCounter()
 	return TimeFlag;
 }
 
-void LOGIC_SetState(DeviceSubState State)
+void LOGIC_SetState(LogicState State)
 {
-	LOGIC_SubState = State;
+	LOGIC_State = State;
 }
 // ----------------------------------------
 
@@ -453,6 +460,53 @@ void LOGIC_HeatingCurrentSetRange(_iq Current)
 	{
 		ZbGPIO_SB_Ih_Range(1);
 		CONVERT_IhSetRangeParams(1);
+	}
+}
+// ----------------------------------------
+
+void LOGIC_HandleCommunicationError()
+{
+	HLIError err = HLI_GetError();
+	if(err.ErrorCode != ERR_NO_ERROR)
+	{
+		// Communiction error
+		LOGIC_State = LS_Error;
+		CONTROL_SwitchToFault(FAULT_PROTOCOL);
+	}
+}
+// ----------------------------------------
+
+Boolean LOGIC_UpdateDeviceState()
+{
+	return DRCU_UpdateState(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State);
+}
+// ----------------------------------------
+
+void LOGIC_PowerOnSequence()
+{
+	if(LOGIC_State == LS_PON_DRCU)
+	{
+		if(!LOGIC_UpdateDeviceState())
+		{
+			LOGIC_HandleCommunicationError();
+			return;
+		}
+
+		switch(LOGIC_State)
+		{
+			case LS_PON_DRCU:
+				DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State,
+						FAULT_DRCU_PWRON, LS_WAIT_READY);
+
+				Timeout = CONTROL_TimeCounter + TIME_POWER_ON;
+				break;
+
+			case LS_WAIT_READY:
+				DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_ExtDeviceState, &LOGIC_State);
+				break;
+		}
+
+		LOGIC_HandleCommunicationError();
 	}
 }
 // ----------------------------------------

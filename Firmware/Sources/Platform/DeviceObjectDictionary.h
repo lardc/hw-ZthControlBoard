@@ -157,6 +157,7 @@
 #define REG_WARNING					195	// Warning if present
 #define REG_PROBLEM					196	// Problem if present
 #define REG_OP_RESULT				197	// Indicates that test is done and there is result or fault
+#define REG_FAULT_REASON_EXT		198	// Fault reason extended code
 //
 #define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A x10)
@@ -205,9 +206,10 @@
 #define FAULT_TR2					4	// Transformer 2 is overheated
 #define FAULT_REC					5	// Rectifier is overheated
 //
-#define FAULT_DRCU_PWRON			10	// DRCU power on fault
-#define FAULT_DRCU_WRONG_STATE		11	// DRCU wrong state
-#define FAULT_DRCU_WAIT_STATE		12	// DRCU waot state timeout
+#define FAULT_PROTOCOL				10	// Protocol error
+#define FAULT_DRCU_PWRON			11	// DRCU power on fault
+#define FAULT_DRCU_WRONG_STATE		12	// DRCU wrong state
+#define FAULT_DRCU_WAIT_STATE		13	// DRCU waot state timeout
 
 
 // WARNING CODES

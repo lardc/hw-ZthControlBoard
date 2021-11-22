@@ -7,21 +7,28 @@
 #include "Global.h"
 #include "MeasuringProcesses.h"
 
-// Types
+// Definitions
 //
-typedef enum __DeviceSubState
+typedef enum __LogicState
 {
-	SS_None					= 0,
-	SS_IndependentProcesses	= 1,
-	SS_Heating				= 2,
-	SS_Measuring			= 3,
-	SS_Cooling				= 4
-} DeviceSubState;
+	LS_None					= 0,
+	LS_Error				= 1,
+	LS_CLR_DRCU				= 2,
+	LS_PON_DRCU				= 3,
+	LS_POFF_DRCU			= 4,
+	LS_WAIT_READY			= 5,
+	//
+	LS_IndependentProcesses	= 6,
+	LS_Heating				= 7,
+	LS_Measuring			= 8,
+	LS_Cooling				= 9
+} LogicState;
 //
 
 // Variables
 //
-extern volatile DeviceSubState LOGIC_SubState;
+extern volatile LogicState LOGIC_State;
+extern Int16U LOGIC_DRCU_State;
 //
 extern Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
 extern Int16U LOGIC_Values_Tcase1[VALUES_x_SIZE];
@@ -43,7 +50,7 @@ Boolean LOGIC_Graduation();
 Boolean LOGIC_MeasurementCurrentProcess();
 Boolean LOGIC_HeatingCurrentProcess();
 void LOGIC_CacheVariables();
-void LOGIC_SetState(DeviceSubState State);
+void LOGIC_SetState(LogicState State);
 void LOGIC_IncTimeCounter();
 void LOGIC_SetDelayFlag();
 void LOGIC_Heating(Boolean State);
