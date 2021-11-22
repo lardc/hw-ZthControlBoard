@@ -35,7 +35,7 @@
 //
 #define DAC_WRITE_DELAY_US				3		// in us
 //
-#define TIME_POWER_ON					60000	// in ms
+#define TIME_POWER_ON					5000	// in ms
 #define TIME_DELAY_MAX			(Int64U)4e9		// in us
 //--------------------------------------------------------
 
