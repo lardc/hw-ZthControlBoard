@@ -108,7 +108,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 	else
 	{
 		DataTable[REG_DISABLE_REASON] = DISABLE_BAD_CLOCK;
-		CONTROL_SetDeviceState(DS_Disabled, SS_None);
+		CONTROL_SetDeviceState(DS_Disabled, LS_None);
 	}
 
 	CONTROL_PrepareProcess();
@@ -146,7 +146,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				CONTROL_LowPowerSupplyControl(TRUE);
 				CONTROL_PowerOnTimeOut = CONTROL_TimeCounter + TIME_POWER_ON;
 
-				CONTROL_SetDeviceState(DS_PowerOn, SS_None);
+				CONTROL_SetDeviceState(DS_PowerOn, LS_None);
 			}
 			else if(CONTROL_State != DS_Ready)
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -156,7 +156,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Ready)
 			{
 				CONTROL_LowPowerSupplyControl(FALSE);
-				CONTROL_SetDeviceState(DS_None, SS_None);
+				CONTROL_SetDeviceState(DS_None, LS_None);
 			}
 			else if(CONTROL_State != DS_None)
 					*UserError = ERR_OPERATION_BLOCKED;
@@ -166,7 +166,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Ready)
 			{
 				CONTROL_StartProcess();
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+				CONTROL_SetDeviceState(DS_InProcess, LS_None);
 			}
 			else
 				if (CONTROL_State == DS_InProcess)
@@ -178,7 +178,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_STOP_PROCESS:
 			if (CONTROL_State == DS_InProcess)
 			{
-				CONTROL_SetDeviceState(DS_Ready, SS_None);
+				CONTROL_SetDeviceState(DS_Ready, LS_None);
 				CONTROL_StopProcess(OPRESULT_OK);
 			}
 			break;
@@ -186,7 +186,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_STOP_HEATING:
 			if ((CONTROL_State == DS_InProcess) && ((CONTROL_Mode == MODE_ZTH_LONG_PULSE) || (CONTROL_Mode == MODE_GRADUATION)))
 			{
-				CONTROL_SetDeviceState(DS_InProcess, SS_Measuring);
+				CONTROL_SetDeviceState(DS_InProcess, LS_Measuring);
 				LOGIC_Heating(FALSE);
 			}
 			else
@@ -200,7 +200,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_CLR_FAULT:
 			if (CONTROL_State == DS_Fault)
 			{
-				CONTROL_SetDeviceState(DS_None, SS_None);
+				CONTROL_SetDeviceState(DS_None, LS_None);
 				DataTable[REG_FAULT_REASON] = FAULT_NONE;
 			}
 			break;
@@ -217,7 +217,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				REGULATOR_InitAll();
 				REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
 
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+				CONTROL_SetDeviceState(DS_InProcess, LS_None);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -231,7 +231,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				REGULATOR_InitAll();
 				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_IMPULSE_CURRENT]));
 
-				CONTROL_SetDeviceState(DS_InProcess, SS_None);
+				CONTROL_SetDeviceState(DS_InProcess, LS_None);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -265,7 +265,7 @@ void CONTROL_Process()
 			case MODE_IM:
 				if(LOGIC_MeasurementCurrentProcess())
 				{
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
@@ -273,7 +273,7 @@ void CONTROL_Process()
 			case MODE_IH:
 				if(LOGIC_HeatingCurrentProcess())
 				{
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
@@ -281,7 +281,7 @@ void CONTROL_Process()
 			case MODE_ZTH_SEQ_PULSES:
 				if(LOGIC_ZthSequencePulsesProcess())
 				{
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
@@ -289,7 +289,7 @@ void CONTROL_Process()
 			case MODE_ZTH_LONG_PULSE:
 				if(LOGIC_ZthLongPulseProcess())
 				{
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
@@ -297,7 +297,7 @@ void CONTROL_Process()
 			case MODE_RTH_SEQ_PULSES:
 				if(LOGIC_RthSequenceProcess())
 				{
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
@@ -305,7 +305,7 @@ void CONTROL_Process()
 			case MODE_GRADUATION:
 				if(LOGIC_Graduation())
 				{
-					CONTROL_SetDeviceState(DS_Ready, SS_None);
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
 				}
 				break;
@@ -319,7 +319,7 @@ void CONTROL_PowerOnProcess()
 	if(CONTROL_State == DS_PowerOn)
 	{
 		if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
-			CONTROL_SetDeviceState(DS_Ready, SS_None);
+			CONTROL_SetDeviceState(DS_Ready, LS_None);
 		else
 		{
 			if(CONTROL_TimeCounter >= CONTROL_PowerOnTimeOut)
@@ -500,13 +500,13 @@ void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
 }
 // ----------------------------------------
 
-void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
+void CONTROL_SetDeviceState(DeviceState NewState, LogicState NewLogicState)
 {
 	// Set new state
 	CONTROL_State = NewState;
 	DataTable[REG_DEV_STATE] = NewState;
 
-	LOGIC_SetState(NewSubState);
+	LOGIC_SetState(NewLogicState);
 }
 // ----------------------------------------
 
@@ -521,13 +521,13 @@ void CONTROL_FillWPPartDefault()
 
 void CONTROL_SwitchToReady()
 {
-	CONTROL_SetDeviceState(DS_Ready, SS_None);
+	CONTROL_SetDeviceState(DS_Ready, LS_None);
 }
 // ----------------------------------------
 
 void CONTROL_SwitchToFault(Int16U FaultReason)
 {
-	CONTROL_SetDeviceState(DS_Fault, SS_None);
+	CONTROL_SetDeviceState(DS_Fault, LS_None);
 	DataTable[REG_FAULT_REASON] = FaultReason;
 }
 // ----------------------------------------

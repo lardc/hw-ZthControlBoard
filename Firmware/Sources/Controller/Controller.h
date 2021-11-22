@@ -49,7 +49,7 @@ void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
 // Switch device to fault state
 void CONTROL_SwitchToFault(Int16U FaultReason);
 // Set device state
-void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
+void CONTROL_SetDeviceState(DeviceState NewState, LogicState NewSubState);
 // Save heating data
 void CONTROL_SaveHeatingData(RegulatorsData Sample);
 // Regulator
