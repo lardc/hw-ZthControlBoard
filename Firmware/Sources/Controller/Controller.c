@@ -52,7 +52,7 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
-void CONTROL_CasheVariables();
+void CONTROL_CañheVariables();
 void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_PowerOnProcess();
 void CONTROL_Process();
@@ -245,7 +245,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		default:
 			if (CONTROL_State == DS_None)
 			{
-				CONTROL_CasheVariables();
+				CONTROL_CañheVariables();
 				return DIAG_Process(ActionID);
 			}
 			else
@@ -332,7 +332,7 @@ void CONTROL_PowerOnProcess()
 }
 // ----------------------------------------
 
-void CONTROL_CasheVariables()
+void CONTROL_CañheVariables()
 {
 	CONTROL_Mode = DataTable[REG_MODE];
 	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
@@ -360,7 +360,7 @@ void CONTROL_StartProcess()
 
 void CONTROL_PrepareProcess()
 {
-	CONTROL_CasheVariables();
+	CONTROL_CañheVariables();
 	REGULATOR_InitAll();
 	//
 	LOGIC_HeatingCurrentSetRange(LOGIC_ImpulseCurrent);
