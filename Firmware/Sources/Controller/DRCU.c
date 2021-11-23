@@ -124,14 +124,15 @@ void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateSto
 }
 //-----------------------------
 
-void DRCU_WaitReady(Int64U TimeCounter, Int64U Timeout, volatile Int16U StateStorage, volatile LogicState *CurrentLogicState)
+void DRCU_WaitReady(Int64U TimeCounter, Int64U Timeout, volatile Int16U StateStorage,
+		volatile LogicState *CurrentLogicState, LogicState NextLogicState)
 {
 	if(*CurrentLogicState != LS_None && *CurrentLogicState != LS_Error)
 	{
 		if(Timeout > TimeCounter)
 		{
 			if(StateStorage == DRCU_DS_Ready)
-				*CurrentLogicState = LS_None;
+				*CurrentLogicState = NextLogicState;
 		}
 		else
 		{

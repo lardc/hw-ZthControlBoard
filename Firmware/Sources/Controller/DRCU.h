@@ -32,6 +32,6 @@ void DRCU_PowerOff(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateS
 void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U Current,
 		volatile LogicState *CurrentLogicState, LogicState NextLogicState);
 void DRCU_WaitReady(Int64U TimeCounter, Int64U Timeout, volatile Int16U StateStorage,
-		volatile LogicState *CurrentLogicState);
+		volatile LogicState *CurrentLogicState, LogicState NextLogicState);
 
 #endif // __COMMON_H

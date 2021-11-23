@@ -484,30 +484,45 @@ Boolean LOGIC_UpdateDeviceState()
 
 void LOGIC_PowerOnSequence()
 {
-	if(LOGIC_State == LS_PON_DRCU)
+	if(!LOGIC_UpdateDeviceState())
 	{
-		if(!LOGIC_UpdateDeviceState())
-		{
-			LOGIC_HandleCommunicationError();
-			return;
-		}
-
-		switch(LOGIC_State)
-		{
-			case LS_PON_DRCU:
-				DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State,
-						FAULT_DRCU_PWRON, LS_WAIT_READY);
-
-				Timeout = CONTROL_TimeCounter + TIME_POWER_ON;
-				break;
-
-			case LS_WAIT_READY:
-				DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_ExtDeviceState, &LOGIC_State);
-				break;
-		}
-
 		LOGIC_HandleCommunicationError();
+		return;
 	}
+
+	switch(LOGIC_State)
+	{
+		case LS_PON_DRCU:
+			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State,
+					FAULT_DRCU_PWRON, LS_WAIT_READY);
+
+			ZbGPIO_LowPowerSupplyControl(TRUE);
+			Timeout = CONTROL_TimeCounter + TIME_POWER_ON;
+			break;
+
+		case LS_WAIT_READY:
+			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_ExtDeviceState, &LOGIC_State, LS_PON_Battery);
+			break;
+
+		case LS_PON_Battery:
+			{
+				if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
+				else
+				{
+					if(CONTROL_TimeCounter >= Timeout)
+					{
+						ZbGPIO_LowPowerSupplyControl(FALSE);
+						CONTROL_SwitchToFault(FAULT_POWERON);
+					}
+				}
+				break;
+			}
+
+
+	}
+
+	LOGIC_HandleCommunicationError();
 }
 // ----------------------------------------
 

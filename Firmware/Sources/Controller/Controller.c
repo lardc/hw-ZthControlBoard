@@ -42,7 +42,6 @@ volatile Int64U CONTROL_TimeCounter = 0;
 static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
 volatile Int16U CONTROL_Mode, CONTROL_DUTType;
 volatile _iq CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_GateVoltage;
-volatile Int64U CONTROL_PowerOnTimeOut = 0;
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
 volatile Int16U CONTROL_BootLoaderRequest = 0;
@@ -53,7 +52,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
 void CONTROL_CañheVariables();
-void CONTROL_LowPowerSupplyControl(Boolean State);
 void CONTROL_PowerOnProcess();
 void CONTROL_Process();
 void CONTROL_StopProcess(Int16U OpResult);
@@ -142,12 +140,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
-			{
-				CONTROL_LowPowerSupplyControl(TRUE);
-				CONTROL_PowerOnTimeOut = CONTROL_TimeCounter + TIME_POWER_ON;
-
-				CONTROL_SetDeviceState(DS_PowerOn, LS_None);
-			}
+				CONTROL_SetDeviceState(DS_PowerOn, LS_PON_DRCU);
 			else if(CONTROL_State != DS_Ready)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -155,7 +148,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_DISABLE_POWER:
 			if(CONTROL_State == DS_Ready)
 			{
-				CONTROL_LowPowerSupplyControl(FALSE);
+				ZbGPIO_LowPowerSupplyControl(FALSE);
 				CONTROL_SetDeviceState(DS_None, LS_None);
 			}
 			else if(CONTROL_State != DS_None)
@@ -317,18 +310,7 @@ void CONTROL_Process()
 void CONTROL_PowerOnProcess()
 {
 	if(CONTROL_State == DS_PowerOn)
-	{
-		if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
-			CONTROL_SetDeviceState(DS_Ready, LS_None);
-		else
-		{
-			if(CONTROL_TimeCounter >= CONTROL_PowerOnTimeOut)
-			{
-				CONTROL_LowPowerSupplyControl(FALSE);
-				CONTROL_SwitchToFault(FAULT_POWERON);
-			}
-		}
-	}
+		LOGIC_PowerOnSequence();
 }
 // ----------------------------------------
 
@@ -485,12 +467,6 @@ void CONTROL_ResetOutputRegisters()
 
 	DEVPROFILE_ResetScopes(0);
 	DEVPROFILE_ResetEPReadState();
-}
-// ----------------------------------------
-
-void CONTROL_LowPowerSupplyControl(Boolean State)
-{
-	ZbGPIO_LowPowerSupplyControl(State);
 }
 // ----------------------------------------
 

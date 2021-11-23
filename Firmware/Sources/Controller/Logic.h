@@ -13,15 +13,16 @@ typedef enum __LogicState
 {
 	LS_None					= 0,
 	LS_Error				= 1,
-	LS_CLR_DRCU				= 2,
+	LS_PON_Battery			= 2,
 	LS_PON_DRCU				= 3,
-	LS_POFF_DRCU			= 4,
-	LS_WAIT_READY			= 5,
+	LS_CLR_DRCU				= 4,
+	LS_POFF_DRCU			= 5,
+	LS_WAIT_READY			= 6,
 	//
-	LS_IndependentProcesses	= 6,
-	LS_Heating				= 7,
-	LS_Measuring			= 8,
-	LS_Cooling				= 9
+	LS_IndependentProcesses	= 7,
+	LS_Heating				= 8,
+	LS_Measuring			= 9,
+	LS_Cooling				= 10
 } LogicState;
 //
 
@@ -55,5 +56,6 @@ void LOGIC_IncTimeCounter();
 void LOGIC_SetDelayFlag();
 void LOGIC_Heating(Boolean State);
 void LOGIC_HeatingCurrentSetRange(_iq Current);
+void LOGIC_PowerOnSequence();
 
 #endif // __LOGIC_H
