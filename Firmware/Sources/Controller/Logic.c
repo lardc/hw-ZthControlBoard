@@ -535,7 +535,7 @@ void LOGIC_PowerOffProcess()
 
 	ZbGPIO_LowPowerSupplyControl(FALSE);
 
-	DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_PWRON, LS_WAIT_READY);
+	DRCU_PowerOff(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_PWRON, LS_None);
 	LOGIC_HandleCommunicationError();
 }
 // ----------------------------------------
