@@ -66,7 +66,7 @@ void DRCU_PowerOn(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateSt
 
 			case DRCU_DS_Disabled:
 				*CurrentLogicState = LS_Error;
-				CONTROL_SwitchToFault(FAULT_DRCU_PWRON);
+				CONTROL_SwitchToFault(FaultCode);
 				break;
 		}
 	}
@@ -95,7 +95,7 @@ void DRCU_PowerOff(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateS
 
 			default:
 				*CurrentLogicState = LS_Error;
-				CONTROL_SwitchToFault(FAULT_DRCU_WRONG_STATE);
+				CONTROL_SwitchToFault(FaultCode);
 				break;
 		}
 	}

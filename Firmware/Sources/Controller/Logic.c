@@ -492,9 +492,7 @@ void LOGIC_PowerOnSequence()
 	switch(LOGIC_State)
 	{
 		case LS_PON_DRCU:
-			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State,
-					FAULT_DRCU_PWRON, LS_WAIT_READY);
-
+			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_PWRON, LS_WAIT_READY);
 			ZbGPIO_LowPowerSupplyControl(TRUE);
 			Timeout = CONTROL_TimeCounter + TIME_POWER_ON;
 			break;
@@ -535,7 +533,7 @@ void LOGIC_PowerOffProcess()
 
 	ZbGPIO_LowPowerSupplyControl(FALSE);
 
-	DRCU_PowerOff(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_PWRON, LS_None);
+	DRCU_PowerOff(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_WRONG_STATE, LS_None);
 	LOGIC_HandleCommunicationError();
 }
 // ----------------------------------------
