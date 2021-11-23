@@ -64,7 +64,6 @@ Boolean LOGIC_CheckTimeCounter();
 void LOGIC_SaveData(CombinedData Sample);
 void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
 Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth);
-void LOGIC_HandleCommunicationError();
 
 // Functions
 //

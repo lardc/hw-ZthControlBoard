@@ -24,6 +24,8 @@
 #include "IQMathUtils.h"
 #include "ConvertUtils.h"
 #include "Regulator.h"
+#include "HighLevelInterface.h"
+#include "DRCUDictionary.h"
 
 // Definitions
 //
@@ -123,7 +125,7 @@ void CONTROL_Idle()
 	// Protection check
 	CONTROL_Protection();
 
-	// Power on process
+	// Power on processes
 	CONTROL_PowerOnProcess();
 
 	// Process external interface requests
@@ -148,8 +150,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_DISABLE_POWER:
 			if(CONTROL_State == DS_Ready)
 			{
-				ZbGPIO_LowPowerSupplyControl(FALSE);
-				CONTROL_SetDeviceState(DS_None, LS_None);
+				if((DataTable[REG_DRCU_EMULATE]) || HLI_CAN_CallAction(DataTable[REG_DRCU_NODE_ID], DRCU_ACT_DISABLE_POWER))
+				{
+					ZbGPIO_LowPowerSupplyControl(FALSE);
+					CONTROL_SetDeviceState(DS_None, LS_None);
+				}
+				else
+					LOGIC_HandleCommunicationError();
 			}
 			else if(CONTROL_State != DS_None)
 					*UserError = ERR_OPERATION_BLOCKED;
