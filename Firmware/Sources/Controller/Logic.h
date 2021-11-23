@@ -56,6 +56,7 @@ void LOGIC_SetDelayFlag();
 void LOGIC_Heating(Boolean State);
 void LOGIC_HeatingCurrentSetRange(_iq Current);
 void LOGIC_PowerOnSequence();
+void LOGIC_PowerOffProcess();
 void LOGIC_HandleCommunicationError();
 
 #endif // __LOGIC_H

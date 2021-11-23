@@ -525,4 +525,19 @@ void LOGIC_PowerOnSequence()
 }
 // ----------------------------------------
 
+void LOGIC_PowerOffProcess()
+{
+	if(!LOGIC_UpdateDeviceState())
+	{
+		LOGIC_HandleCommunicationError();
+		return;
+	}
+
+	ZbGPIO_LowPowerSupplyControl(FALSE);
+
+	DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_PWRON, LS_WAIT_READY);
+	LOGIC_HandleCommunicationError();
+}
+// ----------------------------------------
+
 // No more.

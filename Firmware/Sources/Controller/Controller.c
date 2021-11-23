@@ -150,13 +150,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_DISABLE_POWER:
 			if(CONTROL_State == DS_Ready)
 			{
-				if((DataTable[REG_DRCU_EMULATE]) || HLI_CAN_CallAction(DataTable[REG_DRCU_NODE_ID], DRCU_ACT_DISABLE_POWER))
-				{
-					ZbGPIO_LowPowerSupplyControl(FALSE);
-					CONTROL_SetDeviceState(DS_None, LS_None);
-				}
-				else
-					LOGIC_HandleCommunicationError();
+				CONTROL_SetDeviceState(DS_None, LS_None);
+				LOGIC_PowerOffProcess();
 			}
 			else if(CONTROL_State != DS_None)
 					*UserError = ERR_OPERATION_BLOCKED;
