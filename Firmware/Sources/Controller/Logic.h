@@ -58,5 +58,6 @@ void LOGIC_HeatingCurrentSetRange(_iq Current);
 void LOGIC_PowerOnSequence();
 void LOGIC_PowerOffProcess();
 void LOGIC_HandleCommunicationError();
+void LOGIC_ResetFaultProcess();
 
 #endif // __LOGIC_H

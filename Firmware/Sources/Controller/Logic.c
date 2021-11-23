@@ -540,4 +540,19 @@ void LOGIC_PowerOffProcess()
 }
 // ----------------------------------------
 
+void LOGIC_ResetFaultProcess()
+{
+	DataTable[REG_FAULT_REASON] = FAULT_NONE;
+
+	if(!LOGIC_UpdateDeviceState())
+	{
+		LOGIC_HandleCommunicationError();
+		return;
+	}
+
+	DRCU_ResetFault(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, LOGIC_ExtDeviceState, &LOGIC_State, LS_None);
+	LOGIC_HandleCommunicationError();
+}
+// ----------------------------------------
+
 // No more.

@@ -196,7 +196,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Fault)
 			{
 				CONTROL_SetDeviceState(DS_None, LS_None);
-				DataTable[REG_FAULT_REASON] = FAULT_NONE;
+				LOGIC_ResetFaultProcess();
 			}
 			break;
 
