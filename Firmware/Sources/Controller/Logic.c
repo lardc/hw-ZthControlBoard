@@ -22,18 +22,18 @@
 // Definitions
 //
 #define PULSE_WIDTH_10MS		10000	// in us
+#define PULSE_WIDTH_2MS			2000	// in us
 
 // Variables
 //
 volatile LogicState LOGIC_State = LS_None;
-volatile DRCUDeviceState LOGIC_ExtDeviceState;
+volatile DRCUDeviceState LOGIC_DRCU_State;
 volatile Int64U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 volatile Int64U Timeout;
 //
-Int16U LOGIC_DRCU_State;
 volatile Int16U LOGIC_CoolingMode;
 volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationPeriodMin;
-volatile _iq LOGIC_ImpulseCurrent, LOGIC_HeatingCurrent, LOGIC_Tmax, LOGIC_ZthPause;
+volatile _iq LOGIC_CurrentWidthLess_2ms, LOGIC_CurrentWidthLess_10ms, LOGIC_CurrentWidthAbove_10ms, LOGIC_Tmax, LOGIC_ZthPause;
 //
 volatile Int64U LOGIC_ActualPulseWidth = 0;
 volatile Int64U LOGIC_ActualDelayWidth = 0;
@@ -325,10 +325,15 @@ void LOGIC_Heating(Boolean State)
 {
 	if(State)
 	{
-		if(LOGIC_ActualPulseWidth < PULSE_WIDTH_10MS)
-			REGULATOR_Update(SelectIh, LOGIC_ImpulseCurrent);
+		if(LOGIC_ActualPulseWidth > PULSE_WIDTH_10MS)
+			REGULATOR_Update(SelectIh, LOGIC_CurrentWidthAbove_10ms);
 		else
-			REGULATOR_Update(SelectIh, LOGIC_HeatingCurrent);
+		{
+			if(LOGIC_ActualPulseWidth <= PULSE_WIDTH_2MS)
+				REGULATOR_Update(SelectIh, LOGIC_CurrentWidthLess_2ms);
+			else
+				REGULATOR_Update(SelectIh, LOGIC_CurrentWidthLess_10ms);
+		}
 	}
 	else
 		REGULATOR_Update(SelectIh, 0);
@@ -432,8 +437,9 @@ void LOGIC_CacheVariables()
 	LOGIC_PulseWidthMax = DataTable[REG_PULSE_WIDTH_MAX_H];
 	LOGIC_PulseWidthMax = (LOGIC_PulseWidthMax << 16) | DataTable[REG_PULSE_WIDTH_MAX_L];
 	//
-	LOGIC_ImpulseCurrent = _IQI(DataTable[REG_IMPULSE_CURRENT]);
-	LOGIC_HeatingCurrent = _IQI(DataTable[REG_HEATING_CURRENT]);
+	LOGIC_CurrentWidthLess_2ms = _IQI(DataTable[REG_I_WIDTH_LESS_2MS]);
+	LOGIC_CurrentWidthLess_10ms = _IQI(DataTable[REG_I_WIDTH_LESS_10MS]);
+	LOGIC_CurrentWidthAbove_10ms = _IQI(DataTable[REG_I_WIDTH_ABOVE_10MS]);
 	//
 	LOGIC_MeasurementDelay = DataTable[REG_MEASUREMENT_DELAY];
 	LOGIC_ZthPause = DataTable[REG_ZTH_PAUSE] * 10;
@@ -492,13 +498,13 @@ void LOGIC_PowerOnSequence()
 	switch(LOGIC_State)
 	{
 		case LS_PON_DRCU:
-			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_PWRON, LS_WAIT_READY);
+			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, &LOGIC_State, FAULT_DRCU_PWRON, LS_WAIT_READY);
 			ZbGPIO_LowPowerSupplyControl(TRUE);
 			Timeout = CONTROL_TimeCounter + TIME_POWER_ON;
 			break;
 
 		case LS_WAIT_READY:
-			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_ExtDeviceState, &LOGIC_State, LS_PON_Battery);
+			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_DRCU_State, &LOGIC_State, LS_PON_Battery);
 			break;
 
 		case LS_PON_Battery:
@@ -533,7 +539,7 @@ void LOGIC_PowerOffProcess()
 
 	ZbGPIO_LowPowerSupplyControl(FALSE);
 
-	DRCU_PowerOff(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_ExtDeviceState, &LOGIC_State, FAULT_DRCU_WRONG_STATE, LS_None);
+	DRCU_PowerOff(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, &LOGIC_State, FAULT_DRCU_WRONG_STATE, LS_None);
 	LOGIC_HandleCommunicationError();
 }
 // ----------------------------------------
@@ -548,7 +554,20 @@ void LOGIC_ResetFaultProcess()
 		return;
 	}
 
-	DRCU_ResetFault(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, LOGIC_ExtDeviceState, &LOGIC_State, LS_None);
+	DRCU_ResetFault(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, LOGIC_DRCU_State, &LOGIC_State, LS_None);
+	LOGIC_HandleCommunicationError();
+}
+// ----------------------------------------
+
+void LOGIC_DRCUConfigProcess()
+{
+	if(!LOGIC_UpdateDeviceState())
+	{
+		LOGIC_HandleCommunicationError();
+		return;
+	}
+
+	//DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, LOGIC_DRCU_State, Int16U Current, &LOGIC_State, LS_None);
 	LOGIC_HandleCommunicationError();
 }
 // ----------------------------------------

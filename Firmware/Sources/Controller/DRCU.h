@@ -29,7 +29,7 @@ void DRCU_PowerOn(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateSt
 		volatile LogicState *CurrentLogicState, Int16U FaultCode, LogicState NextLogicState);
 void DRCU_PowerOff(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage,
 		volatile LogicState *CurrentLogicState, Int16U FaultCode, LogicState NextLogicState);
-void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U Current,
+void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U RegCurrent,
 		volatile LogicState *CurrentLogicState, LogicState NextLogicState);
 void DRCU_WaitReady(Int64U TimeCounter, Int64U Timeout, volatile Int16U StateStorage,
 		volatile LogicState *CurrentLogicState, LogicState NextLogicState);

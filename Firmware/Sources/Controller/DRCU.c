@@ -107,12 +107,12 @@ void DRCU_PowerOff(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateS
 }
 //-----------------------------
 
-void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U Current,
+void DRCU_Config(Boolean RegEmulate, Int16U NodeIDReg, volatile Int16U *StateStorage, Int16U RegCurrent,
 		volatile LogicState *CurrentLogicState, LogicState NextLogicState)
 {
 	if(!DataTable[RegEmulate])
 	{
-		if(HLI_CAN_Write16(DataTable[NodeIDReg], DRCU_REG_CURRENT_SETPOINT, Current))
+		if(HLI_CAN_Write16(DataTable[NodeIDReg], DRCU_REG_CURRENT_SETPOINT, DataTable[RegCurrent]))
 				if(HLI_CAN_CallAction(DataTable[NodeIDReg], DCRU_ACT_CONFIG))
 					*CurrentLogicState = NextLogicState;
 	}

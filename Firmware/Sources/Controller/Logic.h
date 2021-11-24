@@ -28,7 +28,6 @@ typedef enum __LogicState
 // Variables
 //
 extern volatile LogicState LOGIC_State;
-extern Int16U LOGIC_DRCU_State;
 //
 extern Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
 extern Int16U LOGIC_Values_Tcase1[VALUES_x_SIZE];
@@ -38,7 +37,8 @@ extern Int16U LOGIC_Values_Tcool2[VALUES_x_SIZE];
 extern Int16U LOGIC_Values_ErrorIh[VALUES_x_SIZE];
 extern volatile Int16U LOGIC_Values_Counter;
 //
-extern volatile _iq LOGIC_ImpulseCurrent;
+extern volatile _iq LOGIC_CurrentWidthLess_2ms;
+extern volatile _iq LOGIC_CurrentWidthLess_10ms;
 //
 
 // Functions prototypes

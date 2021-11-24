@@ -22,7 +22,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
                                     		   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 6
 											   {DAC_IM_K_MIN, DAC_IM_K_MAX, DAC_IM_K_DEF},										// 7
 											   {DAC_IM_B_MIN, DAC_IM_B_MAX, DAC_IM_B_DEF},										// 8
-											   {IMPULSE_CURRENT_MIN, IMPULSE_CURRENT_MAX, IH_RANGE_THRESHOLD_DEF},				// 9
+											   {IH_RANGE_THRESHOLD_MIN, IH_RANGE_THRESHOLD_MAX, IH_RANGE_THRESHOLD_DEF},		// 9
 											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 10
 											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 11
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 12
@@ -154,14 +154,14 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {ZTH_COOLING_TIME_MIN, ZTH_COOLING_TIME_MAX, ZTH_COOLING_TIME_DEF},				// 134
 											   {COOLING_TIME_MIN, COOLING_TIME_MAX, 0},											// 135
 											   {GRADUATION_TIME_MIN, GRADUATION_TIME_MAX, 0},									// 136
-											   {IMPULSE_CURRENT_MIN, IMPULSE_CURRENT_MAX, 0},									// 137
-											   {HEATING_CURRENT_MIN, HEATING_CURRENT_MAX, 0},									// 138
-											   {GATE_CURRENT_MIN, GATE_CURRENT_MAX, GATE_CURRENT_DEF},							// 139
-                                    		   {MEASURING_CURRENT_MIN, MEASURING_CURRENT_MAX, MEASURING_CURRENT_DEF},			// 140
-                                    		   {DELAY_MIN, DELAY_MAX, DELAY_DEF},												// 141
-                                    		   {T_MIN, T_MAX, T_DEF},															// 142
-                                    		   {IGBT_V_GATE_15V, IGBT_V_GATE_20V, IGBT_V_GATE_15V},								// 143
-                                    		   {0, 0, 0},																		// 144
+											   {I_WIDTH_LESS_2MS_MIN, I_WIDTH_LESS_2MS_MAX, 0},									// 137
+											   {I_WIDTH_LESS_10MS_MIN, I_WIDTH_LESS_10MS_MAX, 0},								// 138
+											   {I_WIDTH_ABOVE_10MS_MIN, I_WIDTH_ABOVE_10MS_MAX, 0},								// 139
+											   {GATE_CURRENT_MIN, GATE_CURRENT_MAX, GATE_CURRENT_DEF},							// 140
+                                    		   {MEASURING_CURRENT_MIN, MEASURING_CURRENT_MAX, MEASURING_CURRENT_DEF},			// 141
+                                    		   {DELAY_MIN, DELAY_MAX, DELAY_DEF},												// 142
+                                    		   {T_MIN, T_MAX, T_DEF},															// 143
+                                    		   {IGBT_V_GATE_15V, IGBT_V_GATE_20V, IGBT_V_GATE_15V},								// 144
                                     		   {0, 0, 0},																		// 145
                                     		   {0, 0, 0},																		// 146
                                     		   {0, 0, 0},																		// 147

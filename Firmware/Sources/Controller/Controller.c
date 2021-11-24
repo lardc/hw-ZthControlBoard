@@ -224,7 +224,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				CONTROL_PrepareProcess();
 				CONTROL_ResetOutputRegisters();
 				REGULATOR_InitAll();
-				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_IMPULSE_CURRENT]));
+				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_I_WIDTH_LESS_2MS]));
 
 				CONTROL_SetDeviceState(DS_InProcess, LS_None);
 			}
@@ -347,7 +347,7 @@ void CONTROL_PrepareProcess()
 	CONTROL_CañheVariables();
 	REGULATOR_InitAll();
 	//
-	LOGIC_HeatingCurrentSetRange(LOGIC_ImpulseCurrent);
+	LOGIC_HeatingCurrentSetRange(LOGIC_CurrentWidthLess_2ms);
 }
 
 void CONTROL_StopProcess(Int16U OpResult)
