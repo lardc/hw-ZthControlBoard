@@ -153,15 +153,15 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {0, INT16U_MAX, 0},																// 133
 											   {ZTH_COOLING_TIME_MIN, ZTH_COOLING_TIME_MAX, ZTH_COOLING_TIME_DEF},				// 134
 											   {COOLING_TIME_MIN, COOLING_TIME_MAX, 0},											// 135
-											   {GRADUATION_TIME_MIN, GRADUATION_TIME_MAX, 0},									// 136
-											   {I_WIDTH_LESS_2MS_MIN, I_WIDTH_LESS_2MS_MAX, 0},									// 137
-											   {I_WIDTH_LESS_10MS_MIN, I_WIDTH_LESS_10MS_MAX, 0},								// 138
-											   {I_WIDTH_ABOVE_10MS_MIN, I_WIDTH_ABOVE_10MS_MAX, 0},								// 139
-											   {GATE_CURRENT_MIN, GATE_CURRENT_MAX, GATE_CURRENT_DEF},							// 140
-                                    		   {MEASURING_CURRENT_MIN, MEASURING_CURRENT_MAX, MEASURING_CURRENT_DEF},			// 141
-                                    		   {DELAY_MIN, DELAY_MAX, DELAY_DEF},												// 142
-                                    		   {T_MIN, T_MAX, T_DEF},															// 143
-                                    		   {IGBT_V_GATE_15V, IGBT_V_GATE_20V, IGBT_V_GATE_15V},								// 144
+											   {I_WIDTH_LESS_2MS_MIN, I_WIDTH_LESS_2MS_MAX, 0},									// 136
+											   {I_WIDTH_LESS_10MS_MIN, I_WIDTH_LESS_10MS_MAX, 0},								// 137
+											   {I_WIDTH_ABOVE_10MS_MIN, I_WIDTH_ABOVE_10MS_MAX, 0},								// 138
+											   {GATE_CURRENT_MIN, GATE_CURRENT_MAX, GATE_CURRENT_DEF},							// 139
+                                    		   {MEASURING_CURRENT_MIN, MEASURING_CURRENT_MAX, MEASURING_CURRENT_DEF},			// 140
+                                    		   {DELAY_MIN, DELAY_MAX, DELAY_DEF},												// 141
+                                    		   {T_MIN, T_MAX, T_DEF},															// 142
+                                    		   {IGBT_V_GATE_15V, IGBT_V_GATE_20V, IGBT_V_GATE_15V},								// 143
+                                    		   {0, 0, 0},																		// 144
                                     		   {0, 0, 0},																		// 145
                                     		   {0, 0, 0},																		// 146
                                     		   {0, 0, 0},																		// 147

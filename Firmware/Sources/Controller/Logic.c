@@ -29,7 +29,7 @@ volatile Int64U Timeout;
 //
 volatile Int16U LOGIC_DUTType;
 volatile Int16U LOGIC_CoolingMode;
-volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationPeriodMin;
+volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay;
 volatile _iq LOGIC_CurrentWidthLess_2ms, LOGIC_CurrentWidthLess_10ms, LOGIC_CurrentWidthAbove_10ms, LOGIC_Tmax, LOGIC_ZthPause;
 volatile _iq LOGIC_MeasuringCurrent;
 //
@@ -348,9 +348,21 @@ Boolean LOGIC_Graduation()
 	switch (LOGIC_State)
 	{
 		case LS_None:
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			HeatingProcess = TRUE;
-			LOGIC_SetState(LS_Heating);
+			LOGIC_SetState(LS_DRCU_Config);
+			break;
+
+		case LS_ConfigIh:
+		case LS_DRCU_Config:
+		case LS_DRCU_WaitReady:
+			if(LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth))
+			{
+				HeatingProcess = TRUE;
+				LOGIC_SetState(LS_Heating);
+			}
 			break;
 
 		case LS_Heating:
@@ -376,7 +388,8 @@ Boolean LOGIC_Graduation()
 
 		case LS_Measuring:
 			LOGIC_MeasuringProcess();
-			CoolingTimeTemp = LOGIC_GraduationPeriodMin - LOGIC_MeasurementDelay;
+			LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
+			CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
 			HeatingProcess = FALSE;
 			LOGIC_SetState(LS_Cooling);
 			break;
@@ -547,7 +560,6 @@ void LOGIC_CacheVariables()
 	LOGIC_MeasurementDelay = DataTable[REG_MEASUREMENT_DELAY];
 	LOGIC_ZthPause = DataTable[REG_ZTH_PAUSE] * 10;
 	LOGIC_Pause = DataTable[REG_PAUSE];
-	LOGIC_GraduationPeriodMin = DataTable[REG_GRADUATION_PERIOD_MIN] * 1000000;
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 	LOGIC_Tmax = DataTable[REG_T_MAX] * 10;
@@ -556,6 +568,7 @@ void LOGIC_CacheVariables()
 
 	// Reset variables to default states
 	EP_DataCounter = 0;
+	LOGIC_ActualDelayWidth = 0;
 }
 // ----------------------------------------
 

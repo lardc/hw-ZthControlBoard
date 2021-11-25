@@ -163,9 +163,6 @@ typedef struct __TableItemConstraint
 #define COOLING_TIME_MIN		100
 #define COOLING_TIME_MAX		10000
 //
-#define GRADUATION_TIME_MIN		10
-#define GRADUATION_TIME_MAX		100
-//
 #define I_WIDTH_LESS_2MS_MIN	50
 #define I_WIDTH_LESS_2MS_MAX	65535//2500
 //
