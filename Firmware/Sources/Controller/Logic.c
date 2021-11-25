@@ -304,8 +304,18 @@ Boolean LOGIC_RthSequenceProcess()
 	switch (LOGIC_State)
 	{
 		case LS_None:
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_Heating);
+			LOGIC_SetState(LS_DRCU_Config);
+			break;
+
+		case LS_ConfigIh:
+		case LS_DRCU_Config:
+		case LS_DRCU_WaitReady:
+			if(LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth))
+				LOGIC_SetState(LS_Heating);
 			break;
 
 		case LS_Heating:
@@ -425,6 +435,12 @@ Boolean LOGIC_CoolingProcess(Int64U Pause)
 
 void LOGIC_Heating(Boolean State)
 {
+	if(!State)
+	{
+		REGULATOR_SetOutput(SelectIh, 0);
+		REGULATOR_SetOutput(SelectP, 0);
+	}
+
 	REGULATOR_Enable(SelectIh, State);
 	REGULATOR_Enable(SelectP, State);
 }
