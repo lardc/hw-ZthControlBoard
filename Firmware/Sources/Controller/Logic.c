@@ -249,8 +249,18 @@ Boolean LOGIC_ZthLongPulseProcess()
 	switch (LOGIC_State)
 	{
 		case LS_None:
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_Heating);
+			LOGIC_SetState(LS_DRCU_Config);
+			break;
+
+		case LS_ConfigIh:
+		case LS_DRCU_Config:
+		case LS_DRCU_WaitReady:
+			if(LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth))
+				LOGIC_SetState(LS_Heating);
 			break;
 
 		case LS_Heating:
