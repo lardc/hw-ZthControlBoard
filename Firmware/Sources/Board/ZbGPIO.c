@@ -12,7 +12,7 @@ void ZbGPIO_Init()
 {
 	// Reset to default state
 	ZwGPIO_WritePin(PIN_U_GATE_SEL, FALSE);
-	ZwGPIO_WritePin(PIN_MCB_SYNC, FALSE);
+	ZwGPIO_WritePin(PIN_DRCU_SYNC, FALSE);
 	ZwGPIO_WritePin(PIN_IH_RANGE, FALSE);
 	ZwGPIO_WritePin(PIN_SB_IM_CS, TRUE);
 	ZwGPIO_WritePin(PIN_SB_TSP_CS, TRUE);
@@ -32,7 +32,7 @@ void ZbGPIO_Init()
 
    	// Configure pins to output
 	ZwGPIO_PinToOutput(PIN_U_GATE_SEL);
-	ZwGPIO_PinToOutput(PIN_MCB_SYNC);
+	ZwGPIO_PinToOutput(PIN_DRCU_SYNC);
 	ZwGPIO_PinToOutput(PIN_IH_RANGE);
 	ZwGPIO_PinToOutput(PIN_SB_IM_CS);
 	ZwGPIO_PinToOutput(PIN_SB_TSP_CS);
@@ -82,9 +82,9 @@ void ZbGPIO_IGBT_SetUGate15V()
 }
 // ----------------------------------------
 
-void ZbGPIO_MCB_Sync(Boolean State)
+void ZbGPIO_DRCU_Sync(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_MCB_SYNC, State);
+	ZwGPIO_WritePin(PIN_DRCU_SYNC, State);
 }
 // ----------------------------------------
 

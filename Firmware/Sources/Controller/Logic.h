@@ -67,7 +67,7 @@ void LOGIC_PowerOnSequence();
 void LOGIC_PowerOffProcess();
 void LOGIC_HandleCommunicationError();
 void LOGIC_ResetFaultProcess();
-void LOGIC_DRCUConfigProcess(Int16U Current);
+void LOGIC_DRCUConfigProcess(_iq Current);
 void LOGIC_GatePulse(Boolean State);
 Boolean LOGIC_GateCurrentProcess();
 

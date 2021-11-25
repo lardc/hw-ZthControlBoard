@@ -10,6 +10,5 @@
 // Functions
 //
 void ZthMCB_CurrentSet(_iq Current);
-void ZthMCB_CurrentControl(Boolean State);
 
 #endif /* ZTH_MCURRENTBOARD_H_ */

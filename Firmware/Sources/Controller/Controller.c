@@ -312,7 +312,6 @@ void CONTROL_MeasuringCurrentProcess(Boolean State)
 	REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
 	REGULATOR_Enable(SelectIm, State);
 	ZthMCB_CurrentSet(CONTROL_MeasuringCurrent);
-	ZthMCB_CurrentControl(State);
 }
 // ----------------------------------------
 
@@ -372,7 +371,7 @@ void CONTROL_PrepareProcess()
 			LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
 			REGULATOR_Update(SelectIh, HeatingCurrentSetpoint);
 
-			CONTROL_SetDeviceState(DS_InProcess, LS_None);
+			CONTROL_SetDeviceState(DS_InProcess, LS_DRCU_Config);
 			break;
 
 		case LS_ConfigIg:
@@ -380,6 +379,9 @@ void CONTROL_PrepareProcess()
 			CONTROL_ResetOutputRegisters();
 
 			CONTROL_SetDeviceState(DS_InProcess, LS_None);
+
+		case LS_DRCU_Config:
+			LOGIC_DRCUConfigProcess(HeatingCurrentSetpoint);
 			break;
 		}
 	}

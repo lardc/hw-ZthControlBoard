@@ -200,9 +200,15 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 			RegulatorIh.Control = Value;
 
 			if(Value)
+			{
+				ZbGPIO_DRCU_Sync(TRUE);
 				ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE);
+			}
 			else
+			{
 				ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
+				ZbGPIO_DRCU_Sync(FALSE);
+			}
 			break;
 	}
 }

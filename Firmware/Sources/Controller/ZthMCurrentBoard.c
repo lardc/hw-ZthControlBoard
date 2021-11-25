@@ -18,12 +18,6 @@ void ZthMCB_CurrentSet(_iq Current)
 }
 // ----------------------------------------
 
-void ZthMCB_CurrentControl(Boolean State)
-{
-	ZbGPIO_MCB_Sync(State);
-}
-// ----------------------------------------
-
 
 
 

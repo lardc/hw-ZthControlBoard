@@ -582,7 +582,7 @@ void LOGIC_ResetFaultProcess()
 }
 // ----------------------------------------
 
-void LOGIC_DRCUConfigProcess(Int16U Current)
+void LOGIC_DRCUConfigProcess(_iq Current)
 {
 	if(!LOGIC_UpdateDeviceState())
 	{
@@ -593,7 +593,7 @@ void LOGIC_DRCUConfigProcess(Int16U Current)
 	switch(LOGIC_State)
 	{
 		case LS_DRCU_Config:
-			DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, Current, &LOGIC_State, LS_DRCU_WaitReady);
+			DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, _IQI(Current), &LOGIC_State, LS_DRCU_WaitReady);
 			break;
 
 		case LS_DRCU_WaitReady:
