@@ -20,9 +20,8 @@ typedef enum __DeviceState
 	DS_Fault		= 1,
 	DS_Disabled		= 2,
 	DS_PowerOn		= 3,
-	DS_PowerOff		= 4,
-	DS_Ready		= 5,
-	DS_InProcess	= 6
+	DS_Ready		= 4,
+	DS_InProcess	= 5
 } DeviceState;
 //
 

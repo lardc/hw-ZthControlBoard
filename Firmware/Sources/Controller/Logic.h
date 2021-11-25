@@ -13,15 +13,20 @@ typedef enum __LogicState
 {
 	LS_None					= 0,
 	LS_Error				= 1,
-	LS_CLR_DRCU				= 2,
-	LS_PON_Battery			= 3,
-	LS_PON_DRCU				= 4,
-	LS_WAIT_READY			= 5,
+	LS_BatteryPwrOn			= 2,
+	LS_PendingCompletion	= 3,
 	//
-	LS_IndependentProcesses	= 6,
-	LS_Heating				= 7,
-	LS_Measuring			= 8,
-	LS_Cooling				= 9
+	LS_DRCU_PwrOn			= 10,
+	LS_DRCU_Config			= 11,
+	LS_DRCU_WaitReady		= 12,
+	//
+	LS_ConfigIm				= 20,
+	LS_ConfigIh				= 21,
+	LS_ConfigIg				= 22,
+	//
+	LS_Heating				= 30,
+	LS_Measuring			= 31,
+	LS_Cooling				= 32
 } LogicState;
 //
 
@@ -39,6 +44,9 @@ extern volatile Int16U LOGIC_Values_Counter;
 //
 extern volatile _iq LOGIC_CurrentWidthLess_2ms;
 extern volatile _iq LOGIC_CurrentWidthLess_10ms;
+extern volatile _iq LOGIC_CurrentWidthAbove_10ms;
+//
+extern volatile Int32U LOGIC_PulseWidthMax;
 //
 
 // Functions prototypes
@@ -59,5 +67,8 @@ void LOGIC_PowerOnSequence();
 void LOGIC_PowerOffProcess();
 void LOGIC_HandleCommunicationError();
 void LOGIC_ResetFaultProcess();
+void LOGIC_DRCUConfigProcess(Int16U Current);
+void LOGIC_GatePulse(Boolean State);
+Boolean LOGIC_GateCurrentProcess();
 
 #endif // __LOGIC_H

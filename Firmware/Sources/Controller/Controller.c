@@ -17,7 +17,6 @@
 #include "Constraints.h"
 #include "Diagnostic.h"
 #include "Regulator.h"
-#include "ZthDUTControlBoard.h"
 #include "ZthMCurrentBoard.h"
 #include "ZthProtectionBoard.h"
 #include "IQmathLib.h"
@@ -35,15 +34,15 @@
 #define MODE_GRADUATION			3
 #define MODE_IM					4
 #define MODE_IH					5
-#define MODE_IGATE				6
+#define MODE_IG					6
 
 // Variables
 //
 volatile DeviceState CONTROL_State = DS_None;
 volatile Int64U CONTROL_TimeCounter = 0;
 static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
-volatile Int16U CONTROL_Mode, CONTROL_DUTType;
-volatile _iq CONTROL_GateCurrent, CONTROL_MeasuringCurrent, CONTROL_GateVoltage;
+volatile Int16U CONTROL_Mode;
+volatile _iq CONTROL_MeasuringCurrent;
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
 volatile Int16U CONTROL_BootLoaderRequest = 0;
@@ -58,7 +57,6 @@ void CONTROL_PowerOnProcess();
 void CONTROL_Process();
 void CONTROL_StopProcess(Int16U OpResult);
 void CONTROL_StartProcess();
-void CONTROL_GatePulse(Boolean State);
 void CONTROL_MeasuringCurrentProcess(Boolean State);
 void CONTROL_ResetOutputRegisters();
 void CONTROL_Protection();
@@ -119,6 +117,9 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 void CONTROL_Idle()
 {
+	// Prepare process
+	CONTROL_PrepareProcess();
+
 	// Measurement process
 	CONTROL_Process();
 
@@ -142,7 +143,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
-				CONTROL_SetDeviceState(DS_PowerOn, LS_PON_DRCU);
+				CONTROL_SetDeviceState(DS_PowerOn, LS_DRCU_PwrOn);
 			else if(CONTROL_State != DS_Ready)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -205,36 +206,18 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IM:
-			if (CONTROL_State == DS_Ready)
-			{
-				CONTROL_PrepareProcess();
-				CONTROL_ResetOutputRegisters();
-				REGULATOR_InitAll();
-				REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
-
-				CONTROL_SetDeviceState(DS_InProcess, LS_None);
-			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
+				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIm);
 			break;
 
 		case ACT_START_IH:
 			if (CONTROL_State == DS_Ready)
-			{
-				CONTROL_PrepareProcess();
-				CONTROL_ResetOutputRegisters();
-				REGULATOR_InitAll();
-				REGULATOR_Update(SelectIh, _IQI(DataTable[REG_I_WIDTH_LESS_2MS]));
-
-				CONTROL_SetDeviceState(DS_InProcess, LS_None);
-			}
+				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIh);
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_START_GATE:
-			CONTROL_PrepareProcess();
-			CONTROL_GatePulse(TRUE);
+			CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIg);
 			break;
 
 		default:
@@ -267,6 +250,14 @@ void CONTROL_Process()
 
 			case MODE_IH:
 				if(LOGIC_HeatingCurrentProcess())
+				{
+					CONTROL_SetDeviceState(DS_Ready, LS_None);
+					CONTROL_StopProcess(OPRESULT_OK);
+				}
+				break;
+
+			case MODE_IG:
+				if(LOGIC_GateCurrentProcess())
 				{
 					CONTROL_SetDeviceState(DS_Ready, LS_None);
 					CONTROL_StopProcess(OPRESULT_OK);
@@ -316,77 +307,6 @@ void CONTROL_PowerOnProcess()
 }
 // ----------------------------------------
 
-void CONTROL_CañheVariables()
-{
-	CONTROL_Mode = DataTable[REG_MODE];
-	CONTROL_DUTType = DataTable[REG_DUT_TYPE];
-	//
-	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
-	CONTROL_GateCurrent = _IQI(DataTable[REG_GATE_CURRENT]);
-	CONTROL_GateVoltage = DataTable[REG_IGBT_V_GATE];
-	//
-	LOGIC_CacheVariables();
-	REGULATOR_CacheVariables();
-	CONVERT_CacheVariables();
-	MEASURE_VariablesPrepare();
-}
-// ----------------------------------------
-
-void CONTROL_StartProcess()
-{
-	CONTROL_PrepareProcess();
-	CONTROL_ResetOutputRegisters();
-	//
-	CONTROL_GatePulse(TRUE);
-	CONTROL_MeasuringCurrentProcess(TRUE);
-}
-// ----------------------------------------
-
-void CONTROL_PrepareProcess()
-{
-	CONTROL_CañheVariables();
-	REGULATOR_InitAll();
-	//
-	LOGIC_HeatingCurrentSetRange(LOGIC_CurrentWidthLess_2ms);
-}
-
-void CONTROL_StopProcess(Int16U OpResult)
-{
-	REGULATOR_DisableAll();
-	REGULATOR_ForceOutputsToZero();
-	CONTROL_GatePulse(FALSE);
-
-	DataTable[REG_OP_RESULT] = OpResult;
-}
-// ----------------------------------------
-
-void CONTROL_GatePulse(Boolean State)
-{
-	if(State)
-	{
-		if(CONTROL_DUTType)
-		{
-			ZthDCB_SwitchOutput(VOLTAGE_SOURCE);
-
-			if(CONTROL_GateVoltage)
-				ZthDCB_VoltageSet(GATE_VOLTGE_20V);
-			else
-				ZthDCB_VoltageSet(GATE_VOLTGE_15V);
-		}
-		else
-		{
-			ZthDCB_SwitchOutput(CURRENT_SOURCE);
-			ZthDCB_CurrentSet(CONTROL_GateCurrent);
-		}
-	}
-	else
-	{
-		ZthDCB_CurrentSet(0);
-		ZthDCB_VoltageSet(GATE_VOLTGE_0V);
-	}
-}
-// ----------------------------------------
-
 void CONTROL_MeasuringCurrentProcess(Boolean State)
 {
 	REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
@@ -414,6 +334,95 @@ void CONTROL_RegulatorProcess()
 		// Incrementing time counter
 		LOGIC_IncTimeCounter();
 	}
+}
+// ----------------------------------------
+
+void CONTROL_PrepareProcess()
+{
+	_iq HeatingCurrentSetpoint;
+
+	if(CONTROL_State == DS_InProcess)
+	{
+		switch(LOGIC_State)
+		{
+		case LS_ConfigIm:
+			CONTROL_CañheVariables();
+			CONTROL_ResetOutputRegisters();
+			REGULATOR_InitAll();
+			REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
+
+			CONTROL_SetDeviceState(DS_InProcess, LS_None);
+			break;
+
+		case LS_ConfigIh:
+			CONTROL_CañheVariables();
+			CONTROL_ResetOutputRegisters();
+			REGULATOR_InitAll();
+
+			if(LOGIC_PulseWidthMax <= PULSE_WIDTH_2MS)
+				HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
+			else
+			{
+				if(LOGIC_PulseWidthMax > PULSE_WIDTH_10MS)
+					HeatingCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
+				else
+					HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
+			}
+
+			LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
+			REGULATOR_Update(SelectIh, HeatingCurrentSetpoint);
+
+			CONTROL_SetDeviceState(DS_InProcess, LS_None);
+			break;
+
+		case LS_ConfigIg:
+			CONTROL_CañheVariables();
+			CONTROL_ResetOutputRegisters();
+
+			CONTROL_SetDeviceState(DS_InProcess, LS_None);
+			break;
+		}
+	}
+}
+// ----------------------------------------
+
+void CONTROL_CañheVariables()
+{
+	CONTROL_Mode = DataTable[REG_MODE];
+	//
+	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
+	//
+	LOGIC_CacheVariables();
+	REGULATOR_CacheVariables();
+	CONVERT_CacheVariables();
+	MEASURE_VariablesPrepare();
+}
+// ----------------------------------------
+
+void CONTROL_StartProcess()
+{
+	CONTROL_PrepareProcess();
+	CONTROL_ResetOutputRegisters();
+	//
+	LOGIC_GatePulse(TRUE);
+	CONTROL_MeasuringCurrentProcess(TRUE);
+}
+// ----------------------------------------
+
+void CONTROL_StopProcess(Int16U OpResult)
+{
+	REGULATOR_DisableAll();
+	REGULATOR_ForceOutputsToZero();
+	LOGIC_GatePulse(FALSE);
+
+	DataTable[REG_OP_RESULT] = OpResult;
+}
+// ----------------------------------------
+
+void CONTROL_ForceStopProcess()
+{
+	CONTROL_StopProcess(OPRESULT_FAIL);
+	CONTROL_ResetOutputRegisters();
 }
 // ----------------------------------------
 
@@ -447,13 +456,6 @@ void CONTROL_Protection()
 }
 // ----------------------------------------
 
-void CONTROL_ForceStopProcess()
-{
-	CONTROL_StopProcess(OPRESULT_FAIL);
-	CONTROL_ResetOutputRegisters();
-}
-// ----------------------------------------
-
 void CONTROL_ResetOutputRegisters()
 {
 	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
@@ -472,9 +474,21 @@ void CONTROL_ResetOutputRegisters()
 }
 // ----------------------------------------
 
-void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
+void CONTROL_SaveHeatingData(RegulatorsData Sample)
 {
-	DEVPROFILE_NotifyCANaFault(Flag);
+	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
+	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
+	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
+	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
+}
+// ----------------------------------------
+
+void CONTROL_FillWPPartDefault()
+{
+	// Set states
+	DataTable[REG_DEV_STATE] = DS_None;
+	DataTable[REG_FAULT_REASON] = FAULT_NONE;
+	DataTable[REG_WARNING] = WARNING_NONE;
 }
 // ----------------------------------------
 
@@ -485,15 +499,6 @@ void CONTROL_SetDeviceState(DeviceState NewState, LogicState NewLogicState)
 	DataTable[REG_DEV_STATE] = NewState;
 
 	LOGIC_SetState(NewLogicState);
-}
-// ----------------------------------------
-
-void CONTROL_FillWPPartDefault()
-{
-	// Set states
-	DataTable[REG_DEV_STATE] = DS_None;
-	DataTable[REG_FAULT_REASON] = FAULT_NONE;
-	DataTable[REG_WARNING] = WARNING_NONE;
 }
 // ----------------------------------------
 
@@ -510,12 +515,9 @@ void CONTROL_SwitchToFault(Int16U FaultReason)
 }
 // ----------------------------------------
 
-void CONTROL_SaveHeatingData(RegulatorsData Sample)
+void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
 {
-	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
-	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
-	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
-	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
+	DEVPROFILE_NotifyCANaFault(Flag);
 }
 // ----------------------------------------
 

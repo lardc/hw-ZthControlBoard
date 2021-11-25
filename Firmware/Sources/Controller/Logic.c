@@ -18,11 +18,7 @@
 #include "DRCU.h"
 #include "Controller.h"
 #include "HighLevelInterface.h"
-
-// Definitions
-//
-#define PULSE_WIDTH_10MS		10000	// in us
-#define PULSE_WIDTH_2MS			2000	// in us
+#include "ZthDUTControlBoard.h"
 
 // Variables
 //
@@ -31,6 +27,7 @@ volatile DRCUDeviceState LOGIC_DRCU_State;
 volatile Int64U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 volatile Int64U Timeout;
 //
+volatile Int16U LOGIC_DUTType;
 volatile Int16U LOGIC_CoolingMode;
 volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationPeriodMin;
 volatile _iq LOGIC_CurrentWidthLess_2ms, LOGIC_CurrentWidthLess_10ms, LOGIC_CurrentWidthAbove_10ms, LOGIC_Tmax, LOGIC_ZthPause;
@@ -67,6 +64,31 @@ Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth
 
 // Functions
 //
+Boolean LOGIC_GateCurrentProcess()
+{
+	Boolean Result = FALSE;
+
+	switch (LOGIC_State)
+	{
+	case LS_None:
+		LOGIC_GatePulse(TRUE);
+		LOGIC_StartTimeCounter(LOGIC_PulseWidthMax);
+		LOGIC_SetState(LS_PendingCompletion);
+		break;
+
+	case LS_PendingCompletion:
+		if(LOGIC_CheckTimeCounter())
+		{
+			LOGIC_SetState(LS_None);
+			Result = TRUE;
+		}
+		break;
+	}
+
+	return Result;
+}
+// ----------------------------------------
+
 Boolean LOGIC_MeasurementCurrentProcess()
 {
 	return LOGIC_IndependentProcesses(SelectIm, LOGIC_PulseWidthMax);
@@ -88,10 +110,10 @@ Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth
 	case LS_None:
 		REGULATOR_Enable(Selector, TRUE);
 		LOGIC_StartTimeCounter(PulseWidth);
-		LOGIC_SetState(LS_IndependentProcesses);
+		LOGIC_SetState(LS_PendingCompletion);
 		break;
 
-	case LS_IndependentProcesses:
+	case LS_PendingCompletion:
 		if(LOGIC_CheckTimeCounter())
 		{
 			LOGIC_SetState(LS_None);
@@ -448,6 +470,7 @@ void LOGIC_CacheVariables()
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 	LOGIC_Tmax = DataTable[REG_T_MAX] * 10;
+	LOGIC_DUTType = DataTable[REG_DUT_TYPE];
 
 	// Reset variables to default states
 	EP_DataCounter = 0;
@@ -497,17 +520,17 @@ void LOGIC_PowerOnSequence()
 
 	switch(LOGIC_State)
 	{
-		case LS_PON_DRCU:
-			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, &LOGIC_State, FAULT_DRCU_PWRON, LS_WAIT_READY);
+		case LS_DRCU_PwrOn:
+			DRCU_PowerOn(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, &LOGIC_State, FAULT_DRCU_PWRON, LS_DRCU_WaitReady);
 			ZbGPIO_LowPowerSupplyControl(TRUE);
 			Timeout = CONTROL_TimeCounter + TIME_POWER_ON;
 			break;
 
-		case LS_WAIT_READY:
-			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_DRCU_State, &LOGIC_State, LS_PON_Battery);
+		case LS_DRCU_WaitReady:
+			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_DRCU_State, &LOGIC_State, LS_BatteryPwrOn);
 			break;
 
-		case LS_PON_Battery:
+		case LS_BatteryPwrOn:
 			{
 				if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
 					CONTROL_SetDeviceState(DS_Ready, LS_None);
@@ -559,7 +582,7 @@ void LOGIC_ResetFaultProcess()
 }
 // ----------------------------------------
 
-void LOGIC_DRCUConfigProcess()
+void LOGIC_DRCUConfigProcess(Int16U Current)
 {
 	if(!LOGIC_UpdateDeviceState())
 	{
@@ -567,8 +590,45 @@ void LOGIC_DRCUConfigProcess()
 		return;
 	}
 
-	//DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, LOGIC_DRCU_State, Int16U Current, &LOGIC_State, LS_None);
+	switch(LOGIC_State)
+	{
+		case LS_DRCU_Config:
+			DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, Current, &LOGIC_State, LS_DRCU_WaitReady);
+			break;
+
+		case LS_DRCU_WaitReady:
+			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_DRCU_State, &LOGIC_State, LS_None);
+			break;
+	}
+
 	LOGIC_HandleCommunicationError();
+}
+// ----------------------------------------
+
+void LOGIC_GatePulse(Boolean State)
+{
+	if(State)
+	{
+		if(LOGIC_DUTType)
+		{
+			ZthDCB_SwitchOutput(VOLTAGE_SOURCE);
+
+			if(DataTable[REG_IGBT_V_GATE])
+				ZthDCB_VoltageSet(GATE_VOLTGE_20V);
+			else
+				ZthDCB_VoltageSet(GATE_VOLTGE_15V);
+		}
+		else
+		{
+			ZthDCB_SwitchOutput(CURRENT_SOURCE);
+			ZthDCB_CurrentSet(_IQI(DataTable[REG_GATE_CURRENT]));
+		}
+	}
+	else
+	{
+		ZthDCB_CurrentSet(0);
+		ZthDCB_VoltageSet(GATE_VOLTGE_0V);
+	}
 }
 // ----------------------------------------
 
