@@ -64,6 +64,7 @@ void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
 Boolean LOGIC_IndependentProcesses(Int32U PulseWidth);
 void LOGIC_MeasuringCurrentConfig(_iq Current);
 Boolean LOGIC_HeatingCurrentConfig(Int32U CuurentWidth);
+Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
 
 // Functions
 //
@@ -100,6 +101,7 @@ Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
 	case LS_ConfigIm:
 		LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
 		LOGIC_StartTimeCounter(PulseWidth);
+		REGULATOR_Enable(SelectIm, TRUE);
 		LOGIC_SetState(LS_PendingCompletion);
 		break;
 
@@ -107,7 +109,11 @@ Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
 	case LS_DRCU_Config:
 	case LS_DRCU_WaitReady:
 		if(LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax))
+		{
+			LOGIC_StartTimeCounter(PulseWidth);
+			REGULATOR_Enable(SelectIh, TRUE);
 			LOGIC_SetState(LS_PendingCompletion);
+		}
 		break;
 
 	case LS_PendingCompletion:
@@ -127,7 +133,6 @@ void LOGIC_MeasuringCurrentConfig(_iq Current)
 {
 	REGULATOR_InitAll();
 	REGULATOR_Update(SelectIm, Current);
-	REGULATOR_Enable(SelectIm, TRUE);
 }
 // ----------------------------------------
 
@@ -148,25 +153,27 @@ Boolean LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 
 	if(CurrentSetpoint != NewCurrentSetpoint)
 	{
-		CurrentSetpoint = NewCurrentSetpoint;
-
 		switch(LOGIC_State)
 		{
 			case LS_DRCU_Config:
 			case LS_DRCU_WaitReady:
-				LOGIC_DRCUConfigProcess(CurrentSetpoint, LS_ConfigIh);
+				LOGIC_DRCUConfigProcess(NewCurrentSetpoint, LS_ConfigIh);
 				break;
 
 			case LS_ConfigIh:
 				REGULATOR_InitAll();
-				LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
-				REGULATOR_Update(SelectIh, CurrentSetpoint);
-				REGULATOR_Enable(SelectIh, TRUE);
-
+				LOGIC_HeatingCurrentSetRange(NewCurrentSetpoint);
+				REGULATOR_Update(SelectIh, NewCurrentSetpoint);
+				CurrentSetpoint = NewCurrentSetpoint;
 				Result = TRUE;
 				break;
 		}
 
+	}
+	else
+	{
+		REGULATOR_Update(SelectIh, CurrentSetpoint);
+		Result = TRUE;
 	}
 
 	return Result;
@@ -181,8 +188,18 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 	switch (LOGIC_State)
 	{
 		case LS_None:
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
-			LOGIC_SetState(LS_Heating);
+			LOGIC_SetState(LS_DRCU_Config);
+			break;
+
+		case LS_ConfigIh:
+		case LS_DRCU_Config:
+		case LS_DRCU_WaitReady:
+			if(LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth))
+				LOGIC_SetState(LS_Heating);
 			break;
 
 		case LS_Heating:
@@ -209,12 +226,14 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
+				Timeout = CONTROL_TimeCounter + TIME_BATTERY_RECHARGE;
 				LOGIC_SetState(LS_BatteryPrepare);
 			}
 			break;
 
 		case LS_BatteryPrepare:
-			LOGIC_SetState(LS_Heating);
+			if(LOGIC_BatteryVoltageControl(Timeout))
+				LOGIC_SetState(LS_DRCU_Config);
 			break;
 	}
 
@@ -396,34 +415,6 @@ Boolean LOGIC_CoolingProcess(Int64U Pause)
 
 void LOGIC_Heating(Boolean State)
 {
-	static _iq CurrentSetpoint, NewCurrentSetpoint;
-
-	if(State)
-	{
-		if(LOGIC_ActualPulseWidth <= PULSE_WIDTH_2MS)
-			NewCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
-		else
-		{
-			if(LOGIC_ActualPulseWidth > PULSE_WIDTH_10MS)
-				NewCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
-			else
-				NewCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
-		}
-
-		if(NewCurrentSetpoint != CurrentSetpoint)
-		{
-			CurrentSetpoint = NewCurrentSetpoint;
-
-			LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
-			REGULATOR_Update(SelectIh, HeatingCurrentSetpoint);
-		}
-	}
-	else
-	{
-		REGULATOR_Update(SelectIh, 0);
-		REGULATOR_Update(SelectP, 0);
-	}
-
 	REGULATOR_Enable(SelectIh, State);
 	REGULATOR_Enable(SelectP, State);
 }
@@ -597,16 +588,8 @@ void LOGIC_PowerOnSequence()
 
 		case LS_BatteryPwrOn:
 			{
-				if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+				if(LOGIC_BatteryVoltageControl(Timeout))
 					CONTROL_SetDeviceState(DS_Ready, LS_None);
-				else
-				{
-					if(CONTROL_TimeCounter >= Timeout)
-					{
-						ZbGPIO_LowPowerSupplyControl(FALSE);
-						CONTROL_SwitchToFault(FAULT_POWERON);
-					}
-				}
 				break;
 			}
 
@@ -614,6 +597,23 @@ void LOGIC_PowerOnSequence()
 	}
 
 	LOGIC_HandleCommunicationError();
+}
+// ----------------------------------------
+
+Boolean LOGIC_BatteryVoltageControl(Int64U Timeout)
+{
+	if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+		return TRUE;
+	else
+	{
+		if(CONTROL_TimeCounter >= Timeout)
+		{
+			ZbGPIO_LowPowerSupplyControl(FALSE);
+			CONTROL_SwitchToFault(FAULT_POWERON);
+		}
+	}
+
+	return FALSE;
 }
 // ----------------------------------------
 
