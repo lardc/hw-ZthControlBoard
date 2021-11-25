@@ -31,6 +31,7 @@ volatile Int16U LOGIC_DUTType;
 volatile Int16U LOGIC_CoolingMode;
 volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay, LOGIC_GraduationPeriodMin;
 volatile _iq LOGIC_CurrentWidthLess_2ms, LOGIC_CurrentWidthLess_10ms, LOGIC_CurrentWidthAbove_10ms, LOGIC_Tmax, LOGIC_ZthPause;
+volatile _iq LOGIC_MeasuringCurrent;
 //
 volatile Int64U LOGIC_ActualPulseWidth = 0;
 volatile Int64U LOGIC_ActualDelayWidth = 0;
@@ -60,20 +61,53 @@ void LOGIC_StartTimeCounter(Int32U Time_us);
 Boolean LOGIC_CheckTimeCounter();
 void LOGIC_SaveData(CombinedData Sample);
 void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
-Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth);
+Boolean LOGIC_IndependentProcesses(Int32U PulseWidth);
+void LOGIC_MeasuringCurrentConfig(_iq Current);
+Boolean LOGIC_HeatingCurrentConfig(Int32U CuurentWidth);
 
 // Functions
 //
 Boolean LOGIC_GateCurrentProcess()
 {
+	return LOGIC_IndependentProcesses(LOGIC_PulseWidthMax);
+}
+// ----------------------------------------
+
+Boolean LOGIC_MeasurementCurrentProcess()
+{
+	return LOGIC_IndependentProcesses(LOGIC_PulseWidthMax);
+}
+// ----------------------------------------
+
+Boolean LOGIC_HeatingCurrentProcess()
+{
+	return LOGIC_IndependentProcesses(LOGIC_PulseWidthMax);
+}
+// ----------------------------------------
+
+Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
+{
 	Boolean Result = FALSE;
 
 	switch (LOGIC_State)
 	{
-	case LS_None:
+	case LS_ConfigIg:
 		LOGIC_GatePulse(TRUE);
-		LOGIC_StartTimeCounter(LOGIC_PulseWidthMax);
+		LOGIC_StartTimeCounter(PulseWidth);
 		LOGIC_SetState(LS_PendingCompletion);
+		break;
+
+	case LS_ConfigIm:
+		LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+		LOGIC_StartTimeCounter(PulseWidth);
+		LOGIC_SetState(LS_PendingCompletion);
+		break;
+
+	case LS_ConfigIh:
+	case LS_DRCU_Config:
+	case LS_DRCU_WaitReady:
+		if(LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax))
+			LOGIC_SetState(LS_PendingCompletion);
 		break;
 
 	case LS_PendingCompletion:
@@ -89,37 +123,50 @@ Boolean LOGIC_GateCurrentProcess()
 }
 // ----------------------------------------
 
-Boolean LOGIC_MeasurementCurrentProcess()
+void LOGIC_MeasuringCurrentConfig(_iq Current)
 {
-	return LOGIC_IndependentProcesses(SelectIm, LOGIC_PulseWidthMax);
+	REGULATOR_InitAll();
+	REGULATOR_Update(SelectIm, Current);
+	REGULATOR_Enable(SelectIm, TRUE);
 }
 // ----------------------------------------
 
-Boolean LOGIC_HeatingCurrentProcess()
-{
-	return LOGIC_IndependentProcesses(SelectIh, LOGIC_PulseWidthMax);
-}
-// ----------------------------------------
-
-Boolean LOGIC_IndependentProcesses(RegulatorSelector Selector, Int32U PulseWidth)
+Boolean LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 {
 	Boolean Result = FALSE;
+	static _iq CurrentSetpoint = 0, NewCurrentSetpoint = 0;
 
-	switch (LOGIC_State)
+	if(CurrentWidth <= PULSE_WIDTH_2MS)
+		CurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
+	else
 	{
-	case LS_None:
-		REGULATOR_Enable(Selector, TRUE);
-		LOGIC_StartTimeCounter(PulseWidth);
-		LOGIC_SetState(LS_PendingCompletion);
-		break;
+		if(CurrentWidth > PULSE_WIDTH_10MS)
+			CurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
+		else
+			CurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
+	}
 
-	case LS_PendingCompletion:
-		if(LOGIC_CheckTimeCounter())
+	if(CurrentSetpoint != NewCurrentSetpoint)
+	{
+		CurrentSetpoint = NewCurrentSetpoint;
+
+		switch(LOGIC_State)
 		{
-			LOGIC_SetState(LS_None);
-			Result = TRUE;
+			case LS_DRCU_Config:
+			case LS_DRCU_WaitReady:
+				LOGIC_DRCUConfigProcess(CurrentSetpoint, LS_ConfigIh);
+				break;
+
+			case LS_ConfigIh:
+				REGULATOR_InitAll();
+				LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
+				REGULATOR_Update(SelectIh, CurrentSetpoint);
+				REGULATOR_Enable(SelectIh, TRUE);
+
+				Result = TRUE;
+				break;
 		}
-		break;
+
 	}
 
 	return Result;
@@ -162,8 +209,12 @@ Boolean LOGIC_ZthSequencePulsesProcess()
 			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
-				LOGIC_SetState(LS_Heating);
+				LOGIC_SetState(LS_BatteryPrepare);
 			}
+			break;
+
+		case LS_BatteryPrepare:
+			LOGIC_SetState(LS_Heating);
 			break;
 	}
 
@@ -345,20 +396,33 @@ Boolean LOGIC_CoolingProcess(Int64U Pause)
 
 void LOGIC_Heating(Boolean State)
 {
+	static _iq CurrentSetpoint, NewCurrentSetpoint;
+
 	if(State)
 	{
-		if(LOGIC_ActualPulseWidth > PULSE_WIDTH_10MS)
-			REGULATOR_Update(SelectIh, LOGIC_CurrentWidthAbove_10ms);
+		if(LOGIC_ActualPulseWidth <= PULSE_WIDTH_2MS)
+			NewCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
 		else
 		{
-			if(LOGIC_ActualPulseWidth <= PULSE_WIDTH_2MS)
-				REGULATOR_Update(SelectIh, LOGIC_CurrentWidthLess_2ms);
+			if(LOGIC_ActualPulseWidth > PULSE_WIDTH_10MS)
+				NewCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
 			else
-				REGULATOR_Update(SelectIh, LOGIC_CurrentWidthLess_10ms);
+				NewCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
+		}
+
+		if(NewCurrentSetpoint != CurrentSetpoint)
+		{
+			CurrentSetpoint = NewCurrentSetpoint;
+
+			LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
+			REGULATOR_Update(SelectIh, HeatingCurrentSetpoint);
 		}
 	}
 	else
+	{
 		REGULATOR_Update(SelectIh, 0);
+		REGULATOR_Update(SelectP, 0);
+	}
 
 	REGULATOR_Enable(SelectIh, State);
 	REGULATOR_Enable(SelectP, State);
@@ -471,6 +535,7 @@ void LOGIC_CacheVariables()
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
 	LOGIC_Tmax = DataTable[REG_T_MAX] * 10;
 	LOGIC_DUTType = DataTable[REG_DUT_TYPE];
+	LOGIC_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
 
 	// Reset variables to default states
 	EP_DataCounter = 0;
@@ -582,7 +647,7 @@ void LOGIC_ResetFaultProcess()
 }
 // ----------------------------------------
 
-void LOGIC_DRCUConfigProcess(_iq Current)
+void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState)
 {
 	if(!LOGIC_UpdateDeviceState())
 	{
@@ -597,7 +662,7 @@ void LOGIC_DRCUConfigProcess(_iq Current)
 			break;
 
 		case LS_DRCU_WaitReady:
-			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_DRCU_State, &LOGIC_State, LS_None);
+			DRCU_WaitReady(CONTROL_TimeCounter, Timeout, LOGIC_DRCU_State, &LOGIC_State, NextState);
 			break;
 	}
 

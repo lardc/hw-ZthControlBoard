@@ -42,7 +42,6 @@ volatile DeviceState CONTROL_State = DS_None;
 volatile Int64U CONTROL_TimeCounter = 0;
 static volatile Boolean CycleActive = FALSE, ReinitRS232 = FALSE;
 volatile Int16U CONTROL_Mode;
-volatile _iq CONTROL_MeasuringCurrent;
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
 volatile Int16U CONTROL_BootLoaderRequest = 0;
@@ -56,12 +55,10 @@ void CONTROL_CañheVariables();
 void CONTROL_PowerOnProcess();
 void CONTROL_Process();
 void CONTROL_StopProcess(Int16U OpResult);
-void CONTROL_StartProcess();
 void CONTROL_MeasuringCurrentProcess(Boolean State);
 void CONTROL_ResetOutputRegisters();
 void CONTROL_Protection();
 void CONTROL_ForceStopProcess();
-void CONTROL_PrepareProcess();
 
 // Functions
 //
@@ -109,7 +106,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 		CONTROL_SetDeviceState(DS_Disabled, LS_None);
 	}
 
-	CONTROL_PrepareProcess();
+	CONTROL_CañheVariables();
 	ZwADC_SubscribeToResults1(&MEASURE_CapVoltageSamplingResult);
 	REGULATOR_ForceOutputsToZero();
 }
@@ -117,9 +114,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 void CONTROL_Idle()
 {
-	// Prepare process
-	CONTROL_PrepareProcess();
-
 	// Measurement process
 	CONTROL_Process();
 
@@ -161,7 +155,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_PROCESS:
 			if (CONTROL_State == DS_Ready)
 			{
-				CONTROL_StartProcess();
+				CONTROL_CañheVariables();
+				CONTROL_ResetOutputRegisters();
+
 				CONTROL_SetDeviceState(DS_InProcess, LS_None);
 			}
 			else
@@ -190,7 +186,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_UPDATE:
-			CONTROL_PrepareProcess();
+			CONTROL_CañheVariables();
 			break;
 
 		case ACT_CLR_FAULT:
@@ -206,17 +202,25 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IM:
+				CONTROL_CañheVariables();
+				CONTROL_ResetOutputRegisters();
 				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIm);
 			break;
 
 		case ACT_START_IH:
 			if (CONTROL_State == DS_Ready)
-				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIh);
+			{
+				CONTROL_CañheVariables();
+				CONTROL_ResetOutputRegisters();
+				CONTROL_SetDeviceState(DS_InProcess, LS_DRCU_Config);
+			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_START_GATE:
+			CONTROL_CañheVariables();
+			CONTROL_ResetOutputRegisters();
 			CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIg);
 			break;
 
@@ -307,14 +311,6 @@ void CONTROL_PowerOnProcess()
 }
 // ----------------------------------------
 
-void CONTROL_MeasuringCurrentProcess(Boolean State)
-{
-	REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
-	REGULATOR_Enable(SelectIm, State);
-	ZthMCB_CurrentSet(CONTROL_MeasuringCurrent);
-}
-// ----------------------------------------
-
 void CONTROL_RegulatorProcess()
 {
 	RegulatorsData Sample;
@@ -336,78 +332,14 @@ void CONTROL_RegulatorProcess()
 }
 // ----------------------------------------
 
-void CONTROL_PrepareProcess()
-{
-	_iq HeatingCurrentSetpoint;
-
-	if(CONTROL_State == DS_InProcess)
-	{
-		switch(LOGIC_State)
-		{
-		case LS_ConfigIm:
-			CONTROL_CañheVariables();
-			CONTROL_ResetOutputRegisters();
-			REGULATOR_InitAll();
-			REGULATOR_Update(SelectIm, CONTROL_MeasuringCurrent);
-
-			CONTROL_SetDeviceState(DS_InProcess, LS_None);
-			break;
-
-		case LS_ConfigIh:
-			CONTROL_CañheVariables();
-			CONTROL_ResetOutputRegisters();
-			REGULATOR_InitAll();
-
-			if(LOGIC_PulseWidthMax <= PULSE_WIDTH_2MS)
-				HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
-			else
-			{
-				if(LOGIC_PulseWidthMax > PULSE_WIDTH_10MS)
-					HeatingCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
-				else
-					HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
-			}
-
-			LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
-			REGULATOR_Update(SelectIh, HeatingCurrentSetpoint);
-
-			CONTROL_SetDeviceState(DS_InProcess, LS_DRCU_Config);
-			break;
-
-		case LS_ConfigIg:
-			CONTROL_CañheVariables();
-			CONTROL_ResetOutputRegisters();
-
-			CONTROL_SetDeviceState(DS_InProcess, LS_None);
-
-		case LS_DRCU_Config:
-			LOGIC_DRCUConfigProcess(HeatingCurrentSetpoint);
-			break;
-		}
-	}
-}
-// ----------------------------------------
-
 void CONTROL_CañheVariables()
 {
 	CONTROL_Mode = DataTable[REG_MODE];
-	//
-	CONTROL_MeasuringCurrent = _IQI(DataTable[REG_MEASURING_CURRENT]);
 	//
 	LOGIC_CacheVariables();
 	REGULATOR_CacheVariables();
 	CONVERT_CacheVariables();
 	MEASURE_VariablesPrepare();
-}
-// ----------------------------------------
-
-void CONTROL_StartProcess()
-{
-	CONTROL_PrepareProcess();
-	CONTROL_ResetOutputRegisters();
-	//
-	LOGIC_GatePulse(TRUE);
-	CONTROL_MeasuringCurrentProcess(TRUE);
 }
 // ----------------------------------------
 

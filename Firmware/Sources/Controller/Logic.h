@@ -14,7 +14,8 @@ typedef enum __LogicState
 	LS_None					= 0,
 	LS_Error				= 1,
 	LS_BatteryPwrOn			= 2,
-	LS_PendingCompletion	= 3,
+	LS_BatteryPrepare		= 3,
+	LS_PendingCompletion	= 4,
 	//
 	LS_DRCU_PwrOn			= 10,
 	LS_DRCU_Config			= 11,
@@ -67,7 +68,7 @@ void LOGIC_PowerOnSequence();
 void LOGIC_PowerOffProcess();
 void LOGIC_HandleCommunicationError();
 void LOGIC_ResetFaultProcess();
-void LOGIC_DRCUConfigProcess(_iq Current);
+void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState);
 void LOGIC_GatePulse(Boolean State);
 Boolean LOGIC_GateCurrentProcess();
 
