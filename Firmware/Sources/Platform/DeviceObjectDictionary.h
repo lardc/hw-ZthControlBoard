@@ -38,6 +38,10 @@
 #define ACT_STOP_HEATING			102	// Stop heating process
 #define ACT_UPDATE					103	// Update parameters
 //
+#define ACT_DRCU_READ_REG			150	// Read register from DRCUControlBoard
+#define ACT_DRCU_WRITE_REG			151	// Write data to the register DRCUControlBoard
+#define ACT_DRCU_CALL				152	// Send call to the DRCUControlBoard
+//
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
@@ -143,6 +147,9 @@
 #define REG_IGBT_V_GATE				143	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 //
 #define REG_DBG						150	// Debugging register
+//
+#define REG_DRCU_X_NUM				160	// Register number or command number for DRCUControlBoard
+#define REG_DRCU_DATA_IO			161	// Input / output DRCUControlBoard data
 //
 #define REG_PWD_1					180	// Unlock password location 1
 #define REG_PWD_2					181	// Unlock password location 2
