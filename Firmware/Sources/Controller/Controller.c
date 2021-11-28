@@ -352,6 +352,13 @@ void CONTROL_RegulatorProcess()
 }
 // ----------------------------------------
 
+void CONTROL_Update()
+{
+	MEASURE_CapVoltageSamplingStart();
+	//
+	BCCIM_Process(&DEVICE_CAN_Master_Interface);
+}
+
 void CONTROL_CañheVariables()
 {
 	CONTROL_Mode = DataTable[REG_MODE];

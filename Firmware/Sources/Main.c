@@ -241,7 +241,7 @@ ISRCALL Timer0_ISR(void)
 {
 	static Int16U LedCounter = 0;
 
-	MEASURE_CapVoltageSamplingStart();
+	CONTROL_Update();
 
 	// Update time
 	++CONTROL_TimeCounter;
