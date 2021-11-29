@@ -142,13 +142,13 @@ Boolean LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 	static _iq CurrentSetpoint = 0, NewCurrentSetpoint = 0;
 
 	if(CurrentWidth <= PULSE_WIDTH_2MS)
-		CurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
+		NewCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
 	else
 	{
 		if(CurrentWidth > PULSE_WIDTH_10MS)
-			CurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
+			NewCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
 		else
-			CurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
+			NewCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
 	}
 
 	if(CurrentSetpoint != NewCurrentSetpoint)
@@ -697,6 +697,9 @@ void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState)
 	switch(LOGIC_State)
 	{
 		case LS_DRCU_Config:
+			if(Timeout <= CONTROL_TimeCounter)
+				Timeout = CONTROL_TimeCounter + TIME_CONFIG;
+
 			DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, _IQI(Current), &LOGIC_State, LS_DRCU_WaitReady);
 			break;
 
