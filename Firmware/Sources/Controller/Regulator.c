@@ -10,12 +10,14 @@
 #include "IQmathLib.h"
 #include "IQmathUtils.h"
 #include "ZthMCurrentBoard.h"
+#include "Logic.h"
 
 
 // Types
 typedef struct __RegulatorSettings
 {
 	Boolean Enabled;
+	Int32U Counter;
 	_iq TargetValue;
 	_iq TargetValuePrev;
 	_iq Error;
@@ -102,8 +104,9 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			}
 		}
 
-		if(Regulator->Ki)
+		if(Regulator->Ki && (Regulator->Counter >= DataTable[REG_REGULATOR_SKIP_CYCLE]))
 		{
+
 			Regulator->Error += Error;
 
 			if(_IQabs(Regulator->Error) > REGLTR_ERROR_I_SAT_H)
@@ -117,7 +120,11 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			ControlI = 0;
 		}
 
-		Regulator->Control = Regulator->TargetValue + _IQmpy(Error, Regulator->Kp) + ControlI;
+		if(Regulator->Counter >= DataTable[REG_REGULATOR_SKIP_CYCLE])
+			Regulator->Control = Regulator->TargetValue + _IQmpy(Error, Regulator->Kp) + ControlI;
+		else
+			Regulator->Control = Regulator->TargetValue;
+
 		Regulator->TargetValuePrev = Regulator->TargetValue;
 
 		if(Regulator->Control < 0)
@@ -126,6 +133,8 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			Regulator->Control = Regulator->ControlSat;
 
 		REGULATOR_SetOutput(Selector, Regulator->Control);
+
+		Regulator->Counter++;
 	}
 }
 // ----------------------------------------
@@ -133,6 +142,7 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki, Int16U *Array, Int16U *ArrayCounter)
 {
 	Regulator->Enabled			= FALSE;
+	Regulator->Counter			= 0;
 	Regulator->Kp				= _FPtoIQ2(DataTable[Register_Kp], 1000);
 	Regulator->Ki 				= _FPtoIQ2(DataTable[Register_Ki], 1000);
 	Regulator->ControlSat 		= ControlSat;
@@ -165,7 +175,7 @@ void REGULATOR_Enable(RegulatorSelector Selector, Boolean State)
 	switch (Selector)
 	{
 		case SelectIm: RegulatorIm.Enabled = State; break;
-		case SelectIh: RegulatorIh.Enabled = State; break;
+		case SelectIh:RegulatorIh.Enabled = State; break;
 		case SelectP: RegulatorP.Enabled = State; break;
 	}
 }
@@ -201,14 +211,16 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 
 			if(Value)
 			{
-				ZbGPIO_DRCU_Sync(TRUE);
 				ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE);
+
+				if(TimeFlag)
+				{
+					ZbGPIO_DRCU_Sync(TRUE);
+					LOGIC_StartTimeCounter(0);
+				}
 			}
 			else
-			{
 				ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
-				ZbGPIO_DRCU_Sync(FALSE);
-			}
 			break;
 	}
 }
@@ -299,7 +311,7 @@ void REGULATOR_SaveErr(pRegulatorSettings Regulator, _iq Error)
 	{
 		ScopeLogStep = 0;
 
-		*(Regulator->ErrorArray + *Regulator->ArrayCounter) = _IQint(_IQmpy(Error, _IQI(100)));
+		*(Regulator->ErrorArray + *Regulator->ArrayCounter) = _IQint(Error);
 		*Regulator->ArrayCounter = LocalCounter;
 
 		++LocalCounter;

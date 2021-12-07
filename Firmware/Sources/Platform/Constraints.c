@@ -18,8 +18,8 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
                                     		   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 2
                                     		   {DAC_IG_K_MIN, DAC_IG_K_MAX, DAC_IG_K_DEF},										// 3
                                     		   {DAC_IG_B_MIN, DAC_IG_B_MAX, DAC_IG_B_DEF},										// 4
-                                    		   {DAC_IH_K_MIN, DAC_IH_K_MAX, DAC_IH_K_DEF},										// 5
-                                    		   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 6
+                                    		   {0, 0, 0},																		// 5
+                                    		   {0, 0, 0},																		// 6
 											   {DAC_IM_K_MIN, DAC_IM_K_MAX, DAC_IM_K_DEF},										// 7
 											   {DAC_IM_B_MIN, DAC_IM_B_MAX, DAC_IM_B_DEF},										// 8
 											   {IH_RANGE_THRESHOLD_MIN, IH_RANGE_THRESHOLD_MAX, IH_RANGE_THRESHOLD_DEF},		// 9
@@ -69,15 +69,15 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {REG_IH_KI_MIN, REG_IH_KI_MAX, REG_IH_KI_DEF},									// 53
 											   {REG_P_KP_MIN, REG_P_KP_MAX, REG_P_KP_DEF},										// 54
 											   {REG_P_KI_MIN, REG_P_KI_MAX, REG_P_KI_DEF},										// 55
-											   {0, 0, 0},																		// 56
-											   {0, 0, 0},																		// 57
-											   {0, 0, 0},																		// 58
-											   {0, 0, 0},																		// 59
+											   {DAC_IH_K_MIN, DAC_IH_K_MAX, DAC_IH_K_DEF},										// 56
+											   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 57
+											   {DAC_IH_K_MIN, DAC_IH_K_MAX, DAC_IH_K_DEF},										// 58
+											   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 59
 											   {FALSE, TRUE, FALSE},															// 60
 											   {0, INT16U_MAX, 0},																// 61
 											   {FALSE, TRUE, FALSE},															// 62
 											   {0, INT16U_MAX, 0},																// 63
-											   {0, 0, 0},																		// 64
+											   {0, SKIP_CYCLE_MAX, SKIP_CYCLE_DEF},												// 64
 											   {0, 0, 0},																		// 65
 											   {0, 0, 0},																		// 66
 											   {0, 0, 0},																		// 67

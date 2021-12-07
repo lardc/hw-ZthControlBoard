@@ -36,7 +36,7 @@ volatile _iq LOGIC_MeasuringCurrent;
 volatile Int64U LOGIC_ActualPulseWidth = 0;
 volatile Int64U LOGIC_ActualDelayWidth = 0;
 //
-volatile Boolean TimeFlag = FALSE;
+volatile Boolean TimeFlag = TRUE;
 //
 #pragma DATA_SECTION(LOGIC_Values_TSP, "data_mem");
 Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
@@ -57,7 +57,6 @@ volatile Int16U EP_DataCounter = 0;
 Boolean LOGIC_HeatingProcess();
 void LOGIC_MeasuringProcess();
 Boolean LOGIC_CoolingProcess(Int64U Pause);
-void LOGIC_StartTimeCounter(Int32U Time_us);
 Boolean LOGIC_CheckTimeCounter();
 void LOGIC_SaveData(CombinedData Sample);
 void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
@@ -65,6 +64,7 @@ Boolean LOGIC_IndependentProcesses(Int32U PulseWidth);
 void LOGIC_MeasuringCurrentConfig(_iq Current);
 Boolean LOGIC_HeatingCurrentConfig(Int32U CuurentWidth);
 Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
+void LOGIC_ConfigTimeCounter(Int32U Time_us);
 
 // Functions
 //
@@ -93,26 +93,29 @@ Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
 	switch (LOGIC_State)
 	{
 	case LS_ConfigIg:
+		LOGIC_ConfigTimeCounter(PulseWidth);
 		LOGIC_GatePulse(TRUE);
-		LOGIC_StartTimeCounter(PulseWidth);
+		LOGIC_StartTimeCounter();
 		LOGIC_SetState(LS_PendingCompletion);
 		break;
 
 	case LS_ConfigIm:
+		LOGIC_ConfigTimeCounter(PulseWidth);
 		LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
-		LOGIC_StartTimeCounter(PulseWidth);
 		REGULATOR_Enable(SelectIm, TRUE);
+		LOGIC_StartTimeCounter();
 		LOGIC_SetState(LS_PendingCompletion);
 		break;
 
 	case LS_ConfigIh:
 	case LS_DRCU_Config:
 	case LS_DRCU_WaitReady:
-		if(LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax))
+		if(LOGIC_HeatingCurrentConfig(PulseWidth))
 		{
-			LOGIC_StartTimeCounter(PulseWidth);
+			LOGIC_ConfigTimeCounter(PulseWidth);
 			REGULATOR_Enable(SelectIh, TRUE);
 			LOGIC_SetState(LS_PendingCompletion);
+			DELAY_US(100);
 		}
 		break;
 
@@ -172,6 +175,7 @@ Boolean LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 	}
 	else
 	{
+		REGULATOR_InitAll();
 		REGULATOR_Update(SelectIh, CurrentSetpoint);
 		Result = TRUE;
 	}
@@ -420,7 +424,8 @@ Boolean LOGIC_HeatingProcess()
 
 void LOGIC_MeasuringProcess()
 {
-	LOGIC_StartTimeCounter(LOGIC_MeasurementDelay);
+	LOGIC_ConfigTimeCounter(LOGIC_MeasurementDelay);
+	LOGIC_StartTimeCounter();
 	while(LOGIC_CheckTimeCounter()){}
 
 	LOGIC_SaveData(MEASURE_CombinedData(LOGIC_CoolingMode));
@@ -434,7 +439,8 @@ Boolean LOGIC_CoolingProcess(Int64U Pause)
 	if(!DelayStartFlag)
 	{
 		DelayStartFlag = TRUE;
-		LOGIC_StartTimeCounter(Pause);
+		LOGIC_ConfigTimeCounter(Pause);
+		LOGIC_StartTimeCounter();
 	}
 	else
 	{
@@ -514,11 +520,15 @@ void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval)
 }
 // ----------------------------------------
 
-void LOGIC_StartTimeCounter(Int32U Time_us)
+void LOGIC_ConfigTimeCounter(Int32U Time_us)
+{
+	ZwTimer_SetPeriodT2_us(Time_us);
+}
+// ----------------------------------------
+
+void LOGIC_StartTimeCounter()
 {
 	TimeFlag = FALSE;
-
-	ZwTimer_SetPeriodT2_us(Time_us);
 	ZwTimer_StartT2();
 }
 // ----------------------------------------
@@ -631,8 +641,6 @@ void LOGIC_PowerOnSequence()
 					CONTROL_SetDeviceState(DS_Ready, LS_None);
 				break;
 			}
-
-
 	}
 
 	LOGIC_HandleCommunicationError();
@@ -700,7 +708,7 @@ void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState)
 			if(Timeout <= CONTROL_TimeCounter)
 				Timeout = CONTROL_TimeCounter + TIME_CONFIG;
 
-			DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, _IQI(Current), &LOGIC_State, LS_DRCU_WaitReady);
+			DRCU_Config(REG_DRCU_EMULATE, REG_DRCU_NODE_ID, &LOGIC_DRCU_State, _IQint(Current), &LOGIC_State, LS_DRCU_WaitReady);
 			break;
 
 		case LS_DRCU_WaitReady:

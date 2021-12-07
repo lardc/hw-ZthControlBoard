@@ -276,6 +276,7 @@ ISRCALL Timer1_ISR(void)
 ISRCALL Timer2_ISR(void)
 {
 	LOGIC_SetDelayFlag();
+	ZbGPIO_DRCU_Sync(FALSE);
 	ZwTimer_StopT2();
 
 	// no PIE

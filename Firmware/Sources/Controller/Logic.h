@@ -49,6 +49,8 @@ extern volatile _iq LOGIC_CurrentWidthAbove_10ms;
 //
 extern volatile Int32U LOGIC_PulseWidthMax;
 //
+extern volatile Boolean TimeFlag;
+//
 
 // Functions prototypes
 //
@@ -71,5 +73,6 @@ void LOGIC_ResetFaultProcess();
 void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState);
 void LOGIC_GatePulse(Boolean State);
 Boolean LOGIC_GateCurrentProcess();
+void LOGIC_StartTimeCounter();
 
 #endif // __LOGIC_H

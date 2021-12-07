@@ -190,6 +190,9 @@ typedef struct __TableItemConstraint
 //
 #define IGBT_V_GATE_15V			0
 #define IGBT_V_GATE_20V			1
+//
+#define SKIP_CYCLE_MAX			5
+#define SKIP_CYCLE_DEF			1
 
 
 // Variables

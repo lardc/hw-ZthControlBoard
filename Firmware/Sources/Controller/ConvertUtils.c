@@ -22,8 +22,9 @@ typedef struct __ConvParameters
 
 // Variables
 //
-static ConvParameters DAC_ParamsIg, DAC_ParamsIh, DAC_ParamsIm;
-static ConvParameters ADC_ParamsIh_Range0, ADC_ParamsIh_Range1,ADC_ParamsIh;
+static ConvParameters DAC_ParamsIg, DAC_ParamsIm;
+static ConvParameters DAC_ParamsIh_Range0, DAC_ParamsIh_Range1, DAC_ParamsIh;
+static ConvParameters ADC_ParamsIh_Range0, ADC_ParamsIh_Range1, ADC_ParamsIh;
 static ConvParameters ADC_ParamsIm, ADC_ParamsTSP, ADC_ParamsTcase1, ADC_ParamsTcase2, ADC_ParamsTcool1, ADC_ParamsTcool2;
 _iq CapVoltageK = 0;
 
@@ -40,7 +41,8 @@ void CONVERT_CacheVariables()
 	CapVoltageK = _FPtoIQ2(DataTable[REG_CAP_VOLTAGE_K_N], DataTable[REG_CAP_VOLTAGE_K_D]);
 	//
 	DAC_ParamsIg = CONVERT_LoadParams(REG_DAC_IG_P2, REG_DAC_IG_P1, REG_DAC_IG_P0, REG_DAC_IG_K, REG_DAC_IG_B, 1);
-	DAC_ParamsIh = CONVERT_LoadParamsSimple(REG_DAC_IH_K, REG_DAC_IH_B);
+	DAC_ParamsIh = DAC_ParamsIh_Range0 = CONVERT_LoadParamsSimple(REG_DAC_IH_R0_K, REG_DAC_IH_R0_B);
+	DAC_ParamsIh_Range1 = CONVERT_LoadParamsSimple(REG_DAC_IH_R1_K, REG_DAC_IH_R1_B);
 	DAC_ParamsIm = CONVERT_LoadParamsSimple(REG_DAC_IM_K, REG_DAC_IM_B);
 	//
 	ADC_ParamsIh = ADC_ParamsIh_Range0 = CONVERT_LoadParams(REG_ADC_IH_R0_P2, REG_ADC_IH_R0_P1, REG_ADC_IH_R0_P0, REG_ADC_IH_R0_K, REG_ADC_IH_R0_B, 1);
@@ -57,9 +59,15 @@ void CONVERT_CacheVariables()
 void CONVERT_IhSetRangeParams(Boolean Range)
 {
 	if(Range)
+	{
 		ADC_ParamsIh = ADC_ParamsIh_Range1;
+		DAC_ParamsIh = DAC_ParamsIh_Range1;
+	}
 	else
+	{
 		ADC_ParamsIh = ADC_ParamsIh_Range0;
+		DAC_ParamsIh = DAC_ParamsIh_Range0;
+	}
 }
 // ----------------------------------------
 
@@ -144,7 +152,7 @@ Int16U CONVERT_xToDAC(_iq Value, ConvParameters Parameters)
 	_iq tmp = _IQdiv(Value, _IQ(1000.0f));
 	_iq tmp2 = _IQmpy(tmp, _IQmpy(tmp, Parameters.P2)) + _IQmpy(Value, Parameters.P1) + Parameters.P0;
 
-	Int16S val = _IQint(_IQmpy((tmp2 + Parameters.B), Parameters.K));
+	Int16S val = _IQint(_IQmpy(tmp2, Parameters.K) + Parameters.B);
 
 	if (val > DAC_MAX_VALUE)
 		return DAC_MAX_VALUE;

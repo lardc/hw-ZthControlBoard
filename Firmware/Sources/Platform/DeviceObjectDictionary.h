@@ -59,10 +59,7 @@
 #define REG_DAC_IG_P0				2	// Fine coefficient for Ig quadratic correction P0 (in mA)
 #define REG_DAC_IG_K				3	// Conversion coefficient K for Ig x1000
 #define REG_DAC_IG_B				4	// Conversion offset for Ig (in mA)
-//
-#define REG_DAC_IH_K				5	// Conversion coefficient K for Ih x1000
-#define REG_DAC_IH_B				6	// Conversion offset for Ih (in A)
-//
+// 5 - 6
 #define REG_DAC_IM_K				7	// Conversion coefficient K for Im x1000
 #define REG_DAC_IM_B				8	// Conversion offset for Im (in mA)
 //
@@ -124,10 +121,16 @@
 #define REG_PI_CTRL_P_Kp			54	// Heating current PI Kp x1000
 #define REG_PI_CTRL_P_Ki			55	// Heating current PI Ki
 //
+#define REG_DAC_IH_R0_K				56	// Conversion coefficient K for Ih range 0 x1000
+#define REG_DAC_IH_R0_B				57	// Conversion offset for Ih (in A) range 0
+#define REG_DAC_IH_R1_K				58	// Conversion coefficient K for Ih range 1 x1000
+#define REG_DAC_IH_R1_B				59	// Conversion offset for Ih (in A) range 1
+//
 #define REG_MUTE_PROTECTION			60	// Ignore protection
 #define REG_SCOPE_STEP				61	// Scope step
 #define REG_DRCU_EMULATE			62	// DRCU emulate flag
 #define REG_DRCU_NODE_ID			63	// DRCU CAN node ID
+#define REG_REGULATOR_SKIP_CYCLE	64	// Number of skip regulator cycle
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
