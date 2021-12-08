@@ -113,6 +113,7 @@ Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
 		if(LOGIC_HeatingCurrentConfig(PulseWidth))
 		{
 			LOGIC_ConfigTimeCounter(PulseWidth);
+			LOGIC_StartTimeCounter();
 			REGULATOR_Enable(SelectIh, TRUE);
 			LOGIC_SetState(LS_PendingCompletion);
 			DELAY_US(100);
@@ -142,42 +143,31 @@ void LOGIC_MeasuringCurrentConfig(_iq Current)
 Boolean LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 {
 	Boolean Result = FALSE;
-	static _iq CurrentSetpoint = 0, NewCurrentSetpoint = 0;
+	static _iq CurrentSetpoint = 0;
 
 	if(CurrentWidth <= PULSE_WIDTH_2MS)
-		NewCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
+		CurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
 	else
 	{
 		if(CurrentWidth > PULSE_WIDTH_10MS)
-			NewCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
+			CurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
 		else
-			NewCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
+			CurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
 	}
 
-	if(CurrentSetpoint != NewCurrentSetpoint)
+	switch(LOGIC_State)
 	{
-		switch(LOGIC_State)
-		{
-			case LS_DRCU_Config:
-			case LS_DRCU_WaitReady:
-				LOGIC_DRCUConfigProcess(NewCurrentSetpoint, LS_ConfigIh);
-				break;
+		case LS_DRCU_Config:
+		case LS_DRCU_WaitReady:
+			LOGIC_DRCUConfigProcess(CurrentSetpoint, LS_ConfigIh);
+			break;
 
-			case LS_ConfigIh:
-				REGULATOR_InitAll();
-				LOGIC_HeatingCurrentSetRange(NewCurrentSetpoint);
-				REGULATOR_Update(SelectIh, NewCurrentSetpoint);
-				CurrentSetpoint = NewCurrentSetpoint;
-				Result = TRUE;
-				break;
-		}
-
-	}
-	else
-	{
-		REGULATOR_InitAll();
-		REGULATOR_Update(SelectIh, CurrentSetpoint);
-		Result = TRUE;
+		case LS_ConfigIh:
+			REGULATOR_InitAll();
+			LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
+			REGULATOR_Update(SelectIh, CurrentSetpoint);
+			Result = TRUE;
+			break;
 	}
 
 	return Result;
@@ -586,8 +576,8 @@ void LOGIC_HeatingCurrentSetRange(_iq Current)
 {
 	if(_IQint(Current) <= DataTable[REG_IH_RANGE_THRESHOLD])
 	{
-		CONVERT_IhSetRangeParams(0);
 		ZbGPIO_SB_Ih_Range(0);
+		CONVERT_IhSetRangeParams(0);
 	}
 	else
 	{
