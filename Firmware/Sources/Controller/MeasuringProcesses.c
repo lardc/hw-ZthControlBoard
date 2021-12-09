@@ -27,6 +27,7 @@ typedef struct __MovingAverageFilter
 
 MovingAverageFilter AvgCapacitorsVoltage = {0};
 MovingAverageFilter AvgMeasurementCurrent = {0};
+MovingAverageFilter AvgHeatingCurrent = {0};
 
 // Variables
 Int16U MEASURE_CapVoltage = 0;
@@ -63,7 +64,22 @@ _iq MEASURE_Tcool2()
 
 _iq MEASURE_Ih()
 {
-	return CONVERT_ADCToIh(ZthSB_RawReadIh());
+	_iq FilteredResult, RelativeError;
+
+	AvgHeatingCurrent.Sample = CONVERT_ADCToIh(ZthSB_RawReadIh());
+	FilteredResult = MEASURE_AveragingProcess(&AvgHeatingCurrent);
+
+	RelativeError = ABS(_IQmpy(_IQdiv((AvgHeatingCurrent.Sample - FilteredResult), FilteredResult), _IQ(100)));
+
+	DataTable[150] = _IQint(_IQmpy(RelativeError, _IQ(10)));
+
+	if(RelativeError <= _FPtoIQ2(DataTable[REG_I_ERROR_THRESHOLD], 10))
+	{
+		DataTable[150]++;
+		return FilteredResult;
+	}
+	else
+		return AvgHeatingCurrent.Sample;
 }
 // ----------------------------------------
 
@@ -148,13 +164,16 @@ void MEASURE_VariablesPrepare()
 	{
 		AvgMeasurementCurrent.Array[i] = 0;
 		AvgCapacitorsVoltage.Array[i] = 0;
+		AvgHeatingCurrent.Array[i] = 0;
 	}
 
 	AvgMeasurementCurrent.Counter = 0;
-	AvgMeasurementCurrent.DataSum = 0;
-
 	AvgCapacitorsVoltage.Counter = 0;
+	AvgHeatingCurrent.Counter = 0;
+
+	AvgMeasurementCurrent.DataSum = 0;
 	AvgCapacitorsVoltage.DataSum = 0;
+	AvgHeatingCurrent.DataSum = 0;
 }
 // ----------------------------------------
 
