@@ -115,6 +115,7 @@ Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
 			LOGIC_ConfigTimeCounter(PulseWidth);
 			LOGIC_StartTimeCounter();
 			REGULATOR_Enable(SelectIh, TRUE);
+			REGULATOR_Enable(SelectP, DataTable[REG_REGULATOR_POWER_CTRL]);
 			LOGIC_SetState(LS_PendingCompletion);
 			DELAY_US(100);
 		}
@@ -165,6 +166,7 @@ Boolean LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 		case LS_ConfigIh:
 			REGULATOR_InitAll();
 			LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
+			REGULATOR_Ih_CacheValue(CurrentSetpoint);
 			REGULATOR_Update(SelectIh, CurrentSetpoint);
 			Result = TRUE;
 			break;
