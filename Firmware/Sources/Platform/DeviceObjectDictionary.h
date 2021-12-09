@@ -112,7 +112,7 @@
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
 #define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in V x10)
 //
-#define REG_P_ERROR_THRESHOLD		47	// Power error threshold (% x10)
+#define REG_I_ERROR_THRESHOLD		47	// Ih error threshold (% x10)
 // 48 - 49
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki
@@ -131,6 +131,7 @@
 #define REG_DRCU_EMULATE			62	// DRCU emulate flag
 #define REG_DRCU_NODE_ID			63	// DRCU CAN node ID
 #define REG_REGULATOR_SKIP_CYCLE	64	// Number of skip regulator cycle
+#define REG_REGULATOR_POWER_CTRL	65	// Enable or disable of power regulator
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
@@ -169,16 +170,19 @@
 #define REG_OP_RESULT				197	// Indicates that test is done and there is result or fault
 #define REG_FAULT_REASON_EXT		198	// Fault reason extended code
 //
-#define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
+#define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV x10)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A x10)
-#define REG_ACTUAL_P_DUT			202	// Actual DUT power dissipation (in W)
-#define REG_ACTUAL_I_MEASUREMENT	203	// Actual measurement current (in mA x10)
-#define REG_ACTUAL_T_CASE1			204	// Actual temperature of DUT case 1 (in C x100)
-#define REG_ACTUAL_T_CASE2			205	// Actual temperature of DUT case 2 (in C x100)
-#define REG_ACTUAL_T_COOL1			206	// Actual temperature of DUT cooler 1 (in C x100)
-#define REG_ACTUAL_T_COOL2			207	// Actual temperature of DUT cooler 2 (in C x100)
-#define REG_ACTUAL_TSP				208	// Actual TSP result (in mV)
-#define REG_ACTUAL_CAP_VOLTAGE		209	// Actual capacitors voltage (in V x10)
+#define REG_ACTUAL_P_DUT_WHOLE		202	// Actual whole part of DUT power dissipation (in W)
+#define REG_ACTUAL_P_DUT_FRACT		203	// Actual fraction part of DUT power dissipation (in W)
+#define REG_ACTUAL_P_TARGET_WHOLE	204	// Actual whole part of target power dissipation (in W)
+#define REG_ACTUAL_P_TARGET_FRACT	205	// Actual fraction part of target power dissipation (in W)
+#define REG_ACTUAL_I_MEASUREMENT	206	// Actual measurement current (in mA x10)
+#define REG_ACTUAL_T_CASE1			207	// Actual temperature of DUT case 1 (in C x100)
+#define REG_ACTUAL_T_CASE2			208	// Actual temperature of DUT case 2 (in C x100)
+#define REG_ACTUAL_T_COOL1			209	// Actual temperature of DUT cooler 1 (in C x100)
+#define REG_ACTUAL_T_COOL2			210	// Actual temperature of DUT cooler 2 (in C x100)
+#define REG_ACTUAL_TSP				211	// Actual TSP result (in mV)
+#define REG_ACTUAL_CAP_VOLTAGE		212	// Actual capacitors voltage (in V x10)
 //
 #define REG_CANA_BUSOFF_COUNTER		220 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			221	// CAN status register (32 bit)
@@ -199,6 +203,10 @@
 #define EP_ERR_IM					6	// Endpoint of Im regulator error
 #define EP_ERR_IH					7	// Endpoint of Ih regulator error
 #define EP_ERR_P					8	// Endpoint of P regulator error
+//
+#define EP_IM						9	// Endpoint contains measured data of the measuring current
+#define EP_IH						10	// Endpoint contains measured data of the heating current
+#define EP_P						11	// Endpoint contains measured data of the power dissipation
 //
 
 // OPERATION RESULTS
