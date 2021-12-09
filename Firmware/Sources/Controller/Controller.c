@@ -35,6 +35,7 @@
 #define MODE_IM					4
 #define MODE_IH					5
 #define MODE_IG					6
+#define MODE_P					7
 
 // Variables
 //
@@ -65,17 +66,18 @@ void CONTROL_ForceStopProcess();
 void CONTROL_Init(Boolean BadClockDetected)
 {
 	// Variables for endpoint configuration
-	Int16U EPIndexes[EP_COUNT] = { EP_TSP, EP_T_CASE1, EP_T_CASE2, EP_T_COOL1, EP_T_COOL2, EP_ERR_IM, EP_ERR_IH, EP_ERR_P};
+	Int16U EPIndexes[EP_COUNT] = { EP_TSP, EP_T_CASE1, EP_T_CASE2, EP_T_COOL1, EP_T_COOL2, EP_ERR_IM, EP_ERR_IH, EP_ERR_P, EP_IM, EP_IH, EP_P};
 
 	Int16U EPSized[EP_COUNT] = { VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE,
-			REGULATOR_VALUES_SIZE, REGULATOR_VALUES_SIZE, REGULATOR_VALUES_SIZE};
+			REGULATOR_VALUES_SIZE, REGULATOR_VALUES_SIZE, REGULATOR_VALUES_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE};
 
 	pInt16U EPCounters[EP_COUNT] = { (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter,
-			(pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&REGULATOR_ErrorIm_Counter,
-			(pInt16U)&REGULATOR_ErrorIh_Counter, (pInt16U)&REGULATOR_ErrorP_Counter};
+			(pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&LOGIC_Values_Counter, (pInt16U)&REGULATOR_Im_Counter,
+			(pInt16U)&REGULATOR_Ih_Counter, (pInt16U)&REGULATOR_P_Counter, (pInt16U)&REGULATOR_Im_Counter, (pInt16U)&REGULATOR_Ih_Counter,
+			(pInt16U)&REGULATOR_P_Counter};
 
 	pInt16U EPDatas[EP_COUNT] = { LOGIC_Values_TSP, LOGIC_Values_Tcase1, LOGIC_Values_Tcase2, LOGIC_Values_Tcool1, LOGIC_Values_Tcool2,
-			REGULATOR_ErrorIm, REGULATOR_ErrorIh, REGULATOR_ErrorP};
+			REGULATOR_ErrorIm, REGULATOR_ErrorIh, REGULATOR_ErrorP, REGULATOR_Im_Value, REGULATOR_Ih_Value, REGULATOR_P_Value};
 
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = { &ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM };
@@ -422,7 +424,10 @@ void CONTROL_ResetOutputRegisters()
 	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
 	DataTable[REG_ACTUAL_U_DUT] = 0;
 	DataTable[REG_ACTUAL_I_DUT] = 0;
-	DataTable[REG_ACTUAL_P_DUT] = 0;
+	DataTable[REG_ACTUAL_P_DUT_WHOLE] = 0;
+	DataTable[REG_ACTUAL_P_DUT_FRACT] = 0;
+	DataTable[REG_ACTUAL_P_TARGET_WHOLE] = 0;
+	DataTable[REG_ACTUAL_P_TARGET_FRACT] = 0;
 	DataTable[REG_ACTUAL_I_MEASUREMENT] = 0;
 	DataTable[REG_ACTUAL_T_CASE1] = 0;
 	DataTable[REG_ACTUAL_T_CASE2] = 0;
@@ -439,7 +444,8 @@ void CONTROL_SaveHeatingData(RegulatorsData Sample)
 {
 	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
 	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
-	DataTable[REG_ACTUAL_P_DUT] = _IQint(_IQdiv(Sample.P, 1000));
+	DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
+	DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
 	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
 }
 // ----------------------------------------
