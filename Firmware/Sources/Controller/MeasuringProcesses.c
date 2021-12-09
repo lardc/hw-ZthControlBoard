@@ -87,7 +87,7 @@ RegulatorsData MEASURE_RegulatorsSample()
 	Sample.Ih = MEASURE_Ih();
 	Sample.Im = MEASURE_Im();
 	Sample.U = MEASURE_TSP();
-	Sample.P = _IQmpy(Sample.U, Sample.Ih);
+	Sample.P = _IQmpy(_IQdiv(Sample.U, _IQI(1000)), Sample.Ih);
 
 	return Sample;
 }
