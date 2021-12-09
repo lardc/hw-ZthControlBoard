@@ -127,10 +127,11 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		_iq ControlI = 0;
 
 		_iq Error = Regulator->TargetValuePrev - SampleValue;
+		_iq RelativeError = ABS(_IQmpy(_IQdiv(Error, Regulator->TargetValuePrev), _IQ(100)));
 
 		if(Selector == SelectIh)
 		{
-			if((ABS(Error) <= Ih_ErrorThreshold) && MeasureSample.P)
+			if((RelativeError <= Ih_ErrorThreshold) && MeasureSample.P)
 			{
 				if(Ih_PulseValue != Ih_PrevPulseValue)
 				{
