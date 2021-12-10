@@ -109,9 +109,9 @@ typedef struct __TableItemConstraint
 #define CAP_V_THRESHOLD_MAX		250
 #define	CAP_V_THRESHOLD_DEF		120
 //
-#define P_ERR_THRESHOLD_MIN		0
-#define P_ERR_THRESHOLD_MAX		100
-#define P_ERR_THRESHOLD_DEF		5
+#define I_ERR_THRESHOLD_MIN		0
+#define I_ERR_THRESHOLD_MAX		100
+#define I_ERR_THRESHOLD_DEF		5
 //
 #define REG_IM_KP_MIN			0
 #define REG_IM_KP_MAX			INT16U_MAX
