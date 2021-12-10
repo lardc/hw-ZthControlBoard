@@ -11,6 +11,10 @@
 #include "IQmathLib.h"
 #include "IQmathUtils.h"
 
+// Definitions
+//
+#define AVERAGE_DEGREE			20
+
 // Types
 typedef struct __RegulatorsData
 {
@@ -29,8 +33,19 @@ typedef struct __CombinedData
 	_iq Tcool2;
 } CombinedData;
 
+typedef struct __MovingAverageFilter
+{
+	_iq Sample;
+	Int16U Counter;
+	_iq DataSum;
+	_iq Array[AVERAGE_DEGREE];
+	_iq AvgResult;
+	Boolean FilteredDataFlag;
+}MovingAverageFilter, *pMovingAverageFilter;
+
 // Variables
 extern Int16U MEASURE_CapVoltage;
+extern MovingAverageFilter AvgPowerDissipationDUT;
 
 // Functions
 //
@@ -46,5 +61,6 @@ _iq MEASURE_TSP();
 RegulatorsData MEASURE_RegulatorsSample();
 CombinedData MEASURE_CombinedData(Boolean DoubleSideCooling);
 void MEASURE_VariablesPrepare();
+_iq MEASURE_AveragingProcess(pMovingAverageFilter Data);
 
 #endif /* MEASURINGPROCESSES_H_ */

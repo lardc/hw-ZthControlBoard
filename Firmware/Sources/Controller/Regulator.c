@@ -115,7 +115,8 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		case SelectP:
 			DataParams = &DataP;
 			Regulator = &RegulatorP;
-			SampleValue = MeasureSample.P;
+			AvgPowerDissipationDUT.Sample = MeasureSample.P;
+			SampleValue = MEASURE_AveragingProcess(&AvgPowerDissipationDUT);
 
 			if(!REGULATOR_GetTarget().P)
 				return;
@@ -310,7 +311,7 @@ void REGULATOR_Ih_CacheValue(_iq Current)
 
 void REGULATOR_CacheVariables()
 {
-	Ih_ErrorThreshold = _FPtoIQ2(DataTable[REG_I_ERROR_THRESHOLD], 10);
+	Ih_ErrorThreshold = _FPtoIQ2(DataTable[REG_I_ERR_THRESHOLD], 10);
 }
 // ----------------------------------------
 

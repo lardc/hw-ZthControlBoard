@@ -12,29 +12,16 @@
 #include "ConvertUtils.h"
 #include "ZthSensingBoard.h"
 
-// Definitins
-//
-#define AVERAGE_DEGREE			20
-
-// Structs
-typedef struct __MovingAverageFilter
-{
-	_iq Sample;
-	Int16U Counter;
-	_iq DataSum;
-	_iq Array[AVERAGE_DEGREE];
-}MovingAverageFilter, *pMovingAverageFilter;
-
+// Variables
 MovingAverageFilter AvgCapacitorsVoltage = {0};
 MovingAverageFilter AvgMeasurementCurrent = {0};
-MovingAverageFilter AvgHeatingCurrent = {0};
-
-// Variables
+MovingAverageFilter AvgPowerDissipationDUT = {0};
+//
 Int16U MEASURE_CapVoltage = 0;
 
 // Functions prototypes
 //
-_iq MEASURE_AveragingProcess(pMovingAverageFilter Data);
+_iq MEASURE_MeasuredDataMux(pMovingAverageFilter Data);
 
 // Functions
 //
@@ -64,22 +51,7 @@ _iq MEASURE_Tcool2()
 
 _iq MEASURE_Ih()
 {
-	_iq FilteredResult, RelativeError;
-
-	AvgHeatingCurrent.Sample = CONVERT_ADCToIh(ZthSB_RawReadIh());
-	FilteredResult = MEASURE_AveragingProcess(&AvgHeatingCurrent);
-
-	RelativeError = ABS(_IQmpy(_IQdiv((AvgHeatingCurrent.Sample - FilteredResult), FilteredResult), _IQ(100)));
-
-	DataTable[150] = _IQint(_IQmpy(RelativeError, _IQ(10)));
-
-	if(RelativeError <= _FPtoIQ2(DataTable[REG_I_ERROR_THRESHOLD], 10))
-	{
-		DataTable[150]++;
-		return FilteredResult;
-	}
-	else
-		return AvgHeatingCurrent.Sample;
+	return CONVERT_ADCToIh(ZthSB_RawReadIh());
 }
 // ----------------------------------------
 
@@ -144,15 +116,20 @@ void MEASURE_CapVoltageSamplingResult(Int16U * const restrict pResults)
 
 _iq MEASURE_AveragingProcess(pMovingAverageFilter Data)
 {
-	Data->DataSum -= Data->Array[Data->Counter];
-	Data->Array[Data->Counter] = Data->Sample;
-	Data->DataSum += Data->Array[Data->Counter];
+	if(DataTable[REG_FILTER_ACTIVE])
+	{
+		Data->DataSum -= Data->Array[Data->Counter];
+		Data->Array[Data->Counter] = Data->Sample;
+		Data->DataSum += Data->Array[Data->Counter];
 
-	Data->Counter++;
-	if(Data->Counter >= AVERAGE_DEGREE)
-		Data->Counter = 0;
+		Data->Counter++;
+		if(Data->Counter >= AVERAGE_DEGREE)
+			Data->Counter = 0;
 
-	return _IQdiv(Data->DataSum, _IQI(AVERAGE_DEGREE));;
+		return _IQdiv(Data->DataSum, _IQI(AVERAGE_DEGREE));
+	}
+	else
+		return Data->Sample;
 }
 // ----------------------------------------
 
@@ -164,16 +141,16 @@ void MEASURE_VariablesPrepare()
 	{
 		AvgMeasurementCurrent.Array[i] = 0;
 		AvgCapacitorsVoltage.Array[i] = 0;
-		AvgHeatingCurrent.Array[i] = 0;
 	}
-
+	//
 	AvgMeasurementCurrent.Counter = 0;
 	AvgCapacitorsVoltage.Counter = 0;
-	AvgHeatingCurrent.Counter = 0;
-
+	//
 	AvgMeasurementCurrent.DataSum = 0;
 	AvgCapacitorsVoltage.DataSum = 0;
-	AvgHeatingCurrent.DataSum = 0;
+	//
+	AvgMeasurementCurrent.FilteredDataFlag = FALSE;
+	AvgCapacitorsVoltage.FilteredDataFlag = FALSE;
 }
 // ----------------------------------------
 
