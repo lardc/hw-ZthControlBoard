@@ -62,7 +62,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {CAP_V_THRESHOLD_MIN, CAP_V_THRESHOLD_MAX, CAP_V_THRESHOLD_DEF},					// 46
 											   {I_ERR_THRESHOLD_MIN, I_ERR_THRESHOLD_MAX, I_ERR_THRESHOLD_DEF},					// 47
 											   {FALSE, TRUE, FALSE},															// 48
-											   {0, 0, 0},																		// 49
+											   {FLTR_ERR_THRESHOLD_MIN, FLTR_ERR_THRESHOLD_MAX, FLTR_ERR_THRESHOLD_DEF},		// 49
 											   {REG_IM_KP_MIN, REG_IM_KP_MAX, REG_IM_KP_DEF},									// 50
 											   {REG_IM_KI_MIN, REG_IM_KI_MAX, REG_IM_KI_DEF},									// 51
 											   {REG_IH_KP_MIN, REG_IH_KP_MAX, REG_IH_KP_DEF},									// 52

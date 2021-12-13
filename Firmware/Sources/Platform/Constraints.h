@@ -113,6 +113,10 @@ typedef struct __TableItemConstraint
 #define I_ERR_THRESHOLD_MAX		100
 #define I_ERR_THRESHOLD_DEF		5
 //
+#define FLTR_ERR_THRESHOLD_MIN	0
+#define FLTR_ERR_THRESHOLD_MAX	100
+#define FLTR_ERR_THRESHOLD_DEF	5
+//
 #define REG_IM_KP_MIN			0
 #define REG_IM_KP_MAX			INT16U_MAX
 #define REG_IM_KP_DEF			0
