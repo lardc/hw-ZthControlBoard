@@ -11,17 +11,21 @@
 #include "DeviceObjectDictionary.h"
 #include "ConvertUtils.h"
 #include "ZthSensingBoard.h"
+#include "Regulator.h"
 
 // Variables
 MovingAverageFilter AvgCapacitorsVoltage = {0};
 MovingAverageFilter AvgMeasurementCurrent = {0};
 MovingAverageFilter AvgPowerDissipationDUT = {0};
+MovingAverageFilter AvgVoltageDUT = {0};
+//
+_iq FilterErrorThreshold = 0;
 //
 Int16U MEASURE_CapVoltage = 0;
 
 // Functions prototypes
 //
-_iq MEASURE_MeasuredDataMux(pMovingAverageFilter Data);
+_iq MEASURE_VoltgeDUT();
 
 // Functions
 //
@@ -57,8 +61,13 @@ _iq MEASURE_Ih()
 
 _iq MEASURE_Im()
 {
+	_iq RelativeError;
+
 	AvgMeasurementCurrent.Sample = CONVERT_ADCToIm(ZthSB_RawReadIm());
-	return MEASURE_AveragingProcess(&AvgMeasurementCurrent);
+	AvgMeasurementCurrent.AvgResult = MEASURE_AveragingProcess(&AvgMeasurementCurrent);
+	RelativeError = ABS(_IQmpy(_IQdiv((AvgMeasurementCurrent.AvgResult - AvgMeasurementCurrent.Sample), AvgMeasurementCurrent.Sample), _IQ(100)));
+
+	return (RelativeError <= FilterErrorThreshold) ? AvgMeasurementCurrent.AvgResult : AvgMeasurementCurrent.Sample;
 }
 // ----------------------------------------
 
@@ -68,13 +77,25 @@ _iq MEASURE_TSP()
 }
 // ----------------------------------------
 
+_iq MEASURE_VoltgeDUT()
+{
+	_iq RelativeError;
+
+	AvgVoltageDUT.Sample = MEASURE_TSP();
+	AvgVoltageDUT.AvgResult = MEASURE_AveragingProcess(&AvgVoltageDUT);
+	RelativeError = ABS(_IQmpy(_IQdiv((AvgVoltageDUT.AvgResult - AvgVoltageDUT.Sample), AvgVoltageDUT.Sample), _IQ(100)));
+
+	return (P_TargetPulseValue && (RelativeError <= FilterErrorThreshold)) ? AvgVoltageDUT.AvgResult : AvgVoltageDUT.Sample;
+}
+// ----------------------------------------
+
 RegulatorsData MEASURE_RegulatorsSample()
 {
 	RegulatorsData Sample;
 
 	Sample.Ih = MEASURE_Ih();
 	Sample.Im = MEASURE_Im();
-	Sample.U = MEASURE_TSP();
+	Sample.U = MEASURE_VoltgeDUT();
 	Sample.P = _IQmpy(_IQdiv(Sample.U, _IQI(1000)), Sample.Ih);
 
 	return Sample;
@@ -141,16 +162,18 @@ void MEASURE_VariablesPrepare()
 	{
 		AvgMeasurementCurrent.Array[i] = 0;
 		AvgCapacitorsVoltage.Array[i] = 0;
+		AvgVoltageDUT.Array[i] = 0;
 	}
 	//
 	AvgMeasurementCurrent.Counter = 0;
 	AvgCapacitorsVoltage.Counter = 0;
+	AvgVoltageDUT.Counter = 0;
 	//
 	AvgMeasurementCurrent.DataSum = 0;
 	AvgCapacitorsVoltage.DataSum = 0;
+	AvgVoltageDUT.DataSum = 0;
 	//
-	AvgMeasurementCurrent.FilteredDataFlag = FALSE;
-	AvgCapacitorsVoltage.FilteredDataFlag = FALSE;
+	FilterErrorThreshold = _IQdiv(_IQI(DataTable[REG_FILTER_ERR_THRESHOLD]), _IQI(10));
 }
 // ----------------------------------------
 
