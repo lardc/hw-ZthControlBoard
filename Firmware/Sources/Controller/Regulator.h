@@ -28,6 +28,8 @@ extern Int16U REGULATOR_P_Value[VALUES_x_SIZE];
 extern Int16U REGULATOR_Im_Counter;
 extern Int16U REGULATOR_Ih_Counter;
 extern Int16U REGULATOR_P_Counter;
+//
+extern _iq P_TargetPulseValue;
 
 // Functions
 //
