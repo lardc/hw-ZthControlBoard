@@ -197,6 +197,10 @@ typedef struct __TableItemConstraint
 //
 #define SKIP_CYCLE_MAX			5
 #define SKIP_CYCLE_DEF			1
+//
+#define POWER_SET_DELAY_MIN		0
+#define POWER_SET_DELAY_MAX		2000
+#define POWER_SET_DELAY_DEF		1000
 
 
 // Variables

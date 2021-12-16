@@ -128,12 +128,22 @@
 #define REG_DAC_IH_R1_K				58	// Conversion coefficient K for Ih range 1 x1000
 #define REG_DAC_IH_R1_B				59	// Conversion offset for Ih (in A) range 1
 //
-#define REG_MUTE_PROTECTION			60	// Ignore protection
-#define REG_SCOPE_STEP				61	// Scope step
-#define REG_DRCU_EMULATE			62	// DRCU emulate flag
-#define REG_DRCU_NODE_ID			63	// DRCU CAN node ID
-#define REG_REGULATOR_SKIP_CYCLE	64	// Number of skip regulator cycle
-#define REG_REGULATOR_POWER_CTRL	65	// Enable or disable of power regulator
+#define REG_DAC_IH_R0_P2			60	// Conversion coefficient P2 for Ih range 0 x1e6
+#define REG_DAC_IH_R0_P1			61	// Conversion coefficient P1 for Ih range 0 x1000
+#define REG_DAC_IH_R0_P0			62	// Offset P0 for Ih range 0
+//
+#define REG_DAC_IH_R1_P2			63	// Conversion coefficient P2 for Ih range 0 x1e6
+#define REG_DAC_IH_R1_P1			64	// Conversion coefficient P1 for Ih range 0 x1000
+#define REG_DAC_IH_R1_P0			65	// Offset P0 for Ih range 0
+//
+#define REG_MUTE_PROTECTION			66	// Ignore protection
+#define REG_SCOPE_STEP				67	// Scope step
+#define REG_DRCU_EMULATE			68	// DRCU emulate flag
+#define REG_DRCU_NODE_ID			69	// DRCU CAN node ID
+#define REG_REGULATOR_SKIP_CYCLE	70	// Number of skip regulator cycle
+#define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator
+#define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device
+#define REG_POWER_SET_DEL_IGBT		73	// Time after starting the current to set the power dissipation reference for IGBT
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)

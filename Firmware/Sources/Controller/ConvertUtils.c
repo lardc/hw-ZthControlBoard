@@ -41,8 +41,8 @@ void CONVERT_CacheVariables()
 	CapVoltageK = _FPtoIQ2(DataTable[REG_CAP_VOLTAGE_K_N], DataTable[REG_CAP_VOLTAGE_K_D]);
 	//
 	DAC_ParamsIg = CONVERT_LoadParams(REG_DAC_IG_P2, REG_DAC_IG_P1, REG_DAC_IG_P0, REG_DAC_IG_K, REG_DAC_IG_B, 1);
-	DAC_ParamsIh = DAC_ParamsIh_Range0 = CONVERT_LoadParamsSimple(REG_DAC_IH_R0_K, REG_DAC_IH_R0_B);
-	DAC_ParamsIh_Range1 = CONVERT_LoadParamsSimple(REG_DAC_IH_R1_K, REG_DAC_IH_R1_B);
+	DAC_ParamsIh = DAC_ParamsIh_Range0 = CONVERT_LoadParams(REG_DAC_IH_R0_P2, REG_DAC_IH_R0_P1, REG_DAC_IH_R0_P0, REG_DAC_IH_R0_K, REG_DAC_IH_R0_B, 1);
+	DAC_ParamsIh_Range1 = CONVERT_LoadParams(REG_DAC_IH_R1_P2, REG_DAC_IH_R1_P1, REG_DAC_IH_R1_P0, REG_DAC_IH_R1_K, REG_DAC_IH_R1_B, 1);
 	DAC_ParamsIm = CONVERT_LoadParamsSimple(REG_DAC_IM_K, REG_DAC_IM_B);
 	//
 	ADC_ParamsIh = ADC_ParamsIh_Range0 = CONVERT_LoadParams(REG_ADC_IH_R0_P2, REG_ADC_IH_R0_P1, REG_ADC_IH_R0_P0, REG_ADC_IH_R0_K, REG_ADC_IH_R0_B, 1);
