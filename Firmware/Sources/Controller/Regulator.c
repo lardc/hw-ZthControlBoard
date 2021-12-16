@@ -44,7 +44,7 @@ typedef struct __SaveDataParams
 // Variables
 SaveDataParams DataIm = {0}, DataIh = {0}, DataP = {0};
 RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
-RegulatorsData RegulatorSample;
+_iq ActualVoltageDUT = 0;
 _iq Ih_PrevPulseValue = 0, Ih_ErrorThreshold = 0, Ih_PulseValue = 0;
 _iq P_TargetPulseValue = 0;
 //
@@ -85,18 +85,14 @@ void REGULATOR_Cycle(RegulatorsData MeasureSample)
 	REGULATOR_CycleX(SelectIm, MeasureSample);
 	REGULATOR_CycleX(SelectIh, MeasureSample);
 	REGULATOR_CycleX(SelectP, MeasureSample);
-
-	RegulatorSample = MeasureSample;
 }
 // ----------------------------------------
 
 void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 {
-	_iq SampleValue;
+	_iq SampleValue, ControlI, ControlP, Error;
 	pRegulatorSettings Regulator;
 	pSaveDataParams DataParams;
-
-
 
 	switch (Selector)
 	{
@@ -115,8 +111,8 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		case SelectP:
 			DataParams = &DataP;
 			Regulator = &RegulatorP;
-			AvgPowerDissipationDUT.Sample = MeasureSample.P;
-			SampleValue = MEASURE_AveragingProcess(&AvgPowerDissipationDUT);
+			SampleValue = MeasureSample.P;
+			ActualVoltageDUT = MeasureSample.U;
 
 			if(!REGULATOR_GetTarget().P)
 				return;
@@ -125,35 +121,9 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 
 	if(Regulator->Enabled)
 	{
-		_iq ControlI = 0;
-
-		_iq Error = Regulator->TargetValuePrev - SampleValue;
-		_iq RelativeError = ABS(_IQmpy(_IQdiv(Error, Regulator->TargetValuePrev), _IQ(100)));
-
-		if(Selector == SelectIh)
+		if(Regulator->Ki)
 		{
-			if((RelativeError <= Ih_ErrorThreshold) && MeasureSample.P)
-			{
-				if(Ih_PulseValue != Ih_PrevPulseValue)
-				{
-					Ih_PrevPulseValue = Ih_PulseValue;
-					P_TargetPulseValue = MeasureSample.P;
-
-					REGULATOR_Update(SelectP, P_TargetPulseValue);
-				}
-				else
-				{
-					if(!REGULATOR_GetTarget().P)
-						REGULATOR_Update(SelectP, P_TargetPulseValue);
-				}
-
-				REGULATOR_SavePowerTarget(P_TargetPulseValue);
-			}
-		}
-
-		if(Regulator->Ki && (Regulator->Counter >= DataTable[REG_REGULATOR_SKIP_CYCLE]))
-		{
-
+			Error = (!Regulator->Counter) ? 0 : (Regulator->TargetValuePrev - SampleValue);
 			Regulator->Error += Error;
 
 			if(_IQabs(Regulator->Error) > REGLTR_ERROR_I_SAT_H)
@@ -167,11 +137,16 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			ControlI = 0;
 		}
 
-		if(Regulator->Counter >= DataTable[REG_REGULATOR_SKIP_CYCLE])
-			Regulator->Control = Regulator->TargetValue + _IQmpy(Error, Regulator->Kp) + ControlI;
-		else
-			Regulator->Control = Regulator->TargetValue;
+		ControlP = _IQmpy(Error, Regulator->Kp);
 
+		if(Regulator->Counter < DataTable[REG_REGULATOR_SKIP_CYCLE])
+		{
+			Regulator->Error = 0;
+			ControlI = 0;
+			ControlP = 0;
+		}
+
+		Regulator->Control = Regulator->TargetValue + ControlP + ControlI;
 		Regulator->TargetValuePrev = Regulator->TargetValue;
 
 		if(Regulator->Control < 0)
@@ -180,7 +155,6 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			Regulator->Control = Regulator->ControlSat;
 
 		REGULATOR_SetOutput(Selector, Regulator->Control);
-
 		REGULATOR_SaveData(DataParams, SampleValue, Error);
 
 		Regulator->Counter++;
@@ -258,24 +232,12 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 
 		case SelectP:
 			RegulatorP.Control = Value;
-			REGULATOR_Update(SelectIh, _IQdiv(RegulatorP.Control, _IQdiv(RegulatorSample.U, _IQI(1000))));
+			REGULATOR_Update(SelectIh, _IQdiv(RegulatorP.Control, _IQdiv(ActualVoltageDUT, _IQI(1000))));
 			break;
 
 		case SelectIh:
 			RegulatorIh.Control = Value;
-
-			if(Value)
-			{
-				ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE);
-
-				if(TimeFlag)
-				{
-					ZbGPIO_DRCU_Sync(TRUE);
-					LOGIC_StartTimeCounter(0);
-				}
-			}
-			else
-				ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
+			(Value) ? ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE) : ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
 			break;
 	}
 }
