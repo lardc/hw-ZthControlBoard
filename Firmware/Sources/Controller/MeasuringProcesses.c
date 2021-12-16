@@ -95,7 +95,7 @@ _iq MEASURE_DataMUX(pMovingAverageFilter Data)
 	Data->AvgResult = MEASURE_AveragingProcess(Data);
 	RelativeError = ABS(_IQmpy(_IQdiv((Data->AvgResult - Data->Sample), Data->Sample), _IQ(100)));
 
-	return (P_TargetPulseValue && (RelativeError <= FilterErrorThreshold)) ? Data->AvgResult : Data->Sample;
+	return (RelativeError <= FilterErrorThreshold) ? Data->AvgResult : Data->Sample;
 }
 // ----------------------------------------
 

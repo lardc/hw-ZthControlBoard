@@ -45,6 +45,5 @@ RegulatorsData REGULATOR_GetControl();
 RegulatorsData REGULATOR_GetTarget();
 void REGULATOR_CacheVariables();
 void REGULATOR_ResetVariables();
-void REGULATOR_Ih_CacheValue(_iq Current);
 
 #endif // __REGULATOR_H

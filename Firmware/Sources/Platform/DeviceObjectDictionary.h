@@ -142,8 +142,8 @@
 #define REG_DRCU_NODE_ID			69	// DRCU CAN node ID
 #define REG_REGULATOR_SKIP_CYCLE	70	// Number of skip regulator cycle
 #define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator
-#define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device
-#define REG_POWER_SET_DEL_IGBT		73	// Time after starting the current to set the power dissipation reference for IGBT
+#define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
+#define REG_POWER_SET_DEL_IGBT		73	// Time after starting the current to set the power dissipation reference for IGBT (in us x0.01)
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
