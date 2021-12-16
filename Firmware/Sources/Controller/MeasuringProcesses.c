@@ -26,6 +26,8 @@ Int16U MEASURE_CapVoltage = 0;
 // Functions prototypes
 //
 _iq MEASURE_VoltgeDUT();
+_iq MEASURE_DataMUX(pMovingAverageFilter Data);
+_iq MEASURE_PowerDissapation(_iq Voltage, _iq Current);
 
 // Functions
 //
@@ -61,13 +63,8 @@ _iq MEASURE_Ih()
 
 _iq MEASURE_Im()
 {
-	_iq RelativeError;
-
 	AvgMeasurementCurrent.Sample = CONVERT_ADCToIm(ZthSB_RawReadIm());
-	AvgMeasurementCurrent.AvgResult = MEASURE_AveragingProcess(&AvgMeasurementCurrent);
-	RelativeError = ABS(_IQmpy(_IQdiv((AvgMeasurementCurrent.AvgResult - AvgMeasurementCurrent.Sample), AvgMeasurementCurrent.Sample), _IQ(100)));
-
-	return (RelativeError <= FilterErrorThreshold) ? AvgMeasurementCurrent.AvgResult : AvgMeasurementCurrent.Sample;
+	return MEASURE_DataMUX(&AvgMeasurementCurrent);
 }
 // ----------------------------------------
 
@@ -79,13 +76,26 @@ _iq MEASURE_TSP()
 
 _iq MEASURE_VoltgeDUT()
 {
+	AvgVoltageDUT.Sample = MEASURE_TSP();
+	return MEASURE_DataMUX(&AvgVoltageDUT);
+}
+// ----------------------------------------
+
+_iq MEASURE_PowerDissapation(_iq Voltage, _iq Current)
+{
+	AvgPowerDissipationDUT.Sample = _IQmpy(_IQdiv(Voltage, _IQI(1000)), Current);
+	return MEASURE_DataMUX(&AvgPowerDissipationDUT);
+}
+// ----------------------------------------
+
+_iq MEASURE_DataMUX(pMovingAverageFilter Data)
+{
 	_iq RelativeError;
 
-	AvgVoltageDUT.Sample = MEASURE_TSP();
-	AvgVoltageDUT.AvgResult = MEASURE_AveragingProcess(&AvgVoltageDUT);
-	RelativeError = ABS(_IQmpy(_IQdiv((AvgVoltageDUT.AvgResult - AvgVoltageDUT.Sample), AvgVoltageDUT.Sample), _IQ(100)));
+	Data->AvgResult = MEASURE_AveragingProcess(Data);
+	RelativeError = ABS(_IQmpy(_IQdiv((Data->AvgResult - Data->Sample), Data->Sample), _IQ(100)));
 
-	return (P_TargetPulseValue && (RelativeError <= FilterErrorThreshold)) ? AvgVoltageDUT.AvgResult : AvgVoltageDUT.Sample;
+	return (P_TargetPulseValue && (RelativeError <= FilterErrorThreshold)) ? Data->AvgResult : Data->Sample;
 }
 // ----------------------------------------
 
@@ -96,7 +106,7 @@ RegulatorsData MEASURE_RegulatorsSample()
 	Sample.Ih = MEASURE_Ih();
 	Sample.Im = MEASURE_Im();
 	Sample.U = MEASURE_VoltgeDUT();
-	Sample.P = _IQmpy(_IQdiv(Sample.U, _IQI(1000)), Sample.Ih);
+	Sample.P = MEASURE_PowerDissapation(Sample.U, Sample.Ih);
 
 	return Sample;
 }
@@ -160,15 +170,18 @@ void MEASURE_VariablesPrepare()
 
 	for(i = 0; i < AVERAGE_DEGREE; i++)
 	{
+		AvgPowerDissipationDUT.Array[i] = 0;
 		AvgMeasurementCurrent.Array[i] = 0;
 		AvgCapacitorsVoltage.Array[i] = 0;
 		AvgVoltageDUT.Array[i] = 0;
 	}
 	//
+	AvgPowerDissipationDUT.Counter = 0;
 	AvgMeasurementCurrent.Counter = 0;
 	AvgCapacitorsVoltage.Counter = 0;
 	AvgVoltageDUT.Counter = 0;
 	//
+	AvgPowerDissipationDUT.DataSum = 0;
 	AvgMeasurementCurrent.DataSum = 0;
 	AvgCapacitorsVoltage.DataSum = 0;
 	AvgVoltageDUT.DataSum = 0;

@@ -44,7 +44,6 @@ typedef struct __MovingAverageFilter
 
 // Variables
 extern Int16U MEASURE_CapVoltage;
-extern MovingAverageFilter AvgPowerDissipationDUT;
 
 // Functions
 //
