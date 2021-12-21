@@ -62,8 +62,6 @@ Boolean LOGIC_MeasurementCurrentProcess();
 Boolean LOGIC_HeatingCurrentProcess();
 void LOGIC_CacheVariables();
 void LOGIC_SetState(LogicState State);
-void LOGIC_IncTimeCounter();
-void LOGIC_SetDelayFlag();
 void LOGIC_Heating(Boolean State);
 void LOGIC_HeatingCurrentSetRange(_iq Current);
 void LOGIC_PowerOnSequence();
@@ -73,6 +71,8 @@ void LOGIC_ResetFaultProcess();
 void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState);
 void LOGIC_GatePulse(Boolean State);
 Boolean LOGIC_GateCurrentProcess();
-void LOGIC_StartTimeCounter();
+void LOGIC_TimeCounterReset();
+void LOGIC_PulseWidthControl();
+void LOGIC_TimeCounterInc();
 
 #endif // __LOGIC_H
