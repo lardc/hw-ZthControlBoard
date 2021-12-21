@@ -86,9 +86,9 @@ void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSetting
 //
 void REGULATOR_Cycle(RegulatorsData MeasureSample)
 {
-	REGULATOR_CycleX(SelectIm, MeasureSample);
 	REGULATOR_CycleX(SelectIh, MeasureSample);
 	REGULATOR_CycleX(SelectP, MeasureSample);
+	REGULATOR_CycleX(SelectIm, MeasureSample);
 }
 // ----------------------------------------
 
@@ -158,18 +158,18 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		else if(Regulator->Control > Regulator->ControlSat)
 			Regulator->Control = Regulator->ControlSat;
 
-		REGULATOR_SetPowerDissapation(Selector, Regulator, MeasureSample);
-		REGULATOR_SetOutput(Selector, Regulator->Control);
-		REGULATOR_SaveData(DataParams, SampleValue, Error);
-
 		Regulator->Counter++;
+
+		REGULATOR_SetOutput(Selector, Regulator->Control);
+		REGULATOR_SetPowerDissapation(Selector, Regulator, MeasureSample);
+		REGULATOR_SaveData(DataParams, SampleValue, Error);
 	}
 }
 // ----------------------------------------
 
 void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSettings Regulator, RegulatorsData MeasureSample)
 {
-	if(Selector == SelectP)
+	if(Selector == SelectIh)
 	{
 		if((Regulator->Counter >= PowerSetDelay) && MeasureSample.P)
 		{
@@ -262,7 +262,17 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 
 		case SelectIh:
 			RegulatorIh.Control = Value;
-			(Value) ? ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE) : ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
+			if(Value)
+			{
+				ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE);
+				//ZbGPIO_DRCU_Sync(FALSE);
+			}
+			else
+			{
+				//ZbGPIO_DRCU_Sync(TRUE);
+				ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
+			}
+
 			break;
 	}
 }
@@ -293,9 +303,9 @@ void REGULATOR_Init(RegulatorSelector Selector)
 void REGULATOR_CacheVariables()
 {
 	if(DataTable[REG_DUT_TYPE])
-		PowerSetDelay = DataTable[REG_POWER_SET_DEL_BIPOLAR];
-	else
 		PowerSetDelay = DataTable[REG_POWER_SET_DEL_IGBT];
+	else
+		PowerSetDelay = DataTable[REG_POWER_SET_DEL_BIPOLAR];
 
 	Ih_ErrorThreshold = _FPtoIQ2(DataTable[REG_I_ERR_THRESHOLD], 10);
 }
@@ -327,9 +337,9 @@ void REGULATOR_InitAll()
 
 void REGULATOR_ForceOutputsToZero()
 {
-	REGULATOR_SetOutput(SelectIm, 0);
 	REGULATOR_SetOutput(SelectIh, 0);
 	REGULATOR_SetOutput(SelectP, 0);
+	REGULATOR_SetOutput(SelectIm, 0);
 }
 // ----------------------------------------
 
