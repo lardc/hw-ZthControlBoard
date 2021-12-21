@@ -348,8 +348,8 @@ void CONTROL_RegulatorProcess()
 		// Save data to output regusters
 		CONTROL_SaveHeatingData(Sample);
 
-		// Incrementing time counter
-		LOGIC_IncTimeCounter();
+		LOGIC_TimeCounterInc();
+		LOGIC_PulseWidthControl();
 	}
 }
 // ----------------------------------------
