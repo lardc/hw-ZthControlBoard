@@ -151,8 +151,8 @@ typedef struct __TableItemConstraint
 #define IH_RANGE_THRESHOLD_MAX	1000
 #define IH_RANGE_THRESHOLD_DEF	500
 //
-#define ZTH_PULSE_MIN_WIDTH_MIN	100
-#define ZTH_PULSE_MIN_WIDTH_MAX	10000
+#define ZTH_PULSE_MIN_WIDTH_MIN	1
+#define ZTH_PULSE_MIN_WIDTH_MAX	100
 //
 #define ZTH_PULSE_MAX_WIDTH_MIN	1
 #define ZTH_PULSE_MAX_WIDTH_MAX	1000
@@ -199,8 +199,8 @@ typedef struct __TableItemConstraint
 #define SKIP_CYCLE_DEF			1
 //
 #define POWER_SET_DELAY_MIN		0
-#define POWER_SET_DELAY_MAX		2000
-#define POWER_SET_DELAY_DEF		1000
+#define POWER_SET_DELAY_MAX		20
+#define POWER_SET_DELAY_DEF		10
 
 
 // Variables

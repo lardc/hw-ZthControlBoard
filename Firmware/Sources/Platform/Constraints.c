@@ -73,18 +73,18 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 57
 											   {DAC_IH_K_MIN, DAC_IH_K_MAX, DAC_IH_K_DEF},										// 58
 											   {DAC_IH_B_MIN, DAC_IH_B_MAX, DAC_IH_B_DEF},										// 59
-											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},															// 60
-											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},																// 61
-											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},															// 62
-											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},																// 63
-											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},												// 64
-											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},																// 65
-											   {FALSE, TRUE, FALSE},																		// 66
-											   {0, INT16U_MAX, 0},																		// 67
-											   {FALSE, TRUE, FALSE},																		// 68
-											   {0, INT16U_MAX, 0},																		// 69
-											   {0, SKIP_CYCLE_MAX, SKIP_CYCLE_DEF},																		// 70
-											   {FALSE, TRUE, TRUE},																		// 71
+											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 60
+											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 61
+											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 62
+											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 63
+											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 64
+											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 65
+											   {FALSE, TRUE, FALSE},															// 66
+											   {0, INT16U_MAX, 0},																// 67
+											   {FALSE, TRUE, FALSE},															// 68
+											   {0, INT16U_MAX, 0},																// 69
+											   {0, SKIP_CYCLE_MAX, SKIP_CYCLE_DEF},												// 70
+											   {FALSE, TRUE, TRUE},																// 71
 											   {POWER_SET_DELAY_MIN, POWER_SET_DELAY_MAX, POWER_SET_DELAY_DEF},					// 72
 											   {POWER_SET_DELAY_MIN, POWER_SET_DELAY_MAX, POWER_SET_DELAY_DEF},					// 73
 											   {0, 0, 0},																		// 74
