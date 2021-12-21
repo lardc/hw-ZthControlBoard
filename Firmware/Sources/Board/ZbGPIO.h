@@ -17,7 +17,7 @@ void ZbGPIO_SwitchLED1(Boolean Set);
 void ZbGPIO_ToggleLED1();
 void ZbGPIO_IGBT_SetUGate20V();
 void ZbGPIO_IGBT_SetUGate15V();
-void ZbGPIO_DRCU_Sync(Boolean State);
+void ZbGPIO_OuputLock(Boolean State);
 void ZbGPIO_SB_Im_CS(Boolean State);
 void ZbGPIO_SB_TSP_CS(Boolean State);
 void ZbGPIO_DCB_LDAC(Boolean State);

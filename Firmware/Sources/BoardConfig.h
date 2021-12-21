@@ -73,7 +73,7 @@
 #define PIN_T_TR2			0
 #define PIN_T_REC			2
 #define PIN_U_GATE_SEL		4
-#define PIN_DRCU_SYNC		6
+#define PIN_OUTPUT_LOCK		6
 #define PIN_IH_RANGE		7
 #define PIN_SB_IM_CS		8
 #define PIN_SB_TSP_CS		9
