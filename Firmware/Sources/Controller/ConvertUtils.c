@@ -103,25 +103,25 @@ _iq CONVERT_ADCToIm(Int16U ADCData)
 
 _iq CONVERT_ADCToTcase1(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase1);
+	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcase1), _IQI(100));
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcase2(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase2);
+	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcase2), _IQI(100));
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcool1(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool1);
+	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcool1), _IQI(100));
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcool2(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool2);
+	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcool2), _IQI(100));
 }
 // ----------------------------------------
 
