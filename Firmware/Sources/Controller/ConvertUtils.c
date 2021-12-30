@@ -31,7 +31,7 @@ _iq CapVoltageK = 0;
 // Functions prototypes
 ConvParameters CONVERT_LoadParams(Int16U RegP2, Int16U RegP1, Int16U RegP0, Int16U RegK, Int16U RegB, Int16U RegBDiv);
 ConvParameters CONVERT_LoadParamsSimple(Int16U RegK, Int16U RegB);
-_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters);
+_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters, Int16U Divider);
 Int16U CONVERT_xToDAC(_iq Value, ConvParameters Parameters);
 
 // Functions
@@ -91,43 +91,43 @@ Int16U CONVERT_ImToDAC(_iq Current)
 
 _iq CONVERT_ADCToIh(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsIh);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsIh, 1);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToIm(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsIm);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsIm, 1);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcase1(Int16U ADCData)
 {
-	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcase1), _IQI(100));
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase1, 100);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcase2(Int16U ADCData)
 {
-	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcase2), _IQI(100));
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase2, 100);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcool1(Int16U ADCData)
 {
-	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcool1), _IQI(100));
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool1, 100);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcool2(Int16U ADCData)
 {
-	return _IQdiv(CONVERT_ADCToX(ADCData, ADC_ParamsTcool2), _IQI(100));
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool2, 100);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTSP(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTSP);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTSP, 1);
 }
 // ----------------------------------------
 
@@ -137,9 +137,9 @@ _iq CONVERT_ADCToCapVolatge(Int16U ADCData)
 }
 // ----------------------------------------
 
-_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters)
+_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters, Int16U Divider)
 {
-	_iq tmp = _IQmpy(_IQI(ADCInput), Parameters.K) + Parameters.B;
+	_iq tmp = _IQdiv((_IQmpy(_IQI(ADCInput), Parameters.K) + Parameters.B), _IQI(Divider));
 	_iq tmp2 = _IQdiv(tmp, _IQ(1000.0f));
 
 	_iq val = _IQmpy(tmp2, _IQmpy(tmp2, Parameters.P2)) + _IQmpy(tmp, Parameters.P1) + Parameters.P0;
