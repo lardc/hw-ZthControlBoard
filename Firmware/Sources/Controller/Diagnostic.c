@@ -31,19 +31,19 @@ Boolean DIAG_Process(Int16U Command)
 			break;
 
 		case ACT_DBG_READ_TCASE1:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase1(), _IQI(100)));
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase1(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCASE2:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase2(), _IQI(100)));
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase2(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCOOL1:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool1(), _IQI(100)));
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool1(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCOOL2:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool2(), _IQI(100)));
+			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool2(), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_PROTECT_DATA:
