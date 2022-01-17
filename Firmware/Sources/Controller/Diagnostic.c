@@ -16,6 +16,8 @@
 //
 Boolean DIAG_Process(Int16U Command)
 {
+	volatile _iq Temperature;
+
 	switch (Command)
 	{
 		case ACT_DBG_READ_IM:
@@ -31,19 +33,27 @@ Boolean DIAG_Process(Int16U Command)
 			break;
 
 		case ACT_DBG_READ_TCASE1:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase1(), _IQI(10)));
+			Temperature = MEASURE_Tcase1();
+			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
+			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCASE2:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcase2(), _IQI(10)));
+			Temperature = MEASURE_Tcase2();
+			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
+			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCOOL1:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool1(), _IQI(10)));
+			Temperature = MEASURE_Tcool1();
+			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
+			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_TCOOL2:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Tcool2(), _IQI(10)));
+			Temperature = MEASURE_Tcool2();
+			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
+			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
 			break;
 
 		case ACT_DBG_READ_PROTECT_DATA:

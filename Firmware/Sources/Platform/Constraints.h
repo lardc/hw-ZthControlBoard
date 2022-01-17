@@ -75,7 +75,19 @@ typedef struct __TableItemConstraint
 //
 #define ADC_T_K_MIN				0
 #define ADC_T_K_MAX				INT16U_MAX
-#define ADC_T_K_DEF				1000
+
+#define ADC_T_CASE1_K_DEF		1000
+#define ADC_T_CASE1_B_DEF		0
+#define ADC_T_COOL1_K_DEF		1000
+#define ADC_T_COOL1_B_DEF		0
+#define ADC_T_CASE2_K_DEF		1000
+#define ADC_T_CASE2_B_DEF		0
+#define ADC_T_COOL2_K_DEF		1000
+#define ADC_T_COOL2_B_DEF		0
+//
+#define ADC_T_K_DIV_MIN			1
+#define ADC_T_K_DIV_MAX			INT16U_MAX
+#define ADC_T_K_DIV_DEF			1000
 //
 #define ADC_IH_R0_B_MIN			0
 #define ADC_IH_R0_B_MAX			INT16U_MAX

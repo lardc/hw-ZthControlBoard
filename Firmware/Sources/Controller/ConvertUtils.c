@@ -31,7 +31,7 @@ _iq CapVoltageK = 0;
 // Functions prototypes
 ConvParameters CONVERT_LoadParams(Int16U RegP2, Int16U RegP1, Int16U RegP0, Int16U RegK, Int16U RegB, Int16U RegBDiv);
 ConvParameters CONVERT_LoadParamsSimple(Int16U RegK, Int16U RegB);
-_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters, Int16U Divider);
+_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters, Int16U KDivider);
 Int16U CONVERT_xToDAC(_iq Value, ConvParameters Parameters);
 
 // Functions
@@ -49,10 +49,10 @@ void CONVERT_CacheVariables()
 	ADC_ParamsIh_Range1 = CONVERT_LoadParams(REG_ADC_IH_R1_P2, REG_ADC_IH_R1_P1, REG_ADC_IH_R1_P0, REG_ADC_IH_R1_K, REG_ADC_IH_R1_B, 1);
 	ADC_ParamsIm = CONVERT_LoadParams(REG_ADC_IM_P2, REG_ADC_IM_P1, REG_ADC_IM_P0, REG_ADC_IM_K, REG_ADC_IM_B, 100);
 	ADC_ParamsTSP = CONVERT_LoadParams(REG_ADC_TSP_P2, REG_ADC_TSP_P1, REG_ADC_TSP_P0, REG_ADC_TSP_K, REG_ADC_TSP_B, 100);
-	ADC_ParamsTcase1 = CONVERT_LoadParams(REG_ADC_T_CASE1_P2, REG_ADC_T_CASE1_P1, REG_ADC_T_CASE1_P0, REG_ADC_T_K, REG_ADC_T_B, 100);
-	ADC_ParamsTcase2 = CONVERT_LoadParams(REG_ADC_T_CASE2_P2, REG_ADC_T_CASE2_P1, REG_ADC_T_CASE2_P0, REG_ADC_T_K, REG_ADC_T_B, 100);
-	ADC_ParamsTcool1 = CONVERT_LoadParams(REG_ADC_T_COOL1_P2, REG_ADC_T_COOL1_P1, REG_ADC_T_COOL1_P0, REG_ADC_T_K, REG_ADC_T_B, 100);
-	ADC_ParamsTcool2 = CONVERT_LoadParams(REG_ADC_T_COOL2_P2, REG_ADC_T_COOL2_P1, REG_ADC_T_COOL2_P0, REG_ADC_T_K, REG_ADC_T_B, 100);
+	ADC_ParamsTcase1 = CONVERT_LoadParams(REG_ADC_T_CASE1_P2, REG_ADC_T_CASE1_P1, REG_ADC_T_CASE1_P0, REG_ADC_T_CASE1_K, REG_ADC_T_CASE1_B, 100);
+	ADC_ParamsTcase2 = CONVERT_LoadParams(REG_ADC_T_CASE2_P2, REG_ADC_T_CASE2_P1, REG_ADC_T_CASE2_P0, REG_ADC_T_CASE2_K, REG_ADC_T_CASE2_B, 100);
+	ADC_ParamsTcool1 = CONVERT_LoadParams(REG_ADC_T_COOL1_P2, REG_ADC_T_COOL1_P1, REG_ADC_T_COOL1_P0, REG_ADC_T_COOL1_K, REG_ADC_T_COOL1_B, 100);
+	ADC_ParamsTcool2 = CONVERT_LoadParams(REG_ADC_T_COOL2_P2, REG_ADC_T_COOL2_P1, REG_ADC_T_COOL2_P0, REG_ADC_T_COOL2_K, REG_ADC_T_COOL2_B, 100);
 }
 // ----------------------------------------
 
@@ -103,25 +103,25 @@ _iq CONVERT_ADCToIm(Int16U ADCData)
 
 _iq CONVERT_ADCToTcase1(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase1, 100);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase1, DataTable[REG_ADC_T_K_DIV]);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcase2(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase2, 100);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcase2, DataTable[REG_ADC_T_K_DIV]);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcool1(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool1, 100);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool1, DataTable[REG_ADC_T_K_DIV]);
 }
 // ----------------------------------------
 
 _iq CONVERT_ADCToTcool2(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool2, 100);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsTcool2, DataTable[REG_ADC_T_K_DIV]);
 }
 // ----------------------------------------
 
@@ -137,9 +137,9 @@ _iq CONVERT_ADCToCapVolatge(Int16U ADCData)
 }
 // ----------------------------------------
 
-_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters, Int16U Divider)
+_iq CONVERT_ADCToX(Int16U ADCInput, ConvParameters Parameters, Int16U KDivider)
 {
-	_iq tmp = _IQdiv((_IQmpy(_IQI(ADCInput), Parameters.K) + Parameters.B), _IQI(Divider));
+	_iq tmp = _IQdiv(_IQmpy(_IQI(ADCInput), Parameters.K), _IQI(KDivider)) + Parameters.B;
 	_iq tmp2 = _IQdiv(tmp, _IQ(1000.0f));
 
 	_iq val = _IQmpy(tmp2, _IQmpy(tmp2, Parameters.P2)) + _IQmpy(tmp, Parameters.P1) + Parameters.P0;

@@ -43,8 +43,8 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 27
 											   {ADC_TSP_K_MIN, ADC_TSP_K_MAX, ADC_TSP_K_DEF},									// 28
 											   {ADC_TSP_B_MIN, ADC_TSP_B_MAX, ADC_TSP_B_DEF},									// 29
-											   {ADC_T_K_MIN, ADC_T_K_MAX, ADC_T_K_DEF},											// 30
-											   {ADC_T_B_MIN, ADC_T_B_MAX, ADC_T_B_DEF},											// 31
+											   {0, 0, 0},																		// 30
+											   {0, 0, 0},																		// 31
 											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 32
 											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 33
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 34
@@ -93,15 +93,15 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {0, 0, 0},																		// 77
 											   {0, 0, 0},																		// 78
 											   {0, 0, 0},																		// 79
-											   {0, 0, 0},																		// 80
-											   {0, 0, 0},																		// 81
-											   {0, 0, 0},																		// 82
-											   {0, 0, 0},																		// 83
-											   {0, 0, 0},																		// 84
-											   {0, 0, 0},																		// 85
-											   {0, 0, 0},																		// 86
-											   {0, 0, 0},																		// 87
-											   {0, 0, 0},																		// 88
+											   {ADC_T_K_MIN, ADC_T_K_MAX, ADC_T_CASE1_K_DEF},									// 80
+											   {ADC_T_B_MIN, ADC_T_B_MAX, ADC_T_CASE1_B_DEF},									// 81
+											   {ADC_T_K_MIN, ADC_T_K_MAX, ADC_T_COOL1_K_DEF},									// 82
+											   {ADC_T_B_MIN, ADC_T_B_MAX, ADC_T_COOL1_B_DEF},									// 83
+											   {ADC_T_K_MIN, ADC_T_K_MAX, ADC_T_CASE2_K_DEF},									// 84
+											   {ADC_T_B_MIN, ADC_T_B_MAX, ADC_T_CASE2_B_DEF},									// 85
+											   {ADC_T_K_MIN, ADC_T_K_MAX, ADC_T_COOL2_K_DEF},									// 86
+											   {ADC_T_B_MIN, ADC_T_B_MAX, ADC_T_COOL2_B_DEF},									// 87
+											   {ADC_T_K_DIV_MIN, ADC_T_K_DIV_MAX, ADC_T_K_DIV_DEF},								// 88
 											   {0, 0, 0},																		// 89
 											   {0, 0, 0},																		// 90
 											   {0, 0, 0},																		// 91

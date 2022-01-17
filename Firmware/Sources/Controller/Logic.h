@@ -13,21 +13,16 @@ typedef enum __LogicState
 {
 	LS_None					= 0,
 	LS_Error				= 1,
-	LS_BatteryPwrOn			= 2,
-	LS_BatteryPrepare		= 3,
-	LS_PendingCompletion	= 4,
+	LS_BatteryPrepare		= 2,
+	LS_PendingCompletion	= 3,
 	//
-	LS_DRCU_PwrOn			= 10,
-	LS_DRCU_Config			= 11,
-	LS_DRCU_WaitReady		= 12,
+	LS_ConfigIm				= 10,
+	LS_ConfigIh				= 11,
+	LS_ConfigIg				= 12,
 	//
-	LS_ConfigIm				= 20,
-	LS_ConfigIh				= 21,
-	LS_ConfigIg				= 22,
-	//
-	LS_Heating				= 30,
-	LS_Measuring			= 31,
-	LS_Cooling				= 32
+	LS_Heating				= 20,
+	LS_Measuring			= 21,
+	LS_Cooling				= 22
 } LogicState;
 //
 
@@ -65,10 +60,7 @@ void LOGIC_SetState(LogicState State);
 void LOGIC_Heating(Boolean State);
 void LOGIC_HeatingCurrentSetRange(_iq Current);
 void LOGIC_PowerOnSequence();
-void LOGIC_PowerOffProcess();
 void LOGIC_HandleCommunicationError();
-void LOGIC_ResetFaultProcess();
-void LOGIC_DRCUConfigProcess(_iq Current, LogicState NextState);
 void LOGIC_GatePulse(Boolean State);
 Boolean LOGIC_GateCurrentProcess();
 void LOGIC_TimeCounterReset();

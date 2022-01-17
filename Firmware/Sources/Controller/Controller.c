@@ -24,7 +24,6 @@
 #include "ConvertUtils.h"
 #include "Regulator.h"
 #include "HighLevelInterface.h"
-#include "DRCUDictionary.h"
 
 // Definitions
 //
@@ -141,7 +140,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
-				CONTROL_SetDeviceState(DS_PowerOn, LS_DRCU_PwrOn);
+				CONTROL_SetDeviceState(DS_PowerOn, LS_BatteryPrepare);
 			else if(CONTROL_State != DS_Ready)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -149,8 +148,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_DISABLE_POWER:
 			if(CONTROL_State == DS_Ready)
 			{
+				ZbGPIO_LowPowerSupplyControl(FALSE);
 				CONTROL_SetDeviceState(DS_None, LS_None);
-				LOGIC_PowerOffProcess();
 			}
 			else if(CONTROL_State != DS_None)
 					*UserError = ERR_OPERATION_BLOCKED;
@@ -197,7 +196,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Fault)
 			{
 				CONTROL_SetDeviceState(DS_None, LS_None);
-				LOGIC_ResetFaultProcess();
+				DataTable[REG_FAULT_REASON] = FAULT_NONE;
 			}
 			break;
 
@@ -216,7 +215,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				CONTROL_CañheVariables();
 				CONTROL_ResetOutputRegisters();
-				CONTROL_SetDeviceState(DS_InProcess, LS_DRCU_Config);
+				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIh);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;

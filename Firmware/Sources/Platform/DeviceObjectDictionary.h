@@ -88,10 +88,7 @@
 #define REG_ADC_TSP_P0				27	// Fine coefficient for TSP quadratic correction P0 (in mV)
 #define REG_ADC_TSP_K				28	// Conversion coefficient K for TSP x1000
 #define REG_ADC_TSP_B				29	// Conversion offset for TSP (in mV)
-//
-#define REG_ADC_T_K					30	// Conversion coefficient K for T x1000
-#define REG_ADC_T_B					31	// Conversion offset for T (in C x100)
-//
+// 30 - 31
 #define REG_ADC_T_CASE1_P2			32	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
 #define REG_ADC_T_CASE1_P1			33	// Fine coefficient for Tcase1 quadratic correction P1 x1000
 #define REG_ADC_T_CASE1_P0			34	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
@@ -145,6 +142,17 @@
 #define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
 #define REG_POWER_SET_DEL_IGBT		73	// Time after starting the current to set the power dissipation reference for IGBT (in us x0.01)
 //
+#define REG_ADC_T_CASE1_K			80	// Conversion coefficient K for T x1000
+#define REG_ADC_T_CASE1_B			81	// Conversion offset for T (in C x100)
+#define REG_ADC_T_COOL1_K			82	// Conversion coefficient K for T x1000
+#define REG_ADC_T_COOL1_B			83	// Conversion offset for T (in C x100)
+#define REG_ADC_T_CASE2_K			84	// Conversion coefficient K for T x1000
+#define REG_ADC_T_CASE2_B			85	// Conversion offset for T (in C x100)
+#define REG_ADC_T_COOL2_K			86	// Conversion coefficient K for T x1000
+#define REG_ADC_T_COOL2_B			87	// Conversion offset for T (in C x100)
+//
+#define REG_ADC_T_K_DIV				88	// REG_ADC_Tx_K divider
+//
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
 #define REG_COOLING_MODE			130	// Colling mode (0 - one-sided, 1 - double-sided)
@@ -163,6 +171,9 @@
 #define REG_IGBT_V_GATE				143	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 //
 #define REG_DBG						150	// Debugging register
+//
+#define REG_DBG_T_WHOLE				155	// Whole part of temperature
+#define REG_DBG_T_FRACTION			156	// Fraction part of temperature
 //
 #define REG_DRCU_X_NUM				160	// Register number or command number for DRCUControlBoard
 #define REG_DRCU_DATA_IO			161	// Input / output DRCUControlBoard data
