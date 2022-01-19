@@ -11,10 +11,6 @@
 #include "SCCISlave.h"
 #include "BCCISlave.h"
 #include "SCCIMaster.h"
-#include "BCCIMaster.h"
-
-// Variables
-extern BCCIM_Interface DEVICE_CAN_Master_Interface;
 
 
 // Functions

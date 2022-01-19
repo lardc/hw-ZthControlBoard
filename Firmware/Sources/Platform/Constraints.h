@@ -176,8 +176,8 @@ typedef struct __TableItemConstraint
 #define PULSE_WIDTH_MIN			1
 #define PULSE_WIDTH_MAX			1000
 //
-#define COOLING_TIME_MIN		100
-#define COOLING_TIME_MAX		10000
+#define COOLING_TIME_MIN		1
+#define COOLING_TIME_MAX		100
 //
 #define I_WIDTH_LESS_2MS_MIN	50
 #define I_WIDTH_LESS_2MS_MAX	2500
@@ -196,9 +196,9 @@ typedef struct __TableItemConstraint
 #define	MEASURING_CURRENT_MAX	5000
 #define MEASURING_CURRENT_DEF	2000
 //
-#define DELAY_MIN				100
-#define DELAY_MAX				1000
-#define DELAY_DEF				200
+#define DELAY_MIN				1
+#define DELAY_MAX				10
+#define DELAY_DEF				2
 //
 #define T_MIN					900
 #define T_MAX					1000

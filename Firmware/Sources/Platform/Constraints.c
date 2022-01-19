@@ -81,8 +81,8 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 65
 											   {FALSE, TRUE, FALSE},															// 66
 											   {0, INT16U_MAX, 0},																// 67
-											   {FALSE, TRUE, FALSE},															// 68
-											   {0, INT16U_MAX, 0},																// 69
+											   {0, 0, 0},																		// 68
+											   {0, 0, 0},																		// 69
 											   {0, SKIP_CYCLE_MAX, SKIP_CYCLE_DEF},												// 70
 											   {FALSE, TRUE, TRUE},																// 71
 											   {POWER_SET_DELAY_MIN, POWER_SET_DELAY_MAX, POWER_SET_DELAY_DEF},					// 72

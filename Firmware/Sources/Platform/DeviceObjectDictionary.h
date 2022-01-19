@@ -38,10 +38,6 @@
 #define ACT_STOP_HEATING			102	// Stop heating process
 #define ACT_UPDATE					103	// Update parameters
 //
-#define ACT_DRCU_READ_REG			150	// Read register from DRCUControlBoard
-#define ACT_DRCU_WRITE_REG			151	// Write data to the register DRCUControlBoard
-#define ACT_DRCU_CALL				152	// Send call to the DRCUControlBoard
-//
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
@@ -135,8 +131,7 @@
 //
 #define REG_MUTE_PROTECTION			66	// Ignore protection
 #define REG_SCOPE_STEP				67	// Scope step
-#define REG_DRCU_EMULATE			68	// DRCU emulate flag
-#define REG_DRCU_NODE_ID			69	// DRCU CAN node ID
+// 68 - 69
 #define REG_REGULATOR_SKIP_CYCLE	70	// Number of skip regulator cycle
 #define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator
 #define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
@@ -160,13 +155,13 @@
 #define REG_PULSE_WIDTH_MAX_L		132	// Width of last pulse (in us x0.01, LSB)
 #define REG_PULSE_WIDTH_MAX_H		133	// Width of last pulse (in us x0.01, MSB)
 #define REG_ZTH_PAUSE				134	// Cooling time between pulses (in % x10)
-#define REG_PAUSE					135	// Time between pulses in "Rth sequence pulses" and "graduation" modes (in us)
+#define REG_PAUSE					135	// Time between pulses in "Rth sequence pulses" and "graduation" modes (in us x0.01)
 #define REG_I_WIDTH_LESS_2MS		136	// Heating current value if pulse width less than 10ms  (in A)
 #define REG_I_WIDTH_LESS_10MS		137	// Heating current value if pulse width less than 10ms  (in A)
 #define REG_I_WIDTH_ABOVE_10MS		138	// Heating current value if pulse width above than 10ms  (in A)
 #define REG_GATE_CURRENT			139	// Gate current value (in mA)
 #define REG_MEASURING_CURRENT		140	// Measuring current value (in mA)
-#define REG_MEASUREMENT_DELAY		141	// Delay of measuring temperature-sensitive parameter (in us)
+#define REG_MEASUREMENT_DELAY		141	// Delay of measuring temperature-sensitive parameter (in us x0.01)
 #define REG_T_MAX					142	// Maximum DUT temperature (in C x10)
 #define REG_IGBT_V_GATE				143	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 //

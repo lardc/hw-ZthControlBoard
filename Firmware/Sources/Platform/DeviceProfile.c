@@ -37,11 +37,9 @@ typedef struct __EPStates
 //
 SCCI_Interface DEVICE_RS232_Interface;
 BCCI_Interface DEVICE_CAN_Interface;
-BCCIM_Interface DEVICE_CAN_Master_Interface;
 //
 static SCCI_IOConfig RS232_IOConfig;
 static BCCI_IOConfig CAN_IOConfig;
-static BCCI_IOConfig CAN_Master_IOConfig;
 //
 static xCCI_ServiceConfig X_ServiceConfig;
 static xCCI_FUNC_CallbackAction ControllerDispatchFunction;
@@ -81,12 +79,6 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 	CAN_IOConfig.IO_GetMessage = &ZwCANa_GetMessage;
 	CAN_IOConfig.IO_IsMessageReceived = &ZwCANa_IsMessageReceived;
 	CAN_IOConfig.IO_ConfigMailbox = &ZwCANa_ConfigMailbox;
-	//
-	CAN_Master_IOConfig.IO_SendMessage = &ZwCANa_SendMessage;
-	CAN_Master_IOConfig.IO_SendMessageEx = &ZwCANa_SendMessageEx;
-	CAN_Master_IOConfig.IO_GetMessage = &ZwCANa_GetMessage;
-	CAN_Master_IOConfig.IO_IsMessageReceived = &ZwCANa_IsMessageReceived;
-	CAN_Master_IOConfig.IO_ConfigMailbox = &ZwCANa_ConfigMailbox;
 
 	// Init service
 	X_ServiceConfig.Read32Service = &DEVPROFILE_ReadValue32;
@@ -100,8 +92,6 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 			  DATA_TABLE_SIZE, SCCI_SLAVE_TIMEOUT_TICKS_MS, &RS232_EPState);
 	BCCI_Init(&DEVICE_CAN_Interface, &CAN_IOConfig, &X_ServiceConfig, (pInt16U)DataTable,
 			  DATA_TABLE_SIZE, &CAN_EPState);
-	//
-	BCCIM_Init(&DEVICE_CAN_Master_Interface, &CAN_Master_IOConfig, BCCI_MASTER_TIMEOUT_TICKS_MS, &CONTROL_TimeCounter);
 
 	// Set write protection
 	SCCI_AddProtectedArea(&DEVICE_RS232_Interface, DATA_TABLE_WP_START, DATA_TABLE_SIZE - 1);

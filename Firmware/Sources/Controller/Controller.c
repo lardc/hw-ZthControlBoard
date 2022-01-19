@@ -23,7 +23,6 @@
 #include "IQMathUtils.h"
 #include "ConvertUtils.h"
 #include "Regulator.h"
-#include "HighLevelInterface.h"
 
 // Definitions
 //
@@ -134,8 +133,6 @@ void CONTROL_Idle()
 
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
-	Int16U Register;
-
 	switch(ActionID)
 	{
 		case ACT_ENABLE_POWER:
@@ -161,7 +158,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				CONTROL_CañheVariables();
 				CONTROL_ResetOutputRegisters();
 
-				CONTROL_SetDeviceState(DS_InProcess, LS_None);
+				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigAll);
 			}
 			else
 				if (CONTROL_State == DS_InProcess)
@@ -228,24 +225,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			CONTROL_CañheVariables();
 			CONTROL_ResetOutputRegisters();
 			CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIg);
-			break;
-
-		case ACT_DRCU_READ_REG:
-			if(!DataTable[REG_DRCU_EMULATE])
-			{
-				HLI_CAN_Read16(DataTable[REG_DRCU_NODE_ID], DataTable[REG_DRCU_X_NUM], &Register);
-				DataTable[REG_DRCU_DATA_IO] = Register;
-			}
-			break;
-
-		case ACT_DRCU_WRITE_REG:
-			if(!DataTable[REG_DRCU_EMULATE])
-				HLI_CAN_Write16(DataTable[REG_DRCU_NODE_ID], DataTable[REG_DRCU_X_NUM], DataTable[REG_DRCU_DATA_IO]);
-			break;
-
-		case ACT_DRCU_CALL:
-			if(!DataTable[REG_DRCU_EMULATE])
-				HLI_CAN_CallAction(DataTable[REG_DRCU_NODE_ID], DataTable[REG_DRCU_X_NUM]);
 			break;
 
 		default:
@@ -359,8 +338,6 @@ void CONTROL_RegulatorProcess()
 void CONTROL_Update()
 {
 	MEASURE_CapVoltageSamplingStart();
-	//
-	BCCIM_Process(&DEVICE_CAN_Master_Interface);
 }
 
 void CONTROL_CañheVariables()
