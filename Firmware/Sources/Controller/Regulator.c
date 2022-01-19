@@ -75,7 +75,6 @@ Int16U REGULATOR_P_LocalCounter = 0;
 
 // Forward functions
 void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample);
-void REGULATOR_Init(RegulatorSelector Selector);
 void REGULATOR_SavePowerTarget(_iq Power);
 void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error);
 void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki);
@@ -263,15 +262,9 @@ void REGULATOR_SetOutput(RegulatorSelector Selector, _iq Value)
 		case SelectIh:
 			RegulatorIh.Control = Value;
 			if(Value)
-			{
 				ZbDAC_Write(CONVERT_IhToDAC(Value), &ZbGPIO_RegisterRCLK, TRUE);
-				//ZbGPIO_DRCU_Sync(FALSE);
-			}
 			else
-			{
-				//ZbGPIO_DRCU_Sync(TRUE);
 				ZbDAC_Write(BIT15, &ZbGPIO_RegisterRCLK, TRUE);
-			}
 
 			break;
 	}
