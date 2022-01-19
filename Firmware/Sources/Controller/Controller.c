@@ -140,7 +140,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
-				CONTROL_SetDeviceState(DS_PowerOn, LS_BatteryPrepare);
+				CONTROL_SetDeviceState(DS_PowerOn, LS_None);
 			else if(CONTROL_State != DS_Ready)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -189,7 +189,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_UPDATE:
-			CONTROL_CañheVariables();
+			LOGIC_CacheVariables();
+			REGULATOR_CacheVariables();
+			CONVERT_CacheVariables();
+			MEASURE_VariablesPrepare();
 			break;
 
 		case ACT_CLR_FAULT:
