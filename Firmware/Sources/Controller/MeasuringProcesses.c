@@ -101,12 +101,12 @@ _iq MEASURE_DataMUX(pMovingAverageFilter Data)
 
 RegulatorsData MEASURE_RegulatorsSample()
 {
-	RegulatorsData Sample;
+	RegulatorsData Sample = {0};
 
 	Sample.Ih = MEASURE_Ih();
-	Sample.Im = MEASURE_Im();
 	Sample.U = MEASURE_VoltgeDUT();
 	Sample.P = MEASURE_PowerDissapation(Sample.U, Sample.Ih);
+	Sample.Im = MEASURE_Im();
 
 	return Sample;
 }

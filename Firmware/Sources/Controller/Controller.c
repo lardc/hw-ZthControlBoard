@@ -44,6 +44,8 @@ volatile Int16U CONTROL_Mode;
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
 volatile Int16U CONTROL_BootLoaderRequest = 0;
+//
+static CONTROL_FUNC_RealTimeRoutine RealTimeRoutine = NULL;
 
 // Forward functions
 //
@@ -52,12 +54,12 @@ void CONTROL_FillWPPartDefault();
 void CONTROL_SwitchToReady();
 void CONTROL_CañheVariables();
 void CONTROL_PowerOnProcess();
-void CONTROL_Process();
-void CONTROL_StopProcess(Int16U OpResult);
+void CONTROL_ModeSelect();
 void CONTROL_MeasuringCurrentProcess(Boolean State);
 void CONTROL_ResetOutputRegisters();
 void CONTROL_Protection();
 void CONTROL_ForceStopProcess();
+Boolean CONTROL_ValidationParams();
 
 // Functions
 //
@@ -114,9 +116,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 void CONTROL_Idle()
 {
-	// Measurement process
-	CONTROL_Process();
-
 	// Protection check
 	CONTROL_Protection();
 
@@ -155,10 +154,15 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_PROCESS:
 			if (CONTROL_State == DS_Ready)
 			{
-				CONTROL_CañheVariables();
-				CONTROL_ResetOutputRegisters();
-
-				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigAll);
+				if(CONTROL_ValidationParams())
+				{
+					CONTROL_CañheVariables();
+					CONTROL_ResetOutputRegisters();
+					CONTROL_ModeSelect();
+					CONTROL_SetDeviceState(DS_InProcess, LS_ConfigAll);
+				}
+				else
+					*UserError = ERR_CONFIGURATION_LOCKED;
 			}
 			else
 				if (CONTROL_State == DS_InProcess)
@@ -186,10 +190,15 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_UPDATE:
-			LOGIC_CacheVariables();
-			REGULATOR_CacheVariables();
-			CONVERT_CacheVariables();
-			MEASURE_VariablesPrepare();
+			if(CONTROL_ValidationParams())
+			{
+				LOGIC_CacheVariables();
+				REGULATOR_CacheVariables();
+				CONVERT_CacheVariables();
+				MEASURE_VariablesPrepare();
+			}
+			else
+				*UserError = ERR_CONFIGURATION_LOCKED;
 			break;
 
 		case ACT_CLR_FAULT:
@@ -205,9 +214,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_IM:
+			if(CONTROL_State == DS_Ready)
+			{
 				CONTROL_CañheVariables();
 				CONTROL_ResetOutputRegisters();
+				CONTROL_ModeSelect();
 				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIm);
+			}
 			break;
 
 		case ACT_START_IH:
@@ -215,6 +228,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				CONTROL_CañheVariables();
 				CONTROL_ResetOutputRegisters();
+				CONTROL_ModeSelect();
 				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIh);
 			}
 			else
@@ -222,9 +236,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_GATE:
-			CONTROL_CañheVariables();
-			CONTROL_ResetOutputRegisters();
-			CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIg);
+			if(CONTROL_State == DS_Ready)
+			{
+				CONTROL_CañheVariables();
+				CONTROL_ResetOutputRegisters();
+				CONTROL_ModeSelect();
+				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIg);
+			}
 			break;
 
 		default:
@@ -241,68 +259,37 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 }
 // ----------------------------------------
 
-void CONTROL_Process()
+void CONTROL_ModeSelect()
 {
-	if(CONTROL_State == DS_InProcess)
+	switch(CONTROL_Mode)
 	{
-		switch(CONTROL_Mode)
-		{
-			case MODE_IM:
-				if(LOGIC_MeasurementCurrentProcess())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
+		case MODE_IM:
+			CONTROL_SubcribeToCycle(&LOGIC_MeasurementCurrentProcess);
+			break;
 
-			case MODE_IH:
-				if(LOGIC_HeatingCurrentProcess())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
+		case MODE_IH:
+			CONTROL_SubcribeToCycle(&LOGIC_HeatingCurrentProcess);
+			break;
 
-			case MODE_IG:
-				if(LOGIC_GateCurrentProcess())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
+		case MODE_IG:
+			CONTROL_SubcribeToCycle(&LOGIC_GateCurrentProcess);
+			break;
 
-			case MODE_ZTH_SEQ_PULSES:
-				if(LOGIC_ZthSequencePulsesProcess())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
+		case MODE_ZTH_SEQ_PULSES:
+			CONTROL_SubcribeToCycle(&LOGIC_ZthSequencePulsesProcess);
+			break;
 
-			case MODE_ZTH_LONG_PULSE:
-				if(LOGIC_ZthLongPulseProcess())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
+		case MODE_ZTH_LONG_PULSE:
+			CONTROL_SubcribeToCycle(&LOGIC_ZthLongPulseProcess);
+			break;
 
-			case MODE_RTH_SEQ_PULSES:
-				if(LOGIC_RthSequenceProcess())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
+		case MODE_RTH_SEQ_PULSES:
+			CONTROL_SubcribeToCycle(&LOGIC_RthSequenceProcess);
+			break;
 
-			case MODE_GRADUATION:
-				if(LOGIC_Graduation())
-				{
-					CONTROL_SetDeviceState(DS_Ready, LS_None);
-					CONTROL_StopProcess(OPRESULT_OK);
-				}
-				break;
-		}
+		case MODE_GRADUATION:
+			CONTROL_SubcribeToCycle(&LOGIC_Graduation);
+			break;
 	}
 }
 // ----------------------------------------
@@ -314,31 +301,24 @@ void CONTROL_PowerOnProcess()
 }
 // ----------------------------------------
 
-void CONTROL_RegulatorProcess()
-{
-	RegulatorsData Sample;
-
-	if(CONTROL_State == DS_InProcess)
-	{
-		// Measurement process
-		Sample = MEASURE_RegulatorsSample();
-
-		// Regulator process
-		REGULATOR_Cycle(Sample);
-
-		// Save data to output regusters
-		CONTROL_SaveHeatingData(Sample);
-
-		LOGIC_TimeCounterInc();
-		LOGIC_PulseWidthControl();
-	}
-}
-// ----------------------------------------
-
-void CONTROL_Update()
+void CONTROL_UpdateSlow()
 {
 	MEASURE_CapVoltageSamplingStart();
 }
+// ----------------------------------------
+
+void CONTROL_UpdateFast()
+{
+	if(RealTimeRoutine)
+		RealTimeRoutine();
+}
+// ----------------------------------------
+
+void CONTROL_SubcribeToCycle(CONTROL_FUNC_RealTimeRoutine Routine)
+{
+	RealTimeRoutine = Routine;
+}
+// ----------------------------------------
 
 void CONTROL_CañheVariables()
 {
@@ -351,11 +331,41 @@ void CONTROL_CañheVariables()
 }
 // ----------------------------------------
 
+Boolean CONTROL_ValidationParams()
+{
+	Boolean Result = TRUE;
+
+	switch(DataTable[REG_MODE])
+	{
+		case MODE_ZTH_SEQ_PULSES:
+
+			break;
+
+		case MODE_ZTH_LONG_PULSE:
+
+			break;
+
+		case MODE_RTH_SEQ_PULSES:
+			if(DataTable[REG_PAUSE] <= DataTable[REG_MEASUREMENT_DELAY])
+				Result = FALSE;
+			break;
+
+		case MODE_GRADUATION:
+
+			break;
+	}
+
+	return Result;
+}
+// ----------------------------------------
+
 void CONTROL_StopProcess(Int16U OpResult)
 {
+	LOGIC_Heating(FALSE);
 	REGULATOR_DisableAll();
 	REGULATOR_ForceOutputsToZero();
 	LOGIC_GatePulse(FALSE);
+	CONTROL_SubcribeToCycle(NULL);
 
 	DataTable[REG_OP_RESULT] = OpResult;
 }
@@ -416,16 +426,6 @@ void CONTROL_ResetOutputRegisters()
 
 	DEVPROFILE_ResetScopes(0);
 	DEVPROFILE_ResetEPReadState();
-}
-// ----------------------------------------
-
-void CONTROL_SaveHeatingData(RegulatorsData Sample)
-{
-	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
-	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
-	DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
-	DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
-	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
 }
 // ----------------------------------------
 

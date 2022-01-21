@@ -16,12 +16,7 @@
 #include "ConvertUtils.h"
 #include "ZbGPIO.h"
 #include "Controller.h"
-#include "HighLevelInterface.h"
 #include "ZthDUTControlBoard.h"
-
-// Definitions
-//
-#define PULSE_WIDTH_COMPENS_TIME	TIMER1_PERIOD
 
 // Variables
 //
@@ -56,85 +51,343 @@ volatile Int16U EP_DataCounter = 0;
 
 // Functions prototypes
 //
-Boolean LOGIC_HeatingProcess();
-void LOGIC_MeasuringProcess();
-Boolean LOGIC_CoolingProcess(Int64U Pause);
-void LOGIC_SaveData(CombinedData Sample);
-void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
-Boolean LOGIC_IndependentProcesses(Int32U PulseWidth);
+void LOGIC_IndependentProcesses();
+void LOGIC_RegulatorProcess();
+void LOGIC_SaveHeatingData(RegulatorsData Sample);
 void LOGIC_MeasuringCurrentConfig(_iq Current);
 void LOGIC_HeatingCurrentConfig(Int32U CuurentWidth);
 Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
-void LOGIC_TimeCounterSetMax(Int32U Timeout);
-Boolean LOGIC_TimeCounterCheck();
+Boolean LOGIC_TimeCounterCheck(Int64U Time);
+void LOGIC_MeasuringProcess();
+void LOGIC_SaveData(CombinedData Sample);
+void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval);
+
 
 // Functions
 //
-Boolean LOGIC_GateCurrentProcess()
+void LOGIC_GateCurrentProcess()
 {
-	return LOGIC_IndependentProcesses(LOGIC_PulseWidthMax);
+	LOGIC_IndependentProcesses();
 }
 // ----------------------------------------
 
-Boolean LOGIC_MeasurementCurrentProcess()
+void LOGIC_MeasurementCurrentProcess()
 {
-	return LOGIC_IndependentProcesses(LOGIC_PulseWidthMax);
+	LOGIC_IndependentProcesses();
 }
 // ----------------------------------------
 
-Boolean LOGIC_HeatingCurrentProcess()
+void LOGIC_HeatingCurrentProcess()
 {
-	return LOGIC_IndependentProcesses(LOGIC_PulseWidthMax);
+	LOGIC_IndependentProcesses();
 }
 // ----------------------------------------
 
-Boolean LOGIC_IndependentProcesses(Int32U PulseWidth)
+void LOGIC_IndependentProcesses()
 {
-	Boolean Result = FALSE;
+	if(CONTROL_State == DS_InProcess)
+	{
+		switch (LOGIC_State)
+		{
+		case LS_ConfigIg:
+			LOGIC_GatePulse(TRUE);
+			LOGIC_TimeCounterReset();
+			//
+			LOGIC_SetState(LS_PendingCompletion);
+			break;
+
+		case LS_ConfigIm:
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
+			LOGIC_TimeCounterReset();
+			//
+			LOGIC_SetState(LS_PendingCompletion);
+			break;
+
+		case LS_ConfigIh:
+			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
+			LOGIC_Heating(TRUE);
+			LOGIC_TimeCounterReset();
+			//
+			LOGIC_SetState(LS_PendingCompletion);
+			break;
+
+		case LS_PendingCompletion:
+			LOGIC_RegulatorProcess();
+
+			if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
+			{
+				CONTROL_SetDeviceState(DS_Ready, LS_None);
+				CONTROL_StopProcess(OPRESULT_OK);
+			}
+			break;
+		}
+	}
+}
+// ----------------------------------------
+
+void LOGIC_ZthSequencePulsesProcess()
+{
+	static volatile Int64U CoolingTimeTemp = 0;
 
 	switch (LOGIC_State)
 	{
-	case LS_ConfigIg:
-		LOGIC_TimeCounterSetMax(PulseWidth);
-		LOGIC_GatePulse(TRUE);
-		LOGIC_TimeCounterReset();
-		LOGIC_SetState(LS_PendingCompletion);
-		break;
+		case LS_None:
+			ZbGPIO_OuputLock(FALSE);
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
+			LOGIC_SetState(LS_ConfigIh);
+			break;
 
-	case LS_ConfigIm:
-		LOGIC_TimeCounterSetMax(PulseWidth);
-		LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
-		REGULATOR_Enable(SelectIm, TRUE);
-		LOGIC_TimeCounterReset();
-		LOGIC_SetState(LS_PendingCompletion);
-		break;
+		case LS_ConfigIh:
+			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
+			LOGIC_SetState(LS_Heating);
+			break;
 
-	case LS_ConfigIh:
-		LOGIC_HeatingCurrentConfig(PulseWidth);
-		LOGIC_TimeCounterSetMax(PulseWidth);
-		REGULATOR_Enable(SelectIh, TRUE);
-		REGULATOR_Enable(SelectP, DataTable[REG_REGULATOR_POWER_CTRL]);
-		LOGIC_TimeCounterReset();
-		//
-		LOGIC_SetState(LS_PendingCompletion);
-		break;
+		case LS_Heating:
+			//if(LOGIC_HeatingProcess())
+				LOGIC_SetState(LS_Measuring);
+			break;
 
-	case LS_PendingCompletion:
-		if(LOGIC_TimeCounterCheck())
-		{
-			LOGIC_SetState(LS_None);
-			Result = TRUE;
-		}
-		break;
+		case LS_Measuring:
+			LOGIC_MeasuringProcess();
+
+			if(LOGIC_ActualPulseWidth >= LOGIC_PulseWidthMax)
+			{
+				LOGIC_SetState(LS_None);
+			}
+			else
+			{
+				CoolingTimeTemp = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
+				LOGIC_SetState(LS_Cooling);
+			}
+			break;
+
+		case LS_Cooling:
+			/*if(LOGIC_CoolingProcess(CoolingTimeTemp))
+			{
+				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
+				Timeout = CONTROL_TimeCounter + TIME_BATTERY_RECHARGE;
+				LOGIC_SetState(LS_BatteryPrepare);
+			}*/
+			break;
+
+		case LS_BatteryPrepare:
+			if(LOGIC_BatteryVoltageControl(Timeout))
+				LOGIC_SetState(LS_ConfigIh);
+			break;
+	}
+}
+// ----------------------------------------
+
+void LOGIC_ZthLongPulseProcess()
+{
+	static volatile Int64U CoolingTimeTemp = 0;
+
+	switch (LOGIC_State)
+	{
+		case LS_None:
+			ZbGPIO_OuputLock(FALSE);
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
+			LOGIC_SetState(LS_ConfigIh);
+			break;
+
+		case LS_ConfigIh:
+			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
+			LOGIC_SetState(LS_Heating);
+			break;
+
+		case LS_Heating:
+			//if(LOGIC_HeatingProcess())
+				LOGIC_SetState(LS_Measuring);
+			break;
+
+		case LS_Measuring:
+			LOGIC_MeasuringProcess();
+
+			if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
+			{
+				LOGIC_SetState(LS_None);
+			}
+			else
+			{
+				CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
+				LOGIC_SetState(LS_Cooling);
+			}
+			break;
+
+		case LS_Cooling:
+			/*if(LOGIC_CoolingProcess(CoolingTimeTemp))
+			{
+				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
+				LOGIC_SetState(LS_Measuring);
+			}*/
+			break;
+	}
+}
+// ----------------------------------------
+
+void LOGIC_RthSequenceProcess()
+{
+	switch (LOGIC_State)
+	{
+		case LS_ConfigAll:
+			LOGIC_GatePulse(TRUE);
+			//
+			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
+			//
+			LOGIC_SetState(LS_StartHeating);
+			break;
+
+		case LS_Cooling:
+			if(LOGIC_TimeCounterCheck(LOGIC_Pause))
+				LOGIC_SetState(LS_Updating);
+			else
+				break;
+
+		case LS_Updating:
+			REGULATOR_Update(SelectIm, LOGIC_MeasuringCurrent);
+			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
+
+		case LS_StartHeating:
+			LOGIC_TimeCounterReset();
+			LOGIC_Heating(TRUE);
+			LOGIC_SetState(LS_Heating);
+			break;
+
+		case LS_Heating:
+			if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
+			{
+				LOGIC_Heating(FALSE);
+				//
+				LOGIC_TimeCounterReset();
+				LOGIC_SetState(LS_MeasurementDelay);
+			}
+			else
+				break;
+
+		case LS_MeasurementDelay:
+			if(LOGIC_TimeCounterCheck(LOGIC_MeasurementDelay))
+				LOGIC_SetState(LS_Measuring);
+			else
+				break;
+
+		case LS_Measuring:
+			ZwGPIO_WritePin(PIN_LED1, TRUE);
+			LOGIC_MeasuringProcess();
+			ZwGPIO_WritePin(PIN_LED1, FALSE);
+			LOGIC_SetState(LS_Cooling);
+			LOGIC_TimeCounter++;
+			return;
 	}
 
-	return Result;
+	LOGIC_RegulatorProcess();
+
+	LOGIC_TimeCounter++;
+}
+// ----------------------------------------
+
+void LOGIC_Graduation()
+{
+	static volatile Int64U CoolingTimeTemp = 0;
+	static Boolean HeatingProcess = FALSE;
+
+	switch (LOGIC_State)
+	{
+		case LS_None:
+			ZbGPIO_OuputLock(FALSE);
+			LOGIC_GatePulse(TRUE);
+			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
+			REGULATOR_Enable(SelectIm, TRUE);
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
+			LOGIC_SetState(LS_ConfigIh);
+			break;
+
+		case LS_ConfigIh:
+			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
+			HeatingProcess = TRUE;
+			LOGIC_SetState(LS_Heating);
+			break;
+
+		case LS_Heating:
+			/*if(LOGIC_HeatingProcess())
+			{
+				if((MEASURE_Tcase1() >= LOGIC_Tmax) || (MEASURE_Tcase2() >= LOGIC_Tmax))
+					LOGIC_SetState(LS_Measuring);
+				else
+					LOGIC_SetState(LS_Cooling);
+			}*/
+			break;
+
+		case LS_Cooling:
+			if(HeatingProcess)
+			{
+				//if(LOGIC_CoolingProcess(LOGIC_Pause))
+					LOGIC_SetState(LS_Heating);
+			}
+			else
+				//if(LOGIC_CoolingProcess(CoolingTimeTemp))
+					LOGIC_SetState(LS_Measuring);
+			break;
+
+		case LS_Measuring:
+			LOGIC_MeasuringProcess();
+			LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
+			CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
+			HeatingProcess = FALSE;
+			LOGIC_SetState(LS_Cooling);
+			break;
+	}
+}
+// ----------------------------------------
+
+void LOGIC_RegulatorProcess()
+{
+	RegulatorsData Sample;
+
+	// Measurement process
+	Sample = MEASURE_RegulatorsSample();
+
+	// Regulator process
+	REGULATOR_Cycle(Sample);
+
+	// Save data to output regusters
+	LOGIC_SaveHeatingData(Sample);
+}
+// ----------------------------------------
+
+void LOGIC_SaveHeatingData(RegulatorsData Sample)
+{
+	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
+	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
+	DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
+	DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
+	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
+}
+// ----------------------------------------
+
+void LOGIC_TimeCounterReset()
+{
+	LOGIC_TimeCounter = 0;
+}
+// ----------------------------------------
+
+Boolean LOGIC_TimeCounterCheck(Int64U Time)
+{
+	return (LOGIC_TimeCounter >= Time) ? TRUE : FALSE;
 }
 // ----------------------------------------
 
 void LOGIC_MeasuringCurrentConfig(_iq Current)
 {
-	REGULATOR_InitAll();
+	REGULATOR_Init(SelectIm);
 	REGULATOR_Update(SelectIm, Current);
 }
 // ----------------------------------------
@@ -153,277 +406,25 @@ void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 			CurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
 	}
 
-	REGULATOR_InitAll();
+	REGULATOR_Init(SelectIh);
+	REGULATOR_Init(SelectP);
 	LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
 	REGULATOR_Update(SelectIh, CurrentSetpoint);
 }
 // ----------------------------------------
 
-Boolean LOGIC_ZthSequencePulsesProcess()
-{
-	Boolean Result = FALSE;
-	static volatile Int64U CoolingTimeTemp = 0;
-
-	switch (LOGIC_State)
-	{
-		case LS_None:
-			LOGIC_GatePulse(TRUE);
-			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
-			REGULATOR_Enable(SelectIm, TRUE);
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
-			LOGIC_SetState(LS_ConfigIh);
-			break;
-
-		case LS_ConfigIh:
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
-			LOGIC_SetState(LS_Heating);
-			break;
-
-		case LS_Heating:
-			if(LOGIC_HeatingProcess())
-				LOGIC_SetState(LS_Measuring);
-			break;
-
-		case LS_Measuring:
-			LOGIC_MeasuringProcess();
-
-			if(LOGIC_ActualPulseWidth >= LOGIC_PulseWidthMax)
-			{
-				LOGIC_SetState(LS_None);
-				Result = TRUE;
-			}
-			else
-			{
-				CoolingTimeTemp = _IQint(_IQdiv(_IQmpy(_IQI(LOGIC_ActualPulseWidth), LOGIC_ZthPause), 100)) - LOGIC_MeasurementDelay;
-				LOGIC_SetState(LS_Cooling);
-			}
-			break;
-
-		case LS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTimeTemp))
-			{
-				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
-				Timeout = CONTROL_TimeCounter + TIME_BATTERY_RECHARGE;
-				LOGIC_SetState(LS_BatteryPrepare);
-			}
-			break;
-
-		case LS_BatteryPrepare:
-			if(LOGIC_BatteryVoltageControl(Timeout))
-				LOGIC_SetState(LS_ConfigIh);
-			break;
-	}
-
-	return Result;
-}
-// ----------------------------------------
-
-Boolean LOGIC_ZthLongPulseProcess()
-{
-	Boolean Result = FALSE;
-	static volatile Int64U CoolingTimeTemp = 0;
-
-	switch (LOGIC_State)
-	{
-		case LS_None:
-			LOGIC_GatePulse(TRUE);
-			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
-			REGULATOR_Enable(SelectIm, TRUE);
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_ConfigIh);
-			break;
-
-		case LS_ConfigIh:
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
-			LOGIC_SetState(LS_Heating);
-			break;
-
-		case LS_Heating:
-			if(LOGIC_HeatingProcess())
-				LOGIC_SetState(LS_Measuring);
-			break;
-
-		case LS_Measuring:
-			LOGIC_MeasuringProcess();
-
-			if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
-			{
-				LOGIC_SetState(LS_None);
-				Result = TRUE;
-			}
-			else
-			{
-				CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
-				LOGIC_SetState(LS_Cooling);
-			}
-			break;
-
-		case LS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTimeTemp))
-			{
-				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
-				LOGIC_SetState(LS_Measuring);
-			}
-			break;
-	}
-
-	return Result;
-}
-// ----------------------------------------
-
-Boolean LOGIC_RthSequenceProcess()
-{
-	Boolean Result = FALSE;
-	static volatile Int64U CoolingTimeTemp = 0;
-
-	switch (LOGIC_State)
-	{
-		case LS_None:
-			LOGIC_GatePulse(TRUE);
-			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
-			REGULATOR_Enable(SelectIm, TRUE);
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_ConfigIh);
-			break;
-
-		case LS_ConfigIh:
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
-			LOGIC_SetState(LS_Heating);
-			break;
-
-		case LS_Heating:
-			if(LOGIC_HeatingProcess())
-				LOGIC_SetState(LS_Measuring);
-			break;
-
-		case LS_Measuring:
-			LOGIC_MeasuringProcess();
-			CoolingTimeTemp = LOGIC_Pause - LOGIC_MeasurementDelay;
-			LOGIC_SetState(LS_Cooling);
-			break;
-
-		case LS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTimeTemp))
-				LOGIC_SetState(LS_Heating);
-			break;
-	}
-
-	return Result;
-}
-// ----------------------------------------
-
-Boolean LOGIC_Graduation()
-{
-	Boolean Result = FALSE;
-	static volatile Int64U CoolingTimeTemp = 0;
-	static Boolean HeatingProcess = FALSE;
-
-	switch (LOGIC_State)
-	{
-		case LS_None:
-			LOGIC_GatePulse(TRUE);
-			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
-			REGULATOR_Enable(SelectIm, TRUE);
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_ConfigIh);
-			break;
-
-		case LS_ConfigIh:
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
-			HeatingProcess = TRUE;
-			LOGIC_SetState(LS_Heating);
-			break;
-
-		case LS_Heating:
-			if(LOGIC_HeatingProcess())
-			{
-				if((MEASURE_Tcase1() >= LOGIC_Tmax) || (MEASURE_Tcase2() >= LOGIC_Tmax))
-					LOGIC_SetState(LS_Measuring);
-				else
-					LOGIC_SetState(LS_Cooling);
-			}
-			break;
-
-		case LS_Cooling:
-			if(HeatingProcess)
-			{
-				if(LOGIC_CoolingProcess(LOGIC_Pause))
-					LOGIC_SetState(LS_Heating);
-			}
-			else
-				if(LOGIC_CoolingProcess(CoolingTimeTemp))
-					LOGIC_SetState(LS_Measuring);
-			break;
-
-		case LS_Measuring:
-			LOGIC_MeasuringProcess();
-			LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
-			CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
-			HeatingProcess = FALSE;
-			LOGIC_SetState(LS_Cooling);
-			break;
-	}
-
-	return Result;
-}
-// ----------------------------------------
-
-Boolean LOGIC_HeatingProcess()
-{
-	static Boolean HeatingState = FALSE;
-
-	if(!HeatingState)
-	{
-		LOGIC_TimeCounter = 0;
-		HeatingState = TRUE;
-	}
-
-	if(LOGIC_ActualPulseWidth <= LOGIC_TimeCounter)
-		HeatingState = FALSE;
-
-	LOGIC_Heating(HeatingState);
-
-	return !HeatingState;
-}
-// ----------------------------------------
-
 void LOGIC_MeasuringProcess()
 {
-	DELAY_US(LOGIC_MeasurementDelay);
 	LOGIC_SaveData(MEASURE_CombinedData(LOGIC_CoolingMode));
-}
-// ----------------------------------------
-
-Boolean LOGIC_CoolingProcess(Int64U Pause)
-{
-	static Boolean DelayStartFlag = FALSE;
-
-	if(!DelayStartFlag)
-	{
-		DelayStartFlag = TRUE;
-		LOGIC_TimeCounterSetMax(Pause);
-		LOGIC_TimeCounterReset();
-	}
-	else
-	{
-		if(LOGIC_TimeCounterCheck())
-			DelayStartFlag = FALSE;
-	}
-
-	return !DelayStartFlag;
 }
 // ----------------------------------------
 
 void LOGIC_Heating(Boolean State)
 {
-	if(!State)
-	{
-		REGULATOR_SetOutput(SelectIh, 0);
-		REGULATOR_SetOutput(SelectP, 0);
-	}
-
+	ZbGPIO_OuputLock(!State);
+	//
 	REGULATOR_Enable(SelectIh, State);
-	REGULATOR_Enable(SelectP, State);
+	REGULATOR_Enable(SelectP, DataTable[REG_REGULATOR_POWER_CTRL]);
 }
 // ----------------------------------------
 
@@ -432,10 +433,10 @@ void LOGIC_SaveData(CombinedData Sample)
 	Int16U TSP, Tcase1, Tcase2, Tcool1, Tcool2;
 
 	TSP = _IQint(Sample.TSP);
-	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, 100));
-	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, 100));
-	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, 100));
-	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, 100));
+	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, 10));
+	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, 10));
+	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, 10));
+	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, 10));
 
 	// Save to endpoints
 	if(LOGIC_Values_Counter < VALUES_x_SIZE)
@@ -482,39 +483,6 @@ void LOGIC_CalculateTimeInterval(volatile Int64U *TimeInterval)
 }
 // ----------------------------------------
 
-void LOGIC_TimeCounterSetMax(Int32U Timeout)
-{
-	LOGIC_TimeCounterMaxValue = Timeout + PULSE_WIDTH_COMPENS_TIME;
-}
-// ----------------------------------------
-
-void LOGIC_TimeCounterReset()
-{
-	LOGIC_TimeCounter = 0;
-}
-// ----------------------------------------
-
-Boolean LOGIC_TimeCounterCheck()
-{
-	return (LOGIC_TimeCounter >= LOGIC_TimeCounterMaxValue) ? TRUE : FALSE;
-}
-// ----------------------------------------
-
-void LOGIC_TimeCounterInc()
-{
-	LOGIC_TimeCounter += TIMER1_PERIOD;
-}
-// ----------------------------------------
-
-void LOGIC_PulseWidthControl()
-{
-	if(!LOGIC_TimeCounterCheck() && REGULATOR_GetControl().Ih)
-		ZbGPIO_OuputLock(FALSE);
-	else
-		ZbGPIO_OuputLock(TRUE);
-}
-// ----------------------------------------
-
 void LOGIC_SetState(LogicState State)
 {
 	LOGIC_State = State;
@@ -523,11 +491,10 @@ void LOGIC_SetState(LogicState State)
 
 void LOGIC_CacheVariables()
 {
-	LOGIC_PulseWidthMin = _IQint(_IQmpy(_IQI(DataTable[REG_PULSE_WIDTH_MIN]), _IQI(100)));
+	LOGIC_PulseWidthMin = DataTable[REG_PULSE_WIDTH_MIN];
 	//
 	LOGIC_PulseWidthMax = DataTable[REG_PULSE_WIDTH_MAX_H];
 	LOGIC_PulseWidthMax = (LOGIC_PulseWidthMax << 16) | DataTable[REG_PULSE_WIDTH_MAX_L];
-	LOGIC_PulseWidthMax = _IQint(_IQmpy(_IQI(LOGIC_PulseWidthMax), _IQI(100)));
 	//
 	LOGIC_CurrentWidthLess_2ms = _IQI(DataTable[REG_I_WIDTH_LESS_2MS]);
 	LOGIC_CurrentWidthLess_10ms = _IQI(DataTable[REG_I_WIDTH_LESS_10MS]);
@@ -559,18 +526,6 @@ void LOGIC_HeatingCurrentSetRange(_iq Current)
 	{
 		ZbGPIO_SB_Ih_Range(1);
 		CONVERT_IhSetRangeParams(1);
-	}
-}
-// ----------------------------------------
-
-void LOGIC_HandleCommunicationError()
-{
-	HLIError err = HLI_GetError();
-	if(err.ErrorCode != ERR_NO_ERROR)
-	{
-		// Communiction error
-		LOGIC_State = LS_Error;
-		CONTROL_SwitchToFault(FAULT_PROTOCOL);
 	}
 }
 // ----------------------------------------

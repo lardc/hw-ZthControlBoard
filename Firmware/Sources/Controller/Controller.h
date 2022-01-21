@@ -25,7 +25,7 @@ typedef enum __DeviceState
 } DeviceState;
 //
 
-typedef void (*FUNC_AsyncDelegate)();
+typedef void (*CONTROL_FUNC_RealTimeRoutine)();
 
 
 // Variables
@@ -41,20 +41,19 @@ extern volatile Int16U CONTROL_BootLoaderRequest;
 void CONTROL_Init(Boolean BadClockDetected);
 // Update low-priority states
 void CONTROL_Idle();
-// Main control cycle
-void CONTROL_Update();
+// Update high-priority states
+void CONTROL_UpdateSlow();
+void CONTROL_UpdateFast();
 // Notify that CAN system fault occurs
 void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
-void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
 // Switch device to fault state
 void CONTROL_SwitchToFault(Int16U FaultReason);
 // Set device state
 void CONTROL_SetDeviceState(DeviceState NewState, LogicState NewSubState);
-// Save heating data
-void CONTROL_SaveHeatingData(RegulatorsData Sample);
-// Regulator
-void CONTROL_RegulatorProcess();
-void CONTROL_Update();
+// Stop process
+void CONTROL_StopProcess(Int16U OpResult);
+//
+void CONTROL_SubcribeToCycle(CONTROL_FUNC_RealTimeRoutine Routine);
 
 
 #endif // __CONTROLLER_H

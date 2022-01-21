@@ -19,10 +19,14 @@ typedef enum __LogicState
 	LS_ConfigIm				= 10,
 	LS_ConfigIh				= 11,
 	LS_ConfigIg				= 12,
+	LS_ConfigAll			= 13,
 	//
-	LS_Heating				= 20,
-	LS_Measuring			= 21,
-	LS_Cooling				= 22
+	LS_StartHeating			= 20,
+	LS_Heating				= 21,
+	LS_MeasurementDelay		= 22,
+	LS_Measuring			= 23,
+	LS_Cooling				= 24,
+	LS_Updating				= 25
 } LogicState;
 //
 
@@ -49,22 +53,19 @@ extern volatile Boolean TimeFlag;
 
 // Functions prototypes
 //
-Boolean LOGIC_ZthSequencePulsesProcess();
-Boolean LOGIC_ZthLongPulseProcess();
-Boolean LOGIC_RthSequenceProcess();
-Boolean LOGIC_Graduation();
-Boolean LOGIC_MeasurementCurrentProcess();
-Boolean LOGIC_HeatingCurrentProcess();
+void LOGIC_ZthSequencePulsesProcess();
+void LOGIC_ZthLongPulseProcess();
+void LOGIC_RthSequenceProcess();
+void LOGIC_Graduation();
+void LOGIC_MeasurementCurrentProcess();
+void LOGIC_HeatingCurrentProcess();
 void LOGIC_CacheVariables();
 void LOGIC_SetState(LogicState State);
 void LOGIC_Heating(Boolean State);
 void LOGIC_HeatingCurrentSetRange(_iq Current);
 void LOGIC_PowerOnSequence();
-void LOGIC_HandleCommunicationError();
 void LOGIC_GatePulse(Boolean State);
-Boolean LOGIC_GateCurrentProcess();
+void LOGIC_GateCurrentProcess();
 void LOGIC_TimeCounterReset();
-void LOGIC_PulseWidthControl();
-void LOGIC_TimeCounterInc();
 
 #endif // __LOGIC_H

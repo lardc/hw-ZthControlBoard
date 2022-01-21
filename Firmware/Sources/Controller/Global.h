@@ -44,8 +44,8 @@
 #define I_MAX_WIDTH_10MS				1500	// in A
 #define I_MAX_WIDTH_DC					1000	// in A
 //
-#define PULSE_WIDTH_10MS				10000	// in us
-#define PULSE_WIDTH_2MS					2000	// in us
+#define PULSE_WIDTH_10MS				100		// in us x0.01
+#define PULSE_WIDTH_2MS					20		// in us x0.01
 //--------------------------------------------------------
 
 // Regulator parameters
