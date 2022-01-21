@@ -18,12 +18,12 @@ typedef enum __RegulatorSelector
 
 // Variables
 //
-extern Int16U REGULATOR_ErrorIm[VALUES_x_SIZE];
-extern Int16U REGULATOR_ErrorIh[VALUES_x_SIZE];
-extern Int16U REGULATOR_ErrorP[VALUES_x_SIZE];
-extern Int16U REGULATOR_Im_Value[VALUES_x_SIZE];
-extern Int16U REGULATOR_Ih_Value[VALUES_x_SIZE];
-extern Int16U REGULATOR_P_Value[VALUES_x_SIZE];
+extern Int16U REGULATOR_ErrorIm[];
+extern Int16U REGULATOR_ErrorIh[];
+extern Int16U REGULATOR_ErrorP[];
+extern Int16U REGULATOR_Im_Value[];
+extern Int16U REGULATOR_Ih_Value[];
+extern Int16U REGULATOR_P_Value[];
 //
 extern Int16U REGULATOR_Im_Counter;
 extern Int16U REGULATOR_Ih_Counter;

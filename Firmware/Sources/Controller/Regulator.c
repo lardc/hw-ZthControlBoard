@@ -50,18 +50,11 @@ _iq P_TargetPulseValue = 0;
 //
 Int32U PowerSetDelay = 0;
 
-//
-#pragma DATA_SECTION(REGULATOR_ErrorIh, "data_mem");
 Int16U REGULATOR_ErrorIh[VALUES_x_SIZE];
-#pragma DATA_SECTION(REGULATOR_ErrorIm, "data_mem");
 Int16U REGULATOR_ErrorIm[VALUES_x_SIZE];
-#pragma DATA_SECTION(REGULATOR_ErrorP, "data_mem");
 Int16U REGULATOR_ErrorP[VALUES_x_SIZE];
-#pragma DATA_SECTION(REGULATOR_Im_Value, "data_mem");
 Int16U REGULATOR_Im_Value[VALUES_x_SIZE];
-#pragma DATA_SECTION(REGULATOR_Ih_Value, "data_mem");
 Int16U REGULATOR_Ih_Value[VALUES_x_SIZE];
-#pragma DATA_SECTION(REGULATOR_P_Value, "data_mem");
 Int16U REGULATOR_P_Value[VALUES_x_SIZE];
 //
 Int16U REGULATOR_Im_Counter = 0;
@@ -71,7 +64,7 @@ Int16U REGULATOR_P_Counter = 0;
 Int16U REGULATOR_Im_LocalCounter = 0;
 Int16U REGULATOR_Ih_LocalCounter = 0;
 Int16U REGULATOR_P_LocalCounter = 0;
-//
+
 
 // Forward functions
 void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample);
@@ -378,10 +371,10 @@ void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error)
 		++*DataParams->ArrayLocalCounter;
 	}
 
-	if (*DataParams->ArrayCounter < REGULATOR_VALUES_SIZE)
+	if (*DataParams->ArrayCounter < VALUES_x_SIZE)
 		*DataParams->ArrayCounter = *DataParams->ArrayLocalCounter;
 
-	if (*DataParams->ArrayLocalCounter >= REGULATOR_VALUES_SIZE)
+	if (*DataParams->ArrayLocalCounter >= VALUES_x_SIZE)
 		*DataParams->ArrayLocalCounter = 0;
 }
 // ----------------------------------------

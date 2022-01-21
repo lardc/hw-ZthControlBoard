@@ -35,12 +35,11 @@ typedef enum __LogicState
 //
 extern volatile LogicState LOGIC_State;
 //
-extern Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
-extern Int16U LOGIC_Values_Tcase1[VALUES_x_SIZE];
-extern Int16U LOGIC_Values_Tcase2[VALUES_x_SIZE];
-extern Int16U LOGIC_Values_Tcool1[VALUES_x_SIZE];
-extern Int16U LOGIC_Values_Tcool2[VALUES_x_SIZE];
-extern Int16U LOGIC_Values_ErrorIh[VALUES_x_SIZE];
+extern Int16U LOGIC_Values_TSP[];
+extern Int16U LOGIC_Values_Tcase1[];
+extern Int16U LOGIC_Values_Tcase2[];
+extern Int16U LOGIC_Values_Tcool1[];
+extern Int16U LOGIC_Values_Tcool2[];
 extern volatile Int16U LOGIC_Values_Counter;
 //
 extern volatile _iq LOGIC_CurrentWidthLess_2ms;

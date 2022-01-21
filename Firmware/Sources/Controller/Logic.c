@@ -37,19 +37,13 @@ volatile Int64U LOGIC_ActualDelayWidth = 0;
 //
 volatile Boolean TimeFlag = TRUE;
 //
-#pragma DATA_SECTION(LOGIC_Values_TSP, "data_mem");
 Int16U LOGIC_Values_TSP[VALUES_x_SIZE];
-#pragma DATA_SECTION(LOGIC_Values_Tcase1, "data_mem");
 Int16U LOGIC_Values_Tcase1[VALUES_x_SIZE];
-#pragma DATA_SECTION(LOGIC_Values_Tcase2, "data_mem");
 Int16U LOGIC_Values_Tcase2[VALUES_x_SIZE];
-#pragma DATA_SECTION(LOGIC_Values_Tcool1, "data_mem");
 Int16U LOGIC_Values_Tcool1[VALUES_x_SIZE];
-#pragma DATA_SECTION(LOGIC_Values_Tcool2, "data_mem");
 Int16U LOGIC_Values_Tcool2[VALUES_x_SIZE];
 volatile Int16U LOGIC_Values_Counter = 0;
 volatile Int16U EP_DataCounter = 0;
-//
 
 // Functions prototypes
 //
