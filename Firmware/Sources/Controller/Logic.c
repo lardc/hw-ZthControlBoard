@@ -248,6 +248,15 @@ void LOGIC_RthSequenceProcess()
 
 		case LS_Cooling:
 			if(LOGIC_TimeCounterCheck(LOGIC_Pause))
+				LOGIC_SetState(LS_ChargeWaiting);
+			else
+				break;
+
+		case LS_ChargeWaiting:
+			MEASURE_CapVoltageSamplingStart();
+			DELAY_US(10);
+			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
+			if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
 				LOGIC_SetState(LS_Updating);
 			else
 				break;
