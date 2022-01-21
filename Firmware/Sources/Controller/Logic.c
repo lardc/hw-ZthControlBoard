@@ -116,6 +116,8 @@ void LOGIC_IndependentProcesses()
 		case LS_PendingCompletion:
 			LOGIC_RegulatorProcess();
 
+			LOGIC_TimeCounter++;
+
 			if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
 			{
 				CONTROL_SetDeviceState(DS_Ready, LS_None);
