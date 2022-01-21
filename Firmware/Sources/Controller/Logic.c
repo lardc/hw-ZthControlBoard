@@ -17,6 +17,7 @@
 #include "ZbGPIO.h"
 #include "Controller.h"
 #include "ZthDUTControlBoard.h"
+#include "DeviceProfile.h"
 
 // Variables
 //
@@ -292,9 +293,7 @@ void LOGIC_RthSequenceProcess()
 				break;
 
 		case LS_Measuring:
-			ZwGPIO_WritePin(PIN_LED1, TRUE);
 			LOGIC_MeasuringProcess();
-			ZwGPIO_WritePin(PIN_LED1, FALSE);
 			LOGIC_SetState(LS_Cooling);
 			LOGIC_TimeCounter++;
 			return;
@@ -448,25 +447,33 @@ void LOGIC_Heating(Boolean State)
 void LOGIC_SaveData(CombinedData Sample)
 {
 	Int16U TSP, Tcase1, Tcase2, Tcool1, Tcool2;
+	static Int16U ScopeLogStep = 0;
+
+	DEVPROFILE_ResetEPReadState();
 
 	TSP = _IQint(Sample.TSP);
-	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, 10));
-	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, 10));
-	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, 10));
-	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, 10));
+	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, _IQI(10)));
+	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, _IQI(10)));
+	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, _IQI(10)));
+	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, _IQI(10)));
 
-	// Save to endpoints
-	if(LOGIC_Values_Counter < VALUES_x_SIZE)
+	if (ScopeLogStep++ >= DataTable[REG_SCOPE_STEP])
 	{
-		LOGIC_Values_TSP[EP_DataCounter]    = TSP;
-		LOGIC_Values_Tcase1[EP_DataCounter] = Tcase1;
-		LOGIC_Values_Tcase2[EP_DataCounter] = Tcase2;
-		LOGIC_Values_Tcool1[EP_DataCounter] = Tcool1;
-		LOGIC_Values_Tcool2[EP_DataCounter] = Tcool2;
-		EP_DataCounter++;
+		ScopeLogStep = 0;
 
-		LOGIC_Values_Counter = EP_DataCounter;
+		// Save to endpoints
+		if(LOGIC_Values_Counter < VALUES_x_SIZE)
+		{
+			LOGIC_Values_TSP[EP_DataCounter]    = TSP;
+			LOGIC_Values_Tcase1[EP_DataCounter] = Tcase1;
+			LOGIC_Values_Tcase2[EP_DataCounter] = Tcase2;
+			LOGIC_Values_Tcool1[EP_DataCounter] = Tcool1;
+			LOGIC_Values_Tcool2[EP_DataCounter] = Tcool2;
+			EP_DataCounter++;
+		}
 	}
+
+	LOGIC_Values_Counter = EP_DataCounter;
 
 	// Save to ouput registers
 	DataTable[REG_ACTUAL_TSP]   = TSP;

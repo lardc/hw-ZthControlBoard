@@ -246,7 +246,7 @@ ISRCALL Timer0_ISR(void)
 	++LedCounter;
 	if(LedCounter == DBG_COUNTER_PERIOD)
 	{
-		//ZbGPIO_ToggleLED1();
+		ZbGPIO_ToggleLED1();
 		LedCounter = 0;
 	}
 
@@ -258,9 +258,7 @@ ISRCALL Timer0_ISR(void)
 // timer 1 ISR
 ISRCALL Timer1_ISR(void)
 {
-	//ZwGPIO_WritePin(PIN_LED1, TRUE);
 	CONTROL_UpdateFast();
-	//ZwGPIO_WritePin(PIN_LED1, FALSE);
 
 	// no PIE
 	TIMER1_ISR_DONE;
