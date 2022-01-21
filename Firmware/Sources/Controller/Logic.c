@@ -24,6 +24,7 @@ volatile LogicState LOGIC_State = LS_None;
 volatile Int64U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 volatile Int64U Timeout = 0, LOGIC_TimeCounterMaxValue = 0;
 //
+volatile Int16U LOGIC_CapVoltageThreshold = 0;
 volatile Int16U LOGIC_DUTType;
 volatile Int16U LOGIC_CoolingMode;
 volatile Int32U LOGIC_Pause, LOGIC_PulseWidthMin, LOGIC_PulseWidthMax, LOGIC_MeasurementDelay;
@@ -256,7 +257,7 @@ void LOGIC_RthSequenceProcess()
 			MEASURE_CapVoltageSamplingStart();
 			DELAY_US(10);
 			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
-			if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+			if(MEASURE_CapVoltage >= LOGIC_CapVoltageThreshold)
 				LOGIC_SetState(LS_Updating);
 			else
 				break;
@@ -415,6 +416,11 @@ void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 			CurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
 	}
 
+	if(CurrentSetpoint >= DataTable[REG_I_THRE_SET_CAP_V_THRE])
+		LOGIC_CapVoltageThreshold = DataTable[REG_CAP_VOLTAGE_THRE_H];
+	else
+		LOGIC_CapVoltageThreshold = DataTable[REG_CAP_VOLTAGE_THRE_L];
+
 	REGULATOR_Init(SelectIh);
 	REGULATOR_Init(SelectP);
 	LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
@@ -560,7 +566,7 @@ void LOGIC_PowerOnSequence()
 
 Boolean LOGIC_BatteryVoltageControl(Int64U Timeout)
 {
-	if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRESHOLD])
+	if(MEASURE_CapVoltage >= DataTable[REG_CAP_VOLTAGE_THRE_H])
 		return TRUE;
 	else
 	{

@@ -59,7 +59,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 43
 											   {CAP_VOLTAGE_K_N_MIN, CAP_VOLTAGE_K_N_MAX, CAP_VOLTAGE_K_N_DEF},					// 44
 											   {CAP_VOLTAGE_K_D_MIN, CAP_VOLTAGE_K_D_MAX, CAP_VOLTAGE_K_D_DEF},					// 45
-											   {CAP_V_THRESHOLD_MIN, CAP_V_THRESHOLD_MAX, CAP_V_THRESHOLD_DEF},					// 46
+											   {CAP_V_THRESHOLD_MIN, CAP_V_THRESHOLD_MAX, CAP_V_THRESHOLD_L_DEF},				// 46
 											   {I_ERR_THRESHOLD_MIN, I_ERR_THRESHOLD_MAX, I_ERR_THRESHOLD_DEF},					// 47
 											   {FALSE, TRUE, FALSE},															// 48
 											   {FLTR_ERR_THRESHOLD_MIN, FLTR_ERR_THRESHOLD_MAX, FLTR_ERR_THRESHOLD_DEF},		// 49
@@ -81,8 +81,8 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 65
 											   {FALSE, TRUE, FALSE},															// 66
 											   {0, INT16U_MAX, 0},																// 67
-											   {0, 0, 0},																		// 68
-											   {0, 0, 0},																		// 69
+											   {CAP_V_THRESHOLD_MIN, CAP_V_THRESHOLD_MAX, CAP_V_THRESHOLD_H_DEF},				// 68
+											   {I_WIDTH_LESS_2MS_MIN, I_WIDTH_LESS_2MS_MAX, I_THRE_FOR_CAP_V_THRE_DEF},			// 69
 											   {0, SKIP_CYCLE_MAX, SKIP_CYCLE_DEF},												// 70
 											   {FALSE, TRUE, TRUE},																// 71
 											   {POWER_SET_DELAY_MIN, POWER_SET_DELAY_MAX, POWER_SET_DELAY_DEF},					// 72

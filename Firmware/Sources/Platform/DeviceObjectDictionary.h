@@ -103,7 +103,7 @@
 //
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
-#define REG_CAP_VOLTAGE_THRESHOLD	46	// Capacitors voltage threshold ( in V x10)
+#define REG_CAP_VOLTAGE_THRE_L		46	// Capacitors voltage low threshold ( in V x10)
 //
 #define REG_I_ERR_THRESHOLD			47	// Ih error threshold (% x10)
 #define REG_FILTER_ACTIVE			48	// Enable or disable data filtering
@@ -131,7 +131,10 @@
 //
 #define REG_MUTE_PROTECTION			66	// Ignore protection
 #define REG_SCOPE_STEP				67	// Scope step
-// 68 - 69
+//
+#define REG_CAP_VOLTAGE_THRE_H		68	// Capacitors voltage high threshold ( in V x10)
+#define REG_I_THRE_SET_CAP_V_THRE	69	// Current thresholt for changing capacitors voltage threshold
+//
 #define REG_REGULATOR_SKIP_CYCLE	70	// Number of skip regulator cycle
 #define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator
 #define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
