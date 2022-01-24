@@ -42,15 +42,12 @@ extern Int16U LOGIC_Values_Tcool1[];
 extern Int16U LOGIC_Values_Tcool2[];
 extern volatile Int16U LOGIC_Values_Counter;
 //
-extern volatile _iq LOGIC_CurrentWidthLess_2ms;
-extern volatile _iq LOGIC_CurrentWidthLess_10ms;
-extern volatile _iq LOGIC_CurrentWidthAbove_10ms;
+extern volatile Int16U LOGIC_CurrentWidthLess_2ms;
+extern volatile Int16U LOGIC_CurrentWidthLess_10ms;
+extern volatile Int16U LOGIC_CurrentWidthAbove_10ms;
 //
 extern volatile Int32U LOGIC_PulseWidthMax;
 //
-extern volatile Boolean TimeFlag;
-//
-
 // Functions prototypes
 //
 void LOGIC_ZthSequencePulsesProcess();
@@ -62,10 +59,11 @@ void LOGIC_HeatingCurrentProcess();
 void LOGIC_CacheVariables();
 void LOGIC_SetState(LogicState State);
 void LOGIC_Heating(Boolean State);
-void LOGIC_HeatingCurrentSetRange(_iq Current);
+void LOGIC_HeatingCurrentSetRange(Int16U Current);
 void LOGIC_PowerOnSequence();
 void LOGIC_GatePulse(Boolean State);
 void LOGIC_GateCurrentProcess();
 void LOGIC_TimeCounterReset();
+void LOGIC_ResetVariables();
 
 #endif // __LOGIC_H

@@ -171,8 +171,8 @@ typedef struct __TableItemConstraint
 #define ZTH_PULSE_MAX_WIDTH_MIN		1
 #define ZTH_PULSE_MAX_WIDTH_MAX		1000
 //
-#define ZTH_COOLING_TIME_MIN		0
-#define ZTH_COOLING_TIME_MAX		1000
+#define ZTH_COOLING_TIME_MIN		100
+#define ZTH_COOLING_TIME_MAX		500
 #define ZTH_COOLING_TIME_DEF		200
 //
 #define PULSE_WIDTH_MIN				1
@@ -198,9 +198,9 @@ typedef struct __TableItemConstraint
 #define	MEASURING_CURRENT_MAX		5000
 #define MEASURING_CURRENT_DEF		2000
 //
-#define DELAY_MIN					1
-#define DELAY_MAX					10
-#define DELAY_DEF					2
+#define DELAY_MIN					10
+#define DELAY_MAX					1000
+#define DELAY_DEF					200
 //
 #define T_MIN						900
 #define T_MAX						1000

@@ -191,12 +191,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_UPDATE:
 			if(CONTROL_ValidationParams())
-			{
 				LOGIC_CacheVariables();
-				REGULATOR_CacheVariables();
-				CONVERT_CacheVariables();
-				MEASURE_VariablesPrepare();
-			}
 			else
 				*UserError = ERR_CONFIGURATION_LOCKED;
 			break;
@@ -328,6 +323,8 @@ void CONTROL_CañheVariables()
 	REGULATOR_CacheVariables();
 	CONVERT_CacheVariables();
 	MEASURE_VariablesPrepare();
+	//
+	LOGIC_ResetVariables();
 }
 // ----------------------------------------
 
@@ -346,7 +343,7 @@ Boolean CONTROL_ValidationParams()
 			break;
 
 		case MODE_RTH_SEQ_PULSES:
-			if(DataTable[REG_PAUSE] <= DataTable[REG_MEASUREMENT_DELAY])
+			if((DataTable[REG_PAUSE] * 100) <= DataTable[REG_MEASUREMENT_DELAY])
 				Result = FALSE;
 			break;
 

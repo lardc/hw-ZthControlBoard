@@ -157,14 +157,14 @@
 #define REG_PULSE_WIDTH_MIN			131	// Width of first pulse (in us x0.01)
 #define REG_PULSE_WIDTH_MAX_L		132	// Width of last pulse (in us x0.01, LSB)
 #define REG_PULSE_WIDTH_MAX_H		133	// Width of last pulse (in us x0.01, MSB)
-#define REG_ZTH_PAUSE				134	// Cooling time between pulses (in % x10)
+#define REG_ZTH_PAUSE				134	// Cooling time between pulses (in %)
 #define REG_PAUSE					135	// Time between pulses in "Rth sequence pulses" and "graduation" modes (in us x0.01)
 #define REG_I_WIDTH_LESS_2MS		136	// Heating current value if pulse width less than 10ms  (in A)
 #define REG_I_WIDTH_LESS_10MS		137	// Heating current value if pulse width less than 10ms  (in A)
 #define REG_I_WIDTH_ABOVE_10MS		138	// Heating current value if pulse width above than 10ms  (in A)
 #define REG_GATE_CURRENT			139	// Gate current value (in mA)
 #define REG_MEASURING_CURRENT		140	// Measuring current value (in mA)
-#define REG_MEASUREMENT_DELAY		141	// Delay of measuring temperature-sensitive parameter (in us x0.01)
+#define REG_MEASUREMENT_DELAY		141	// Delay of measuring temperature-sensitive parameter (in us)
 #define REG_T_MAX					142	// Maximum DUT temperature (in C x10)
 #define REG_IGBT_V_GATE				143	// Set IGBT gate voltage (0 - 15V, 1 - 20V)
 //
@@ -190,6 +190,7 @@
 #define REG_PROBLEM					196	// Problem if present
 #define REG_OP_RESULT				197	// Indicates that test is done and there is result or fault
 #define REG_FAULT_REASON_EXT		198	// Fault reason extended code
+#define REG_LOGIC_STATE				199	// Logic state
 //
 #define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV x10)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A x10)
