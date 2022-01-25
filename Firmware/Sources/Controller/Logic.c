@@ -21,6 +21,8 @@
 
 // Definitions
 //
+#define DATA_LOG_STEP						100
+//
 #define TIME_PULSE_WIDTH_COMPENSATION		25
 #define TIME_MSR_DEL_COMPENSATION			25
 
@@ -59,8 +61,9 @@ void LOGIC_HeatingCurrentConfig(Int32U CuurentWidth);
 Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
 Boolean LOGIC_TimeCounterCheck(Int32U Time);
 void LOGIC_MeasuringProcess();
-void LOGIC_SaveData(CombinedData Sample);
+void LOGIC_SaveData(CombinedData Sample, Boolean SaveToEndpoints);
 void LOGIC_CalculateTimeInterval(volatile Int32U *TimeInterval);
+void LOGIC_SaveToOutputRegisters();
 
 
 // Functions
@@ -225,39 +228,78 @@ void LOGIC_ZthSequencePulsesProcess()
 
 	LOGIC_RegulatorProcess();
 	DEVPROFILE_ResetEPReadState();
+	LOGIC_SaveToOutputRegisters();
 	LOGIC_TimeCounter++;
 }
 // ----------------------------------------
 
 void LOGIC_ZthLongPulseProcess()
 {
-	static volatile Int32U CoolingTimeTemp = 0;
+	/*static volatile Int32U CoolingTimeTemp = 0;
 
 	switch (LOGIC_State)
 	{
-		case LS_None:
-			ZbGPIO_OuputLock(FALSE);
+		case LS_ConfigAll:
+			LOGIC_ActualDelayWidth = LOGIC_PulseWidthMax;
+			//
 			LOGIC_GatePulse(TRUE);
+			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
 			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
 			REGULATOR_Enable(SelectIm, TRUE);
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_ConfigIh);
+			//
+			LOGIC_SetState(LS_StartHeating);
 			break;
 
-		case LS_ConfigIh:
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
+		case LS_StartHeating:
+			LOGIC_TimeCounterReset();
+			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
 			break;
 
 		case LS_Heating:
-			//if(LOGIC_HeatingProcess())
+			if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
+			{
+				LOGIC_Heating(FALSE);
+				//
+				LOGIC_TimeCounterReset();
+				LOGIC_SetState(LS_MeasurementDelay);
+			}
+			else
+				break;
+
+		case LS_MeasurementDelay:
+			MeasurementDelayWhole = _IQint(_FPtoIQ2(LOGIC_MeasurementDelay, 100));
+
+			if(LOGIC_TimeCounterCheck(MeasurementDelayWhole))
+			{
+				ZwTimer_StopT1();
+				//
+				MeasurementDelayFraction = LOGIC_MeasurementDelay - _IQint(_IQmpy(_IQI(MeasurementDelayWhole), _IQI(100)));
+				if(MeasurementDelayFraction)
+					DELAY_US(MeasurementDelayFraction);
+
 				LOGIC_SetState(LS_Measuring);
-			break;
+				//
+				ZwTimer_StartT1();
+			}
+			else
+				break;
+
+		case LS_Measuring:
+			LOGIC_MeasuringProcess();
+			LOGIC_SetState(LS_Cooling);
+			LOGIC_TimeCounter++;
+			return;
+	}
+
+	LOGIC_RegulatorProcess();
+	DEVPROFILE_ResetEPReadState();
+	LOGIC_TimeCounter++;
 
 		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 
-			/*if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
+			if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
 			{
 				LOGIC_SetState(LS_None);
 			}
@@ -265,17 +307,18 @@ void LOGIC_ZthLongPulseProcess()
 			{
 				CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
 				LOGIC_SetState(LS_Cooling);
-			}*/
+			}
 			break;
 
 		case LS_Cooling:
-			/*if(LOGIC_CoolingProcess(CoolingTimeTemp))
+			if(LOGIC_CoolingProcess(CoolingTimeTemp))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 				LOGIC_SetState(LS_Measuring);
-			}*/
+			}
 			break;
 	}
+	*/
 }
 // ----------------------------------------
 
@@ -358,6 +401,7 @@ void LOGIC_RthSequenceProcess()
 
 	LOGIC_RegulatorProcess();
 	DEVPROFILE_ResetEPReadState();
+	LOGIC_SaveToOutputRegisters();
 	LOGIC_TimeCounter++;
 }
 // ----------------------------------------
@@ -488,7 +532,24 @@ void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 
 void LOGIC_MeasuringProcess()
 {
-	LOGIC_SaveData(MEASURE_CombinedData(LOGIC_CoolingMode));
+	LOGIC_SaveData(MEASURE_CombinedData(LOGIC_CoolingMode), TRUE);
+}
+// ----------------------------------------
+
+void LOGIC_SaveToOutputRegisters()
+{
+	static Int32U DataLogStep = 0;
+
+	DataLogStep++;
+
+	if(DataLogStep >= DATA_LOG_STEP)
+	{
+		DataLogStep = 0;
+
+		ZwTimer_StopT1();
+		LOGIC_SaveData(MEASURE_CombinedData(LOGIC_CoolingMode), FALSE);
+		ZwTimer_StartT1();
+	}
 }
 // ----------------------------------------
 
@@ -501,7 +562,7 @@ void LOGIC_Heating(Boolean State)
 }
 // ----------------------------------------
 
-void LOGIC_SaveData(CombinedData Sample)
+void LOGIC_SaveData(CombinedData Sample, Boolean SaveToEndpoints)
 {
 	Int16U TSP, Tcase1, Tcase2, Tcool1, Tcool2;
 	static Int16U ScopeLogStep = 0;
@@ -512,7 +573,7 @@ void LOGIC_SaveData(CombinedData Sample)
 	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, _IQI(10)));
 	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, _IQI(10)));
 
-	if (ScopeLogStep++ >= DataTable[REG_SCOPE_STEP])
+	if (SaveToEndpoints && ScopeLogStep++ >= DataTable[REG_SCOPE_STEP])
 	{
 		ScopeLogStep = 0;
 
