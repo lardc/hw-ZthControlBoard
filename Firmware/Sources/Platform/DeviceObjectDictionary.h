@@ -133,7 +133,7 @@
 #define REG_SCOPE_STEP				67	// Scope step
 //
 #define REG_CAP_VOLTAGE_THRE_H		68	// Capacitors voltage high threshold ( in V x10)
-#define REG_I_THRE_SET_CAP_V_THRE	69	// Current thresholt for changing capacitors voltage threshold
+#define REG_I_THRE_SET_CAP_V_THRE	69	// Current thresholt for changing capacitors voltage threshold (in A)
 //
 #define REG_REGULATOR_SKIP_CYCLE	70	// Number of skip regulator cycle
 #define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator

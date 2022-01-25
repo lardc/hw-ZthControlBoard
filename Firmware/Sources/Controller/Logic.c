@@ -136,6 +136,7 @@ void LOGIC_ZthSequencePulsesProcess()
 		{
 		case LS_ConfigAll:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
+			LOGIC_ActualDelayWidth = LOGIC_ActualPulseWidth * LOGIC_ZthPause / 100;
 			//
 			LOGIC_GatePulse(TRUE);
 			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);

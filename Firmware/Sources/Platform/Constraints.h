@@ -165,7 +165,7 @@ typedef struct __TableItemConstraint
 #define IH_RANGE_THRESHOLD_MAX		1000
 #define IH_RANGE_THRESHOLD_DEF		500
 //
-#define ZTH_PULSE_MIN_WIDTH_MIN		1
+#define ZTH_PULSE_MIN_WIDTH_MIN		2
 #define ZTH_PULSE_MIN_WIDTH_MAX		100
 //
 #define ZTH_PULSE_MAX_WIDTH_MIN		1
