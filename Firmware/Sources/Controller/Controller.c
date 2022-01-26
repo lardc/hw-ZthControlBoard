@@ -191,10 +191,15 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_UPDATE:
-			if(CONTROL_ValidationParams())
-				LOGIC_UpdateParams();
+			if(CONTROL_Mode != MODE_ZTH_SEQ_PULSES)
+			{
+				if(CONTROL_ValidationParams())
+					LOGIC_UpdateParams();
+				else
+					*UserError = ERR_CONFIGURATION_LOCKED;
+			}
 			else
-				*UserError = ERR_CONFIGURATION_LOCKED;
+				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_CLR_FAULT:
