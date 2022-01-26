@@ -182,7 +182,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_STOP_HEATING:
 			if ((CONTROL_State == DS_InProcess) && ((CONTROL_Mode == MODE_ZTH_LONG_PULSE) || (CONTROL_Mode == MODE_GRADUATION)))
 			{
-				CONTROL_SetDeviceState(DS_InProcess, LS_Measuring);
+				CONTROL_SetDeviceState(DS_InProcess, LS_MeasurementDelay);
+				LOGIC_TimeCounterReset();
 				LOGIC_Heating(FALSE);
 			}
 			else
@@ -191,7 +192,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_UPDATE:
 			if(CONTROL_ValidationParams())
-				LOGIC_CacheVariables();
+				LOGIC_UpdateParams();
 			else
 				*UserError = ERR_CONFIGURATION_LOCKED;
 			break;
@@ -325,6 +326,7 @@ void CONTROL_CañheVariables()
 	MEASURE_VariablesPrepare();
 	//
 	LOGIC_ResetVariables();
+	REGULATOR_ResetVariables();
 }
 // ----------------------------------------
 
