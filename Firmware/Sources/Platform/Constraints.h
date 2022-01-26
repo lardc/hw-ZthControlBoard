@@ -123,10 +123,6 @@ typedef struct __TableItemConstraint
 #define	CAP_V_THRESHOLD_H_DEF		210
 #define I_THRE_FOR_CAP_V_THRE_DEF	1500
 //
-#define I_ERR_THRESHOLD_MIN			0
-#define I_ERR_THRESHOLD_MAX			100
-#define I_ERR_THRESHOLD_DEF			5
-//
 #define FLTR_ERR_THRESHOLD_MIN		0
 #define FLTR_ERR_THRESHOLD_MAX		100
 #define FLTR_ERR_THRESHOLD_DEF		5

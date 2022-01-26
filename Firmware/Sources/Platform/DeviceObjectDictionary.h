@@ -104,10 +104,9 @@
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
 #define REG_CAP_VOLTAGE_THRE_L		46	// Capacitors voltage low threshold ( in V x10)
-//
-#define REG_I_ERR_THRESHOLD			47	// Ih error threshold (% x10)
+// 47
 #define REG_FILTER_ACTIVE			48	// Enable or disable data filtering
-#define REG_FILTER_ERR_THRESHOLD	49
+#define REG_FILTER_ERR_THRESHOLD	49	// Error level to switch on filtered data (in %)
 //
 #define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
 #define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki

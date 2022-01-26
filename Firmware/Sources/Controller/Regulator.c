@@ -45,7 +45,7 @@ typedef struct __SaveDataParams
 SaveDataParams DataIm = {0}, DataIh = {0}, DataP = {0};
 RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
 _iq ActualVoltageDUT = 0;
-_iq Ih_PrevPulseValue = 0, Ih_ErrorThreshold = 0, Ih_PulseValue = 0;
+_iq Ih_PrevPulseValue = 0, Ih_PulseValue = 0;
 _iq P_TargetPulseValue = 0;
 //
 Int32U PowerSetDelay = 0;
@@ -288,12 +288,7 @@ void REGULATOR_Init(RegulatorSelector Selector)
 
 void REGULATOR_CacheVariables()
 {
-	if(DataTable[REG_DUT_TYPE])
-		PowerSetDelay = DataTable[REG_POWER_SET_DEL_IGBT];
-	else
-		PowerSetDelay = DataTable[REG_POWER_SET_DEL_BIPOLAR];
-
-	Ih_ErrorThreshold = _FPtoIQ2(DataTable[REG_I_ERR_THRESHOLD], 10);
+	PowerSetDelay = (DataTable[REG_DUT_TYPE]) ? DataTable[REG_POWER_SET_DEL_IGBT] : DataTable[REG_POWER_SET_DEL_BIPOLAR];
 }
 // ----------------------------------------
 
