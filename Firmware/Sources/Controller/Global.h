@@ -37,7 +37,6 @@
 #define TIME_CONFIG						5000	// in ms
 #define TIME_POWER_ON					15000	// in ms
 #define TIME_BATTERY_RECHARGE			5000	// in ms
-#define TIME_DELAY_MAX			(Int64U)4e9		// in us
 //
 #define I_MAX_WIDTH_2MS					2500	// in A
 #define I_MAX_WIDTH_10MS				1500	// in A
