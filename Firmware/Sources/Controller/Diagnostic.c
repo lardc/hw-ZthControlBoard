@@ -11,49 +11,45 @@
 #include "ZthSensingBoard.h"
 #include "ZthProtectionBoard.h"
 
+// Functions prototypes
+//
+void DIAG_SaveToRegisters(_iq Data);
+
 
 // Functions
 //
 Boolean DIAG_Process(Int16U Command)
 {
-	volatile _iq Temperature;
+	volatile _iq Result;
 
 	switch (Command)
 	{
 		case ACT_DBG_READ_IM:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Im(), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_Im());
 			break;
 
 		case ACT_DBG_READ_IH:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_Ih(), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_Ih());
 			break;
 
 		case ACT_DBG_READ_TSP:
-			DataTable[REG_DBG] = _IQint(_IQmpy(MEASURE_TSP(), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_TSP());
 			break;
 
 		case ACT_DBG_READ_TCASE1:
-			Temperature = MEASURE_Tcase1();
-			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
-			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_Tcase1());
 			break;
 
 		case ACT_DBG_READ_TCASE2:
-			Temperature = MEASURE_Tcase2();
-			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
-			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_Tcase2());
 			break;
 
 		case ACT_DBG_READ_TCOOL1:
-			Temperature = MEASURE_Tcool1();
-			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
-			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_Tcool1());
 			break;
 
 		case ACT_DBG_READ_TCOOL2:
-			Temperature = MEASURE_Tcool2();
-			DataTable[REG_DBG_T_WHOLE] = _IQint(Temperature);
-			DataTable[REG_DBG_T_FRACTION] = _IQint(_IQmpy(Temperature - _IQI(DataTable[REG_DBG_T_WHOLE]), _IQI(10)));
+			DIAG_SaveToRegisters(MEASURE_Tcool2());
 			break;
 
 		case ACT_DBG_READ_PROTECT_DATA:
@@ -104,5 +100,12 @@ Boolean DIAG_Process(Int16U Command)
 	}
 
 	return TRUE;
+}
+// ----------------------------------------
+
+void DIAG_SaveToRegisters(_iq Data)
+{
+	DataTable[REG_DBG_WHOLE] = _IQint(Data);
+	DataTable[REG_DBG_FRACTION] = _IQint(_IQmpy(Data - _IQI(DataTable[REG_DBG_WHOLE]), _IQI(10)));
 }
 // ----------------------------------------

@@ -169,8 +169,8 @@
 //
 #define REG_DBG						150	// Debugging register
 //
-#define REG_DBG_T_WHOLE				155	// Whole part of temperature
-#define REG_DBG_T_FRACTION			156	// Fraction part of temperature
+#define REG_DBG_WHOLE				155	// Whole part of measuring while debugging
+#define REG_DBG_FRACTION			156	// Fraction part of measuring while debugging
 //
 #define REG_DRCU_X_NUM				160	// Register number or command number for DRCUControlBoard
 #define REG_DRCU_DATA_IO			161	// Input / output DRCUControlBoard data
