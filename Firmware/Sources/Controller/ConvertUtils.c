@@ -91,7 +91,7 @@ Int16U CONVERT_ImToDAC(_iq Current)
 
 _iq CONVERT_ADCToIh(Int16U ADCData)
 {
-	return CONVERT_ADCToX(ADCData, ADC_ParamsIh, 1);
+	return CONVERT_ADCToX(ADCData, ADC_ParamsIh, 10);
 }
 // ----------------------------------------
 

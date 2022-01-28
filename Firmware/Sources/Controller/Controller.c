@@ -247,13 +247,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		default:
-			if (CONTROL_State == DS_None)
-			{
-				CONTROL_CañheVariables();
-				return DIAG_Process(ActionID);
-			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
+			CONTROL_CañheVariables();
+			return DIAG_Process(ActionID);
 	}
 
 	return TRUE;
@@ -338,15 +333,21 @@ void CONTROL_CañheVariables()
 Boolean CONTROL_ValidationParams()
 {
 	Boolean Result = TRUE;
+	Int32U Current;
 
+	// Checking the minimum pulse width
+	Current = DataTable[REG_PULSE_WIDTH_MAX_H];
+	Current = (Current << 16) | DataTable[REG_PULSE_WIDTH_MAX_L];
+	if(Current < ZTH_PULSE_MIN_WIDTH_MIN)
+		return FALSE;
+
+	// Checking special parameters for the selected mode
 	switch(DataTable[REG_MODE])
 	{
 		case MODE_ZTH_SEQ_PULSES:
-
 			break;
 
 		case MODE_ZTH_LONG_PULSE:
-
 			break;
 
 		case MODE_RTH_SEQ_PULSES:
@@ -355,7 +356,6 @@ Boolean CONTROL_ValidationParams()
 			break;
 
 		case MODE_GRADUATION:
-
 			break;
 	}
 
