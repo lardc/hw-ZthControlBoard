@@ -10,6 +10,8 @@
 #include "ZthMCurrentBoard.h"
 #include "ZthSensingBoard.h"
 #include "ZthProtectionBoard.h"
+#include "ZbGPIO.h"
+#include "ConvertUtils.h"
 
 // Functions prototypes
 //
@@ -93,6 +95,11 @@ Boolean DIAG_Process(Int16U Command)
 
 		case ACT_DBG_READ_PROTECTION:
 			DataTable[REG_DBG] = ZthPB_FaultCheck();
+			break;
+
+		case ACT_IH_SET_RANGE:
+			ZbGPIO_SB_Ih_Range(DataTable[REG_DBG]);
+			CONVERT_IhSetRangeParams(DataTable[REG_DBG]);
 			break;
 
 		default:

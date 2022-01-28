@@ -28,6 +28,7 @@
 #define ACT_DBG_LPS_CTRL			23	// Low power supply control
 #define ACT_DBG_SYNC_OSC			24	// Generate pulse for oscilloscope
 #define ACT_DBG_READ_PROTECTION		25	// Read signals states from ZthProtectionBoard
+#define ACT_IH_SET_RANGE			26	// Set Ih renge in debug mode
 //
 #define ACT_START_IM				50	// Start generating Im
 #define ACT_START_IH				51	// Start generating Ih
@@ -198,10 +199,10 @@
 #define REG_ACTUAL_P_TARGET_WHOLE	204	// Actual whole part of target power dissipation (in W)
 #define REG_ACTUAL_P_TARGET_FRACT	205	// Actual fraction part of target power dissipation (in W)
 #define REG_ACTUAL_I_MEASUREMENT	206	// Actual measurement current (in mA x10)
-#define REG_ACTUAL_T_CASE1			207	// Actual temperature of DUT case 1 (in C x100)
-#define REG_ACTUAL_T_CASE2			208	// Actual temperature of DUT case 2 (in C x100)
-#define REG_ACTUAL_T_COOL1			209	// Actual temperature of DUT cooler 1 (in C x100)
-#define REG_ACTUAL_T_COOL2			210	// Actual temperature of DUT cooler 2 (in C x100)
+#define REG_ACTUAL_T_CASE1			207	// Actual temperature of DUT case 1 (in C x10)
+#define REG_ACTUAL_T_CASE2			208	// Actual temperature of DUT case 2 (in C x10)
+#define REG_ACTUAL_T_COOL1			209	// Actual temperature of DUT cooler 1 (in C x10)
+#define REG_ACTUAL_T_COOL2			210	// Actual temperature of DUT cooler 2 (in C x10)
 #define REG_ACTUAL_TSP				211	// Actual TSP result (in mV)
 #define REG_ACTUAL_CAP_VOLTAGE		212	// Actual capacitors voltage (in V x10)
 //
