@@ -65,5 +65,6 @@ void LOGIC_GatePulse(Boolean State);
 void LOGIC_GateCurrentProcess();
 void LOGIC_TimeCounterReset();
 void LOGIC_ResetVariables();
+void LOGIC_UpdateParams();
 
 #endif // __LOGIC_H

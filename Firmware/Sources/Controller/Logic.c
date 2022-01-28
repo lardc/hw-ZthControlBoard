@@ -18,6 +18,7 @@
 #include "Controller.h"
 #include "ZthDUTControlBoard.h"
 #include "DeviceProfile.h"
+#include "Constraints.h"
 
 // Definitions
 //
@@ -58,12 +59,14 @@ void LOGIC_RegulatorProcess();
 void LOGIC_SaveHeatingData(RegulatorsData Sample);
 void LOGIC_MeasuringCurrentConfig(Int16U Current);
 void LOGIC_HeatingCurrentConfig(Int32U CuurentWidth);
-Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
-Boolean LOGIC_TimeCounterCheck(Int32U Time);
+void LOGIC_HeatingCurrentUpdate(Int32U CurrentWidth);
 void LOGIC_MeasuringProcess();
 void LOGIC_SaveData(CombinedData Sample, Boolean SaveToEndpoints);
 void LOGIC_CalculateTimeInterval(volatile Int32U *TimeInterval);
 void LOGIC_SaveToOutputRegisters();
+Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
+Boolean LOGIC_TimeCounterCheck(Int32U Time);
+Boolean LOGIC_MeasurementDelayProcess(Int32U Delay, Int32U MsrDelayCompens, LogicState NextState);
 
 
 // Functions
@@ -133,8 +136,6 @@ void LOGIC_IndependentProcesses()
 
 void LOGIC_ZthSequencePulsesProcess()
 {
-	Int32U MeasurementDelayWhole, MeasurementDelayFraction;
-
 	switch (LOGIC_State)
 		{
 		case LS_ConfigAll:
@@ -165,13 +166,13 @@ void LOGIC_ZthSequencePulsesProcess()
 			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
 
 			if(MEASURE_CapVoltage >= LOGIC_CapVoltageThreshold)
-				LOGIC_SetState(LS_Updating);
+				LOGIC_SetState(LS_StartHeating);
 			else
 				break;
 
 		case LS_Updating:
-			REGULATOR_Update(SelectIm, _IQI(LOGIC_MeasuringCurrent));
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
+			break;
+
 
 		case LS_StartHeating:
 			LOGIC_TimeCounterReset();
@@ -192,24 +193,10 @@ void LOGIC_ZthSequencePulsesProcess()
 				break;
 
 		case LS_MeasurementDelay:
-			MeasurementDelayWhole = _IQint(_FPtoIQ2(LOGIC_MeasurementDelay, 100));
-
-			if(LOGIC_TimeCounterCheck(MeasurementDelayWhole))
-			{
-				ZwTimer_StopT1();
-				//
-				MeasurementDelayFraction = LOGIC_MeasurementDelay - _IQint(_IQmpy(_IQI(MeasurementDelayWhole), _IQI(100)));
-				if(MeasurementDelayFraction)
-					DELAY_US(MeasurementDelayFraction);
-				DELAY_US(TIME_MSR_DEL_COMPENSATION);
-
-				LOGIC_SetState(LS_Measuring);
-				//
-				ZwTimer_StartT1();
-			}
-			else
+			if(!LOGIC_MeasurementDelayProcess(LOGIC_MeasurementDelay, TIME_MSR_DEL_COMPENSATION, LS_Measuring))
 				break;
 
+		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 
 			if(LOGIC_ActualPulseWidth >= LOGIC_PulseWidthMax)
@@ -235,12 +222,12 @@ void LOGIC_ZthSequencePulsesProcess()
 
 void LOGIC_ZthLongPulseProcess()
 {
-	/*static volatile Int32U CoolingTimeTemp = 0;
-
 	switch (LOGIC_State)
 	{
 		case LS_ConfigAll:
-			LOGIC_ActualDelayWidth = LOGIC_PulseWidthMax;
+			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
+			LOGIC_ActualDelayWidth = ZTH_PULSE_MIN_WIDTH_MIN;
+			LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 			//
 			LOGIC_GatePulse(TRUE);
 			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
@@ -257,6 +244,9 @@ void LOGIC_ZthLongPulseProcess()
 			break;
 
 		case LS_Heating:
+			REGULATOR_Update(SelectIm, _IQI(LOGIC_MeasuringCurrent));
+			LOGIC_HeatingCurrentUpdate(LOGIC_PulseWidthMax);
+
 			if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
 			{
 				LOGIC_Heating(FALSE);
@@ -268,69 +258,37 @@ void LOGIC_ZthLongPulseProcess()
 				break;
 
 		case LS_MeasurementDelay:
-			MeasurementDelayWhole = _IQint(_FPtoIQ2(LOGIC_MeasurementDelay, 100));
-
-			if(LOGIC_TimeCounterCheck(MeasurementDelayWhole))
-			{
-				ZwTimer_StopT1();
-				//
-				MeasurementDelayFraction = LOGIC_MeasurementDelay - _IQint(_IQmpy(_IQI(MeasurementDelayWhole), _IQI(100)));
-				if(MeasurementDelayFraction)
-					DELAY_US(MeasurementDelayFraction);
-
-				LOGIC_SetState(LS_Measuring);
-				//
-				ZwTimer_StartT1();
-			}
-			else
+			if(!LOGIC_MeasurementDelayProcess(LOGIC_MeasurementDelay, 0, LS_Measuring))
 				break;
+			else
+				LOGIC_TimeCounter = LOGIC_ActualDelayWidth;
 
 		case LS_Measuring:
 			LOGIC_MeasuringProcess();
 			LOGIC_SetState(LS_Cooling);
-			LOGIC_TimeCounter++;
-			return;
-	}
-
-	LOGIC_RegulatorProcess();
-	DEVPROFILE_ResetEPReadState();
-	LOGIC_TimeCounter++;
-
-		case LS_Measuring:
-			LOGIC_MeasuringProcess();
-
-			if(LOGIC_ActualDelayWidth >= TIME_DELAY_MAX)
-			{
-				LOGIC_SetState(LS_None);
-			}
-			else
-			{
-				CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
-				LOGIC_SetState(LS_Cooling);
-			}
-			break;
 
 		case LS_Cooling:
-			if(LOGIC_CoolingProcess(CoolingTimeTemp))
+			if(LOGIC_TimeCounterCheck(LOGIC_ActualDelayWidth))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 				LOGIC_SetState(LS_Measuring);
 			}
 			break;
 	}
-	*/
+
+	LOGIC_RegulatorProcess();
+	DEVPROFILE_ResetEPReadState();
+	LOGIC_SaveToOutputRegisters();
+	LOGIC_TimeCounter++;
 }
 // ----------------------------------------
 
 void LOGIC_RthSequenceProcess()
 {
-	Int32U MeasurementDelayWhole, MeasurementDelayFraction;
-
 	switch (LOGIC_State)
 	{
 		case LS_ConfigAll:
 			LOGIC_GatePulse(TRUE);
-			//
 			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
 			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
 			REGULATOR_Enable(SelectIm, TRUE);
@@ -349,13 +307,11 @@ void LOGIC_RthSequenceProcess()
 			DELAY_US(10);
 			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
 			if(MEASURE_CapVoltage >= LOGIC_CapVoltageThreshold)
-				LOGIC_SetState(LS_Updating);
+				LOGIC_SetState(LS_StartHeating);
 			else
 				break;
 
 		case LS_Updating:
-			REGULATOR_Update(SelectIm, _IQI(LOGIC_MeasuringCurrent));
-			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
 
 		case LS_StartHeating:
 			LOGIC_TimeCounterReset();
@@ -375,21 +331,7 @@ void LOGIC_RthSequenceProcess()
 				break;
 
 		case LS_MeasurementDelay:
-			MeasurementDelayWhole = _IQint(_FPtoIQ2(LOGIC_MeasurementDelay, 100));
-
-			if(LOGIC_TimeCounterCheck(MeasurementDelayWhole))
-			{
-				ZwTimer_StopT1();
-				//
-				MeasurementDelayFraction = LOGIC_MeasurementDelay - _IQint(_IQmpy(_IQI(MeasurementDelayWhole), _IQI(100)));
-				if(MeasurementDelayFraction)
-					DELAY_US(MeasurementDelayFraction);
-
-				LOGIC_SetState(LS_Measuring);
-				//
-				ZwTimer_StartT1();
-			}
-			else
+			if(!LOGIC_MeasurementDelayProcess(LOGIC_MeasurementDelay, 0, LS_Measuring))
 				break;
 
 		case LS_Measuring:
@@ -506,6 +448,14 @@ void LOGIC_MeasuringCurrentConfig(Int16U Current)
 
 void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 {
+	REGULATOR_Init(SelectIh);
+	REGULATOR_Init(SelectP);
+	LOGIC_HeatingCurrentUpdate(CurrentWidth);
+}
+// ----------------------------------------
+
+void LOGIC_HeatingCurrentUpdate(Int32U CurrentWidth)
+{
 	static Int16U CurrentSetpoint = 0;
 
 	if(CurrentWidth <= PULSE_WIDTH_2MS)
@@ -523,10 +473,36 @@ void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 	else
 		LOGIC_CapVoltageThreshold = DataTable[REG_CAP_VOLTAGE_THRE_L];
 
-	REGULATOR_Init(SelectIh);
-	REGULATOR_Init(SelectP);
 	LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
 	REGULATOR_Update(SelectIh, _IQI(CurrentSetpoint));
+}
+// ----------------------------------------
+
+Boolean LOGIC_MeasurementDelayProcess(Int32U Delay, Int32U MsrDelayCompens, LogicState NextState)
+{
+	Int32U MeasurementDelayWhole, MeasurementDelayFraction;
+
+	MeasurementDelayWhole = _IQint(_FPtoIQ2(Delay, 100));
+
+	if(LOGIC_TimeCounterCheck(MeasurementDelayWhole))
+	{
+		ZwTimer_StopT1();
+		//
+		MeasurementDelayFraction = Delay - _IQint(_IQmpy(_IQI(MeasurementDelayWhole), _IQI(100)));
+		if(MeasurementDelayFraction)
+			DELAY_US(MeasurementDelayFraction);
+
+		if(MsrDelayCompens)
+			DELAY_US(MsrDelayCompens);
+
+		LOGIC_SetState(NextState);
+		//
+		ZwTimer_StartT1();
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 // ----------------------------------------
 
@@ -573,7 +549,7 @@ void LOGIC_SaveData(CombinedData Sample, Boolean SaveToEndpoints)
 	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, _IQI(10)));
 	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, _IQI(10)));
 
-	if (SaveToEndpoints && ScopeLogStep++ >= DataTable[REG_SCOPE_STEP])
+	if (SaveToEndpoints && (ScopeLogStep++ >= DataTable[REG_SCOPE_STEP]))
 	{
 		ScopeLogStep = 0;
 
@@ -649,6 +625,14 @@ void LOGIC_CacheVariables()
 	LOGIC_Tmax = DataTable[REG_T_MAX] * 10;
 	LOGIC_DUTType = DataTable[REG_DUT_TYPE];
 	LOGIC_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
+}
+// ----------------------------------------
+
+void LOGIC_UpdateParams()
+{
+	LOGIC_CacheVariables();
+	REGULATOR_ResetVariables();
+	LOGIC_SetState(LS_ConfigAll);
 }
 // ----------------------------------------
 
