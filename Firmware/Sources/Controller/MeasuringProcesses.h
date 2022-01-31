@@ -22,7 +22,7 @@ typedef struct __RegulatorsData
 	_iq Ih;
 	_iq	U;
 	_iq	P;
-} RegulatorsData;
+} RegulatorsData, *pRegulatorsData;
 
 typedef struct __CombinedData
 {

@@ -17,6 +17,7 @@
 typedef struct __RegulatorSettings
 {
 	Boolean Enabled;
+	Boolean CurrentReadyFlag;
 	Int32U Counter;
 	_iq TargetValue;
 	_iq TargetValuePrev;
@@ -45,8 +46,8 @@ typedef struct __SaveDataParams
 SaveDataParams DataIm = {0}, DataIh = {0}, DataP = {0};
 RegulatorSettings RegulatorIm = {0}, RegulatorIh = {0}, RegulatorP = {0};
 _iq ActualVoltageDUT = 0;
-_iq Ih_PrevPulseValue = 0, Ih_PulseValue = 0;
 _iq P_TargetPulseValue = 0;
+_iq CurrentErrorThreshold = 0;
 //
 Int32U PowerSetDelay = 0;
 
@@ -72,7 +73,7 @@ void REGULATOR_SavePowerTarget(_iq Power);
 void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error);
 void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki);
 void REGULATOR_InitSaveData(pSaveDataParams DataParams, Int16U *OutputArray, Int16U *ErrorArray, Int16U *ArrayCounter, Int16U *ArrayLocalCounter);
-void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSettings Regulator, RegulatorsData MeasureSample);
+void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSettings Regulator, pRegulatorsData MeasureSample);
 
 // Functions
 //
@@ -153,28 +154,47 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		Regulator->Counter++;
 
 		REGULATOR_SetOutput(Selector, Regulator->Control);
-		REGULATOR_SetPowerDissapation(Selector, Regulator, MeasureSample);
 		REGULATOR_SaveData(DataParams, SampleValue, Error);
 	}
+	else
+		Regulator->Counter = 0;
+
+	REGULATOR_SetPowerDissapation(Selector, Regulator, &MeasureSample);
 }
 // ----------------------------------------
 
-void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSettings Regulator, RegulatorsData MeasureSample)
+void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSettings Regulator, pRegulatorsData MeasureSample)
 {
+	_iq Error;
+
 	if(Selector == SelectIh)
 	{
-		if((Regulator->Counter >= PowerSetDelay) && MeasureSample.P)
+		if(Regulator->Enabled)
 		{
-			if(!P_TargetPulseValue)
+			if(!Regulator->CurrentReadyFlag)
 			{
-				P_TargetPulseValue = MeasureSample.P;
-
-				REGULATOR_Update(SelectP, P_TargetPulseValue);
-				REGULATOR_SavePowerTarget(P_TargetPulseValue);
+				Error = _IQmpy(_IQdiv((Regulator->TargetValuePrev - MeasureSample->Ih), Regulator->TargetValuePrev), _IQI(100));
+				if(ABS(Error) <= CurrentErrorThreshold)
+					Regulator->CurrentReadyFlag = TRUE;
 			}
 			else
-				REGULATOR_Update(SelectP, P_TargetPulseValue);
+			{
+				if((Regulator->Counter >= PowerSetDelay) && MeasureSample->P)
+				{
+					if(!P_TargetPulseValue)
+					{
+						P_TargetPulseValue = MeasureSample->P;
+
+						REGULATOR_Update(SelectP, P_TargetPulseValue);
+						REGULATOR_SavePowerTarget(P_TargetPulseValue);
+					}
+					else
+						REGULATOR_Update(SelectP, P_TargetPulseValue);
+				}
+			}
 		}
+		else
+			Regulator->CurrentReadyFlag = FALSE;
 	}
 }
 // ----------------------------------------
@@ -182,6 +202,7 @@ void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSetting
 void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki)
 {
 	Regulator->Enabled				= FALSE;
+	Regulator->CurrentReadyFlag		= FALSE;
 	Regulator->Counter				= 0;
 	Regulator->Kp					= _FPtoIQ2(DataTable[Register_Kp], 1000);
 	Regulator->Ki 					= _FPtoIQ2(DataTable[Register_Ki], 1000);
@@ -289,6 +310,7 @@ void REGULATOR_Init(RegulatorSelector Selector)
 void REGULATOR_CacheVariables()
 {
 	PowerSetDelay = (DataTable[REG_DUT_TYPE]) ? DataTable[REG_POWER_SET_DEL_IGBT] : DataTable[REG_POWER_SET_DEL_BIPOLAR];
+	CurrentErrorThreshold = _FPtoIQ2(DataTable[REG_POWER_SET_I_ERR], 10);
 }
 // ----------------------------------------
 
@@ -303,8 +325,6 @@ void REGULATOR_DisableAll()
 	REGULATOR_Enable(SelectIm, FALSE);
 	REGULATOR_Enable(SelectIh, FALSE);
 	REGULATOR_Enable(SelectP, FALSE);
-
-	REGULATOR_ResetVariables();
 }
 // ----------------------------------------
 

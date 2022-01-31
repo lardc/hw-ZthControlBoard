@@ -211,6 +211,10 @@ typedef struct __TableItemConstraint
 #define POWER_SET_DELAY_MIN			0
 #define POWER_SET_DELAY_MAX			20
 #define POWER_SET_DELAY_DEF			10
+//
+#define POWER_SET_I_ERR_MIN			0
+#define POWER_SET_I_ERR_MAX			50
+#define POWER_SET_I_ERR_DEF			10
 
 
 // Variables

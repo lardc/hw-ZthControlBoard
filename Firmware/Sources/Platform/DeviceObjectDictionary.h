@@ -139,6 +139,7 @@
 #define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator
 #define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
 #define REG_POWER_SET_DEL_IGBT		73	// Time after starting the current to set the power dissipation reference for IGBT (in us x0.01)
+#define REG_POWER_SET_I_ERR			74	// Current error throshold to fixing power dissipation setpoint (in % x10)
 //
 #define REG_ADC_T_CASE1_K			80	// Conversion coefficient K for T x1000
 #define REG_ADC_T_CASE1_B			81	// Conversion offset for T (in C x100)

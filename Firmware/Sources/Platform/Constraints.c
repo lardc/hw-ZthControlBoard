@@ -87,7 +87,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {FALSE, TRUE, TRUE},																// 71
 											   {POWER_SET_DELAY_MIN, POWER_SET_DELAY_MAX, POWER_SET_DELAY_DEF},					// 72
 											   {POWER_SET_DELAY_MIN, POWER_SET_DELAY_MAX, POWER_SET_DELAY_DEF},					// 73
-											   {0, 0, 0},																		// 74
+											   {POWER_SET_I_ERR_MIN, POWER_SET_I_ERR_MAX, POWER_SET_I_ERR_DEF},					// 74
 											   {0, 0, 0},																		// 75
 											   {0, 0, 0},																		// 76
 											   {0, 0, 0},																		// 77
