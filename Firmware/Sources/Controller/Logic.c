@@ -170,10 +170,6 @@ void LOGIC_ZthSequencePulsesProcess()
 			else
 				break;
 
-		case LS_Updating:
-			break;
-
-
 		case LS_StartHeating:
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
@@ -310,8 +306,6 @@ void LOGIC_RthSequenceProcess()
 				LOGIC_SetState(LS_StartHeating);
 			else
 				break;
-
-		case LS_Updating:
 
 		case LS_StartHeating:
 			LOGIC_TimeCounterReset();
@@ -531,10 +525,14 @@ void LOGIC_SaveToOutputRegisters()
 
 void LOGIC_Heating(Boolean State)
 {
+	ZbGPIO_SyncOscilloscope(State);
 	ZbGPIO_OuputLock(!State);
 	//
 	REGULATOR_Enable(SelectIh, State);
 	REGULATOR_Enable(SelectP, DataTable[REG_REGULATOR_POWER_CTRL]);
+
+	if(!State)
+		REGULATOR_Update(SelectP, 0);
 }
 // ----------------------------------------
 

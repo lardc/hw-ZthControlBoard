@@ -26,8 +26,7 @@ typedef enum __LogicState
 	LS_MeasurementDelay		= 22,
 	LS_Measuring			= 23,
 	LS_Cooling				= 24,
-	LS_Updating				= 25,
-	LS_ChargeWaiting		= 26
+	LS_ChargeWaiting		= 25
 } LogicState;
 //
 
