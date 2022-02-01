@@ -174,9 +174,6 @@
 #define REG_DBG_WHOLE				155	// Whole part of measuring while debugging
 #define REG_DBG_FRACTION			156	// Fraction part of measuring while debugging
 //
-#define REG_DRCU_X_NUM				160	// Register number or command number for DRCUControlBoard
-#define REG_DRCU_DATA_IO			161	// Input / output DRCUControlBoard data
-//
 #define REG_PWD_1					180	// Unlock password location 1
 #define REG_PWD_2					181	// Unlock password location 2
 #define REG_PWD_3					182	// Unlock password location 3
