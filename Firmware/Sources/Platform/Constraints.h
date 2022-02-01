@@ -198,7 +198,7 @@ typedef struct __TableItemConstraint
 #define DELAY_MAX					1000
 #define DELAY_DEF					200
 //
-#define T_MIN						900
+#define T_MIN						300
 #define T_MAX						1000
 #define T_DEF						950
 //

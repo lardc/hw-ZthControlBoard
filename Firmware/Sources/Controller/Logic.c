@@ -29,6 +29,8 @@
 
 // Variables
 //
+Boolean CurrentGeneratedFlag = FALSE;
+//
 volatile LogicState LOGIC_State = LS_None;
 volatile Int32U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 volatile Int64U Timeout = 0;
@@ -221,7 +223,6 @@ void LOGIC_ZthLongPulseProcess()
 	switch (LOGIC_State)
 	{
 		case LS_ConfigAll:
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
 			LOGIC_ActualDelayWidth = ZTH_PULSE_MIN_WIDTH_MIN;
 			LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 			//
@@ -344,55 +345,93 @@ void LOGIC_RthSequenceProcess()
 
 void LOGIC_Graduation()
 {
-	static volatile Int32U CoolingTimeTemp = 0;
 	static Boolean HeatingProcess = FALSE;
 
 	switch (LOGIC_State)
 	{
-		case LS_None:
-			ZbGPIO_OuputLock(FALSE);
+		case LS_ConfigAll:
+			LOGIC_ActualDelayWidth = ZTH_PULSE_MIN_WIDTH_MIN;
+			//
 			LOGIC_GatePulse(TRUE);
+			LOGIC_HeatingCurrentConfig(LOGIC_PulseWidthMax);
 			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
 			REGULATOR_Enable(SelectIm, TRUE);
-			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMax;
-			LOGIC_SetState(LS_ConfigIh);
-			break;
-
-		case LS_ConfigIh:
-			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
-			HeatingProcess = TRUE;
-			LOGIC_SetState(LS_Heating);
-			break;
-
-		case LS_Heating:
-			/*if(LOGIC_HeatingProcess())
-			{
-				if((MEASURE_Tcase1() >= LOGIC_Tmax) || (MEASURE_Tcase2() >= LOGIC_Tmax))
-					LOGIC_SetState(LS_Measuring);
-				else
-					LOGIC_SetState(LS_Cooling);
-			}*/
+			//
+			LOGIC_SetState(LS_StartHeating);
 			break;
 
 		case LS_Cooling:
 			if(HeatingProcess)
 			{
-				//if(LOGIC_CoolingProcess(LOGIC_Pause))
-					LOGIC_SetState(LS_Heating);
+				if(LOGIC_TimeCounterCheck(LOGIC_Pause))
+					LOGIC_SetState(LS_ChargeWaiting);
+				else
+					break;
 			}
 			else
-				//if(LOGIC_CoolingProcess(CoolingTimeTemp))
+			{
+				if(LOGIC_TimeCounterCheck(LOGIC_ActualDelayWidth))
+				{
+					LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 					LOGIC_SetState(LS_Measuring);
+				}
+				break;
+			}
+
+
+		case LS_ChargeWaiting:
+			MEASURE_CapVoltageSamplingStart();
+			DELAY_US(10);
+			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
+			if(MEASURE_CapVoltage >= LOGIC_CapVoltageThreshold)
+				LOGIC_SetState(LS_StartHeating);
+			else
+				break;
+
+		case LS_StartHeating:
+			HeatingProcess = TRUE;
+			LOGIC_TimeCounterReset();
+			LOGIC_Heating(TRUE);
+			LOGIC_SetState(LS_Heating);
 			break;
+
+		case LS_Heating:
+			if(DataTable[REG_ACTUAL_T_CASE1] >= LOGIC_Tmax)
+			{
+				HeatingProcess = FALSE;
+				LOGIC_Heating(FALSE);
+				//
+				LOGIC_TimeCounterReset();
+				LOGIC_SetState(LS_MeasurementDelay);
+			}
+			else
+			{
+				if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
+				{
+					LOGIC_Heating(FALSE);
+					//
+					LOGIC_TimeCounterReset();
+					LOGIC_SetState(LS_MeasurementDelay);
+				}
+				else
+					break;
+			}
+
+		case LS_MeasurementDelay:
+			if(!LOGIC_MeasurementDelayProcess(LOGIC_MeasurementDelay, 0, LS_Measuring))
+				break;
 
 		case LS_Measuring:
 			LOGIC_MeasuringProcess();
-			//LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
-			//CoolingTimeTemp = LOGIC_ActualDelayWidth - LOGIC_MeasurementDelay;
-			HeatingProcess = FALSE;
 			LOGIC_SetState(LS_Cooling);
-			break;
+			LOGIC_TimeCounter++;
+			return;
 	}
+
+	LOGIC_RegulatorProcess();
+	DEVPROFILE_ResetEPReadState();
+	LOGIC_SaveToOutputRegisters();
+	LOGIC_TimeCounter++;
 }
 // ----------------------------------------
 
@@ -413,7 +452,7 @@ void LOGIC_RegulatorProcess()
 
 void LOGIC_SaveHeatingData(RegulatorsData Sample)
 {
-	DataTable[REG_ACTUAL_U_DUT]   = _IQint(_IQmpy(Sample.U, _IQI(10)));
+	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
 	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
 	DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
 	DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
@@ -533,6 +572,8 @@ void LOGIC_Heating(Boolean State)
 
 	if(!State)
 		REGULATOR_Update(SelectP, 0);
+
+	CurrentGeneratedFlag = State;
 }
 // ----------------------------------------
 
@@ -541,7 +582,11 @@ void LOGIC_SaveData(CombinedData Sample, Boolean SaveToEndpoints)
 	Int16U TSP, Tcase1, Tcase2, Tcool1, Tcool2;
 	static Int16U ScopeLogStep = 0;
 
-	TSP = _IQint(Sample.TSP);
+	if(CurrentGeneratedFlag)
+		TSP = DataTable[REG_ACTUAL_TSP];
+	else
+		TSP = _IQint(Sample.TSP);
+
 	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, _IQI(10)));
 	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, _IQI(10)));
 	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, _IQI(10)));
@@ -620,7 +665,7 @@ void LOGIC_CacheVariables()
 	LOGIC_Pause = DataTable[REG_PAUSE];
 	//
 	LOGIC_CoolingMode = DataTable[REG_COOLING_MODE];
-	LOGIC_Tmax = DataTable[REG_T_MAX] * 10;
+	LOGIC_Tmax = DataTable[REG_T_MAX];
 	LOGIC_DUTType = DataTable[REG_DUT_TYPE];
 	LOGIC_MeasuringCurrent = DataTable[REG_MEASURING_CURRENT];
 }
