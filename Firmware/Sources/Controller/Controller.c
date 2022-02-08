@@ -157,7 +157,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(CONTROL_ValidationParams())
 				{
 					CONTROL_CañheVariables();
-					CONTROL_ResetOutputRegisters();
+					DEVPROFILE_ResetScopes(0);
+					DEVPROFILE_ResetEPReadState();
 					CONTROL_ModeSelect();
 					CONTROL_SetDeviceState(DS_InProcess, LS_ConfigAll);
 				}
@@ -218,7 +219,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Ready)
 			{
 				CONTROL_CañheVariables();
-				CONTROL_ResetOutputRegisters();
+				DEVPROFILE_ResetScopes(0);
+				DEVPROFILE_ResetEPReadState();
 				CONTROL_ModeSelect();
 				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIm);
 			}
@@ -228,7 +230,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_Ready)
 			{
 				CONTROL_CañheVariables();
-				CONTROL_ResetOutputRegisters();
+				DEVPROFILE_ResetScopes(0);
+				DEVPROFILE_ResetEPReadState();
 				CONTROL_ModeSelect();
 				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIh);
 			}
@@ -240,7 +243,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Ready)
 			{
 				CONTROL_CañheVariables();
-				CONTROL_ResetOutputRegisters();
 				CONTROL_ModeSelect();
 				CONTROL_SetDeviceState(DS_InProcess, LS_ConfigIg);
 			}
@@ -370,6 +372,7 @@ void CONTROL_StopProcess(Int16U OpResult)
 	REGULATOR_ForceOutputsToZero();
 	LOGIC_GatePulse(FALSE);
 	CONTROL_SubcribeToCycle(NULL);
+	CONTROL_ResetOutputRegisters();
 
 	DataTable[REG_OP_RESULT] = OpResult;
 }
@@ -379,6 +382,8 @@ void CONTROL_ForceStopProcess()
 {
 	CONTROL_StopProcess(OPRESULT_FAIL);
 	CONTROL_ResetOutputRegisters();
+	DEVPROFILE_ResetScopes(0);
+	DEVPROFILE_ResetEPReadState();
 }
 // ----------------------------------------
 
@@ -427,9 +432,6 @@ void CONTROL_ResetOutputRegisters()
 	DataTable[REG_ACTUAL_T_COOL1] = 0;
 	DataTable[REG_ACTUAL_T_COOL2] = 0;
 	DataTable[REG_ACTUAL_TSP] = 0;
-
-	DEVPROFILE_ResetScopes(0);
-	DEVPROFILE_ResetEPReadState();
 }
 // ----------------------------------------
 

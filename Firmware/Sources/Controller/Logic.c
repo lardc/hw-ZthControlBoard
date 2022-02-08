@@ -422,7 +422,7 @@ void LOGIC_Graduation()
 				break;
 
 		case LS_Measuring:
-			LOGIC_MeasuringProcess();
+			(HeatingProcess) ? LOGIC_SaveToOutputRegisters() : LOGIC_MeasuringProcess();
 			LOGIC_SetState(LS_Cooling);
 			LOGIC_TimeCounter++;
 			return;
