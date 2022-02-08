@@ -42,8 +42,14 @@
 #define I_MAX_WIDTH_10MS				1500	// in A
 #define I_MAX_WIDTH_DC					1000	// in A
 //
-#define PULSE_WIDTH_10MS				100		// in us x0.01
-#define PULSE_WIDTH_2MS					20		// in us x0.01
+#define TIME_10MS						100		// in us x0.01
+#define TIME_2MS						20		// in us x0.01
+#define TIME_1MS						10		// in us x0.01
+//
+#define ZTH_MOSFET_QUANTITY				40		//
+#define POWER_LINE_DROP_VOLTAGE			2		// in V
+#define MAX_JUNCTION_TEMPERATURE		150		// in C
+#define MAX_CASE_TEMPERATURE			30		// in C
 //--------------------------------------------------------
 
 // Regulator parameters

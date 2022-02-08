@@ -26,10 +26,41 @@
 //
 #define TIME_PULSE_WIDTH_COMPENSATION		25
 #define TIME_MSR_DEL_COMPENSATION			25
+//
+#define LOGIC_ARRAY_SIZE_ZTH				11
+#define LOGIC_ARRAY_SIZE_TIME				9
 
 // Variables
 //
+_iq LOGIC_ZthArray_1ms[LOGIC_ARRAY_SIZE_TIME][LOGIC_ARRAY_SIZE_ZTH] =
+{
+		{0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.10, 0.20, 0.20, 0.20, 0.5},	// 100us
+		{0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.10, 0.20, 0.20, 0.5},	// 200us
+		{0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.20, 0.5},	// 300us
+		{0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.20, 0.5},	// 400us
+		{0.01, 0.01, 0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.10, 0.20, 0.5},	// 500us
+		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.5},	// 600us
+		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.5},	// 700us
+		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.20, 0.5},	// 800us
+		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.20, 0.5},	// 900us
+};
+//
+_iq LOGIC_ZthArray_10ms[LOGIC_ARRAY_SIZE_TIME][LOGIC_ARRAY_SIZE_ZTH] =
+{
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.20, 0.5},	// 1ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.5},	// 2ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.2},	// 3ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 4ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 5ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 6ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 7ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 8ms
+		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 9ms
+};
+//
 Boolean CurrentGeneratedFlag = FALSE;
+//
+static Int16U HeatingCurrentSetpoint = 0;
 //
 volatile LogicState LOGIC_State = LS_None;
 volatile Int32U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
@@ -69,7 +100,7 @@ void LOGIC_SaveToOutputRegisters();
 Boolean LOGIC_BatteryVoltageControl(Int64U Timeout);
 Boolean LOGIC_TimeCounterCheck(Int32U Time);
 Boolean LOGIC_MeasurementDelayProcess(Int32U Delay, Int32U MsrDelayCompens, LogicState NextState);
-
+Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth);
 
 // Functions
 //
@@ -138,11 +169,13 @@ void LOGIC_IndependentProcesses()
 
 void LOGIC_ZthSequencePulsesProcess()
 {
+	static Int32U MosfetProtectivePause;
 	switch (LOGIC_State)
 		{
 		case LS_ConfigAll:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
 			LOGIC_ActualDelayWidth = LOGIC_ActualPulseWidth * LOGIC_ZthPause / 100;
+			MosfetProtectivePause = LOGIC_CalculatePostPulseDelay(LOGIC_ActualPulseWidth);
 			//
 			LOGIC_GatePulse(TRUE);
 			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
@@ -153,9 +186,10 @@ void LOGIC_ZthSequencePulsesProcess()
 			break;
 
 		case LS_Cooling:
-			if(LOGIC_TimeCounterCheck(LOGIC_ActualDelayWidth))
+			if(LOGIC_TimeCounterCheck(MosfetProtectivePause) && LOGIC_TimeCounterCheck(LOGIC_ActualDelayWidth))
 			{
 				LOGIC_CalculateTimeInterval(&LOGIC_ActualPulseWidth);
+				MosfetProtectivePause = LOGIC_CalculatePostPulseDelay(LOGIC_ActualPulseWidth);
 				LOGIC_ActualDelayWidth = LOGIC_ActualPulseWidth * LOGIC_ZthPause / 100;
 				LOGIC_SetState(LS_ChargeWaiting);
 			}
@@ -450,6 +484,36 @@ void LOGIC_RegulatorProcess()
 }
 // ----------------------------------------
 
+Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth)
+{
+	_iq CurrentPerMosfet, MosfetPower, MosfetVds, D;
+	Int16U Zth;
+
+	if(ActualCurrentWidth < TIME_10MS)
+	{
+		MosfetVds = _FPtoIQ2(MEASURE_CapVoltage, 10) - POWER_LINE_DROP_VOLTAGE;
+		CurrentPerMosfet = _FPtoIQ2(HeatingCurrentSetpoint, ZTH_MOSFET_QUANTITY);
+		MosfetPower = _IQmpy(CurrentPerMosfet, MosfetVds);
+		Zth = _IQint(_IQmpy(_FPtoIQ2((MAX_JUNCTION_TEMPERATURE - MAX_CASE_TEMPERATURE), MosfetPower),_IQI(100)));
+
+		if(Zth > LOGIC_ARRAY_SIZE_ZTH)
+			Zth = LOGIC_ARRAY_SIZE_ZTH;
+
+		if(ActualCurrentWidth < TIME_1MS)
+			D = LOGIC_ZthArray_1ms[ActualCurrentWidth - 1][Zth - 1];
+		else
+		{
+			Int32U CurrentWidthTemp = ActualCurrentWidth / 10;
+			D = LOGIC_ZthArray_10ms[CurrentWidthTemp - 1][Zth - 1];
+		}
+
+		return (_IQint(_FPtoIQ2(ActualCurrentWidth, D)) - ActualCurrentWidth);
+	}
+	else
+		return 0;
+}
+// ----------------------------------------
+
 void LOGIC_SaveHeatingData(RegulatorsData Sample)
 {
 	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
@@ -489,25 +553,23 @@ void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 
 void LOGIC_HeatingCurrentUpdate(Int32U CurrentWidth)
 {
-	static Int16U CurrentSetpoint = 0;
-
-	if(CurrentWidth <= PULSE_WIDTH_2MS)
-		CurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
+	if(CurrentWidth <= TIME_2MS)
+		HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
 	else
 	{
-		if(CurrentWidth > PULSE_WIDTH_10MS)
-			CurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
+		if(CurrentWidth > TIME_10MS)
+			HeatingCurrentSetpoint = LOGIC_CurrentWidthAbove_10ms;
 		else
-			CurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
+			HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
 	}
 
-	if(CurrentSetpoint >= DataTable[REG_I_THRE_SET_CAP_V_THRE])
+	if(HeatingCurrentSetpoint >= DataTable[REG_I_THRE_SET_CAP_V_THRE])
 		LOGIC_CapVoltageThreshold = DataTable[REG_CAP_VOLTAGE_THRE_H];
 	else
 		LOGIC_CapVoltageThreshold = DataTable[REG_CAP_VOLTAGE_THRE_L];
 
-	LOGIC_HeatingCurrentSetRange(CurrentSetpoint);
-	REGULATOR_Update(SelectIh, _IQI(CurrentSetpoint));
+	LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
+	REGULATOR_Update(SelectIh, _IQI(HeatingCurrentSetpoint));
 }
 // ----------------------------------------
 
