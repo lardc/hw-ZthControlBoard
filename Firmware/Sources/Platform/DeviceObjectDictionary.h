@@ -86,21 +86,21 @@
 #define REG_ADC_TSP_K				28	// Conversion coefficient K for TSP x1000
 #define REG_ADC_TSP_B				29	// Conversion offset for TSP (in mV)
 // 30 - 31
-#define REG_ADC_T_CASE1_P2			32	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
-#define REG_ADC_T_CASE1_P1			33	// Fine coefficient for Tcase1 quadratic correction P1 x1000
-#define REG_ADC_T_CASE1_P0			34	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
+#define REG_ADC_T_CASE1_S1_P2		32	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE1_S1_P1		33	// Fine coefficient for Tcase1 quadratic correction P1 x1000
+#define REG_ADC_T_CASE1_S1_P0		34	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
 //
-#define REG_ADC_T_CASE2_P2			35	// Fine coefficient for Tcase2 quadratic correction P2 x1e6
-#define REG_ADC_T_CASE2_P1			36	// Fine coefficient for Tcase2 quadratic correction P1 x1000
-#define REG_ADC_T_CASE2_P0			37	// Fine coefficient for Tcase2 quadratic correction P0 (in T x100)
+#define REG_ADC_T_CASE2_S1_P2		35	// Fine coefficient for Tcase2 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE2_S1_P1		36	// Fine coefficient for Tcase2 quadratic correction P1 x1000
+#define REG_ADC_T_CASE2_S1_P0		37	// Fine coefficient for Tcase2 quadratic correction P0 (in T x100)
 //
-#define REG_ADC_T_COOL1_P2			38	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
-#define REG_ADC_T_COOL1_P1			39	// Fine coefficient for Tcool1 quadratic correction P1 x1000
-#define REG_ADC_T_COOL1_P0			40	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
+#define REG_ADC_T_COOL1_S1_P2		38	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL1_S1_P1		39	// Fine coefficient for Tcool1 quadratic correction P1 x1000
+#define REG_ADC_T_COOL1_S1_P0		40	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
 //
-#define REG_ADC_T_COOL2_P2			41	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
-#define REG_ADC_T_COOL2_P1			42	// Fine coefficient for Tcool2 quadratic correction P1 x1000
-#define REG_ADC_T_COOL2_P0			43	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
+#define REG_ADC_T_COOL2_S1_P2		41	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL2_S1_P1		42	// Fine coefficient for Tcool2 quadratic correction P1 x1000
+#define REG_ADC_T_COOL2_S1_P0		43	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
 //
 #define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
@@ -151,6 +151,14 @@
 #define REG_ADC_T_COOL2_B			87	// Conversion offset for T (in C x100)
 //
 #define REG_ADC_T_K_DIV				88	// REG_ADC_Tx_K divider
+//
+#define REG_ADC_T_CASE_S2_P2		90	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE_S2_P1		91	// Fine coefficient for Tcase1 quadratic correction P1 x1000
+#define REG_ADC_T_CASE_S2_P0		92	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
+//
+#define REG_ADC_T_COOL_S2_P2		93	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL_S2_P1		94	// Fine coefficient for Tcool1 quadratic correction P1 x1000
+#define REG_ADC_T_COOL_S2_P0		95	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)

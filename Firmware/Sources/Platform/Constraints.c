@@ -103,12 +103,12 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {ADC_T_B_MIN, ADC_T_B_MAX, ADC_T_COOL2_B_DEF},									// 87
 											   {ADC_T_K_DIV_MIN, ADC_T_K_DIV_MAX, ADC_T_K_DIV_DEF},								// 88
 											   {0, 0, 0},																		// 89
-											   {0, 0, 0},																		// 90
-											   {0, 0, 0},																		// 91
-											   {0, 0, 0},																		// 92
-											   {0, 0, 0},																		// 93
-											   {0, 0, 0},																		// 94
-											   {0, 0, 0},																		// 95
+											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 90
+											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 91
+											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 92
+											   {COEF_P2_MIN, COEF_P2_MAX, COEF_P2_DEF},											// 93
+											   {COEF_P1_MIN, COEF_P1_MAX, COEF_P1_DEF},											// 94
+											   {COEF_P0_MIN, COEF_P0_MAX, COEF_P0_DEF},											// 95
 											   {0, 0, 0},																		// 96
 											   {0, 0, 0},																		// 97
 											   {0, 0, 0},																		// 98
