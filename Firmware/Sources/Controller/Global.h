@@ -47,7 +47,7 @@
 #define TIME_1MS						10		// in us x0.01
 //
 #define ZTH_MOSFET_QUANTITY				40		//
-#define POWER_LINE_DROP_VOLTAGE			2		// in V
+#define POWER_LINE_DROP_VOLTAGE			20		// in V x10
 #define MAX_JUNCTION_TEMPERATURE		150		// in C
 #define MAX_CASE_TEMPERATURE			30		// in C
 //--------------------------------------------------------

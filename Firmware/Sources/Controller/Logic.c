@@ -24,38 +24,41 @@
 //
 #define DATA_LOG_STEP						100
 //
-#define TIME_PULSE_WIDTH_COMPENSATION		25
-#define TIME_MSR_DEL_COMPENSATION			25
+#define TIME_PULSE_WIDTH_COMPENSATION		25		// in us
+#define TIME_MSR_DEL_COMPENSATION			25		// in us
 //
 #define LOGIC_ARRAY_SIZE_ZTH				11
 #define LOGIC_ARRAY_SIZE_TIME				9
+//
+#define ZTH_02								20		// Zth value x100
+#define ZTH_01								10		// Zth value x100
 
 // Variables
 //
 _iq LOGIC_ZthArray_1ms[LOGIC_ARRAY_SIZE_TIME][LOGIC_ARRAY_SIZE_ZTH] =
 {
-		{0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.10, 0.20, 0.20, 0.20, 0.5},	// 100us
-		{0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.10, 0.20, 0.20, 0.5},	// 200us
-		{0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.20, 0.5},	// 300us
-		{0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.20, 0.5},	// 400us
-		{0.01, 0.01, 0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.10, 0.20, 0.5},	// 500us
-		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.5},	// 600us
-		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.10, 0.20, 0.5},	// 700us
-		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.20, 0.5},	// 800us
-		{0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.05, 0.10, 0.10, 0.20, 0.5},	// 900us
+		{_IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.20f), _IQ(0.20f), _IQ(0.5f)},	// 100us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.20f), _IQ(0.5f)},	// 200us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.20f), _IQ(0.5f)},	// 300us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.20f), _IQ(0.5f)},	// 400us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.5f)},	// 500us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.5f)},	// 600us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.5f)},	// 700us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.5f)},	// 800us
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.5f)},	// 900us
 };
 //
 _iq LOGIC_ZthArray_10ms[LOGIC_ARRAY_SIZE_TIME][LOGIC_ARRAY_SIZE_ZTH] =
 {
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.10, 0.20, 0.5},	// 1ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.10, 0.5},	// 2ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.05, 0.2},	// 3ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 4ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 5ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 6ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 7ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 8ms
-		{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2},	// 9ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.10f), _IQ(0.20f), _IQ(0.5f)},	// 1ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.10f), _IQ(0.2f)},	// 2ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.02f), _IQ(0.05f), _IQ(0.2f)},	// 3ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.2f)},	// 4ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.2f)},	// 5ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.2f)},	// 6ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.2f)},	// 7ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.2f)},	// 8ms
+		{_IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.01f), _IQ(0.2f)},	// 9ms
 };
 //
 Boolean CurrentGeneratedFlag = FALSE;
@@ -175,10 +178,10 @@ void LOGIC_ZthSequencePulsesProcess()
 		case LS_ConfigAll:
 			LOGIC_ActualPulseWidth = LOGIC_PulseWidthMin;
 			LOGIC_ActualDelayWidth = LOGIC_ActualPulseWidth * LOGIC_ZthPause / 100;
-			MosfetProtectivePause = LOGIC_CalculatePostPulseDelay(LOGIC_ActualPulseWidth);
 			//
 			LOGIC_GatePulse(TRUE);
 			LOGIC_HeatingCurrentConfig(LOGIC_ActualPulseWidth);
+			MosfetProtectivePause = LOGIC_CalculatePostPulseDelay(LOGIC_ActualPulseWidth);
 			LOGIC_MeasuringCurrentConfig(LOGIC_MeasuringCurrent);
 			REGULATOR_Enable(SelectIm, TRUE);
 			//
@@ -207,6 +210,7 @@ void LOGIC_ZthSequencePulsesProcess()
 				break;
 
 		case LS_StartHeating:
+			LOGIC_HeatingCurrentUpdate(LOGIC_ActualPulseWidth);
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
@@ -487,17 +491,23 @@ void LOGIC_RegulatorProcess()
 Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth)
 {
 	_iq CurrentPerMosfet, MosfetPower, MosfetVds, D;
-	Int16U Zth;
+	Int16U Zth, Pause = 0;
 
 	if(ActualCurrentWidth < TIME_10MS)
 	{
-		MosfetVds = _FPtoIQ2(MEASURE_CapVoltage, 10) - POWER_LINE_DROP_VOLTAGE;
+		MEASURE_CapVoltage = 240;
+		MosfetVds = _FPtoIQ2((MEASURE_CapVoltage - POWER_LINE_DROP_VOLTAGE), 10);
 		CurrentPerMosfet = _FPtoIQ2(HeatingCurrentSetpoint, ZTH_MOSFET_QUANTITY);
 		MosfetPower = _IQmpy(CurrentPerMosfet, MosfetVds);
-		Zth = _IQint(_IQmpy(_FPtoIQ2((MAX_JUNCTION_TEMPERATURE - MAX_CASE_TEMPERATURE), MosfetPower),_IQI(100)));
+		Zth = _IQint(_IQmpy(_IQdiv(_IQI(MAX_JUNCTION_TEMPERATURE - MAX_CASE_TEMPERATURE), MosfetPower),_IQI(100)));
 
-		if(Zth > LOGIC_ARRAY_SIZE_ZTH)
+		if(Zth >= ZTH_02)
 			Zth = LOGIC_ARRAY_SIZE_ZTH;
+		else
+		{
+			if(Zth > ZTH_01)
+				Zth = ZTH_01;
+		}
 
 		if(ActualCurrentWidth < TIME_1MS)
 			D = LOGIC_ZthArray_1ms[ActualCurrentWidth - 1][Zth - 1];
@@ -507,10 +517,10 @@ Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth)
 			D = LOGIC_ZthArray_10ms[CurrentWidthTemp - 1][Zth - 1];
 		}
 
-		return (_IQint(_FPtoIQ2(ActualCurrentWidth, D)) - ActualCurrentWidth);
+		Pause = _IQint(_IQdiv(_IQI(ActualCurrentWidth), D)) - ActualCurrentWidth;
 	}
-	else
-		return 0;
+
+	return Pause;
 }
 // ----------------------------------------
 
