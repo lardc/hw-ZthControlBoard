@@ -51,114 +51,112 @@
 
 // REGISTERS
 //
-#define REG_DAC_IG_P2				0	// Fine coefficient for Ig quadratic correction P2 x1e6
-#define REG_DAC_IG_P1				1	// Fine coefficient for Ig quadratic correction P1 x1000
-#define REG_DAC_IG_P0				2	// Fine coefficient for Ig quadratic correction P0 (in mA)
-#define REG_DAC_IG_K				3	// Conversion coefficient K for Ig x1000
-#define REG_DAC_IG_B				4	// Conversion offset for Ig (in mA)
-// 5 - 6
-#define REG_DAC_IM_K				7	// Conversion coefficient K for Im x1000
-#define REG_DAC_IM_B				8	// Conversion offset for Im (in mA)
+#define REG_DAC_IH_R0_P2			0	// Conversion coefficient P2 for Ih range 0 x1e6
+#define REG_DAC_IH_R0_P1			1	// Conversion coefficient P1 for Ih range 0 x1000
+#define REG_DAC_IH_R0_P0			2	// Offset P0 for Ih range 0
+#define REG_DAC_IH_R0_K				3	// Conversion coefficient K for Ih range 0 x1000
+#define REG_DAC_IH_R0_B				4	// Conversion offset for Ih (in A) range 0
 //
-#define REG_IH_RANGE_THRESHOLD		9	// Heating current range threshold (in A)
+#define REG_DAC_IH_R1_P2			5	// Conversion coefficient P2 for Ih range 0 x1e6
+#define REG_DAC_IH_R1_P1			6	// Conversion coefficient P1 for Ih range 0 x1000
+#define REG_DAC_IH_R1_P0			7	// Offset P0 for Ih range 0
+#define REG_DAC_IH_R1_K				8	// Conversion coefficient K for Ih range 1 x1000
+#define REG_DAC_IH_R1_B				9	// Conversion offset for Ih (in A) range 1
 //
-#define REG_ADC_IH_R0_P2			10	// Fine coefficient for Ih quadratic correction P2 x1e6
-#define REG_ADC_IH_R0_P1			11	// Fine coefficient for Ih quadratic correction P1 x1000
-#define REG_ADC_IH_R0_P0			12	// Fine coefficient for Ih quadratic correction P0 (in A)
-#define REG_ADC_IH_R0_K				13	// Conversion coefficient K for Ih x1000
-#define REG_ADC_IH_R0_B				14	// Conversion offset for Ih (in A)
+#define REG_DAC_IG_P2				10	// Fine coefficient for Ig quadratic correction P2 x1e6
+#define REG_DAC_IG_P1				11	// Fine coefficient for Ig quadratic correction P1 x1000
+#define REG_DAC_IG_P0				12	// Fine coefficient for Ig quadratic correction P0 (in mA)
+#define REG_DAC_IG_K				13	// Conversion coefficient K for Ig x1000
+#define REG_DAC_IG_B				14	// Conversion offset for Ig (in mA)
 //
-#define REG_ADC_IH_R1_P2			15	// Fine coefficient for Ih quadratic correction P2 x1e6
-#define REG_ADC_IH_R1_P1			16	// Fine coefficient for Ih quadratic correction P1 x1000
-#define REG_ADC_IH_R1_P0			17	// Fine coefficient for Ih quadratic correction P0 (in A)
-#define REG_ADC_IH_R1_K				18	// Conversion coefficient K for Ih x1000
-#define REG_ADC_IH_R1_B				19	// Conversion offset for Ih (in A)
+#define REG_DAC_IM_K				15	// Conversion coefficient K for Im x1000
+#define REG_DAC_IM_B				16	// Conversion offset for Im (in mA)
 //
-#define REG_ADC_IM_P2				20	// Fine coefficient for Im quadratic correction P2 x1e6
-#define REG_ADC_IM_P1				21	// Fine coefficient for Im quadratic correction P1 x1000
-#define REG_ADC_IM_P0				22	// Fine coefficient for Im quadratic correction P0 (in mA)
-#define REG_ADC_IM_K				23	// Conversion coefficient K for Im x1000
-#define REG_ADC_IM_B				24	// Conversion offset for Im (in mA x100)
+#define REG_ADC_IH_R0_P2			17	// Fine coefficient for Ih quadratic correction P2 x1e6
+#define REG_ADC_IH_R0_P1			18	// Fine coefficient for Ih quadratic correction P1 x1000
+#define REG_ADC_IH_R0_P0			19	// Fine coefficient for Ih quadratic correction P0 (in A)
+#define REG_ADC_IH_R0_K				20	// Conversion coefficient K for Ih x1000
+#define REG_ADC_IH_R0_B				21	// Conversion offset for Ih (in A)
 //
-#define REG_ADC_TSP_P2				25	// Fine coefficient for TSP quadratic correction P2 x1e6
-#define REG_ADC_TSP_P1				26	// Fine coefficient for TSP quadratic correction P1 x1000
-#define REG_ADC_TSP_P0				27	// Fine coefficient for TSP quadratic correction P0 (in mV)
-#define REG_ADC_TSP_K				28	// Conversion coefficient K for TSP x1000
-#define REG_ADC_TSP_B				29	// Conversion offset for TSP (in mV)
-// 30 - 31
-#define REG_ADC_T_CASE1_S1_P2		32	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
-#define REG_ADC_T_CASE1_S1_P1		33	// Fine coefficient for Tcase1 quadratic correction P1 x1000
-#define REG_ADC_T_CASE1_S1_P0		34	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
+#define REG_ADC_IH_R1_P2			22	// Fine coefficient for Ih quadratic correction P2 x1e6
+#define REG_ADC_IH_R1_P1			23	// Fine coefficient for Ih quadratic correction P1 x1000
+#define REG_ADC_IH_R1_P0			24	// Fine coefficient for Ih quadratic correction P0 (in A)
+#define REG_ADC_IH_R1_K				25	// Conversion coefficient K for Ih x1000
+#define REG_ADC_IH_R1_B				26	// Conversion offset for Ih (in A)
 //
-#define REG_ADC_T_CASE2_S1_P2		35	// Fine coefficient for Tcase2 quadratic correction P2 x1e6
-#define REG_ADC_T_CASE2_S1_P1		36	// Fine coefficient for Tcase2 quadratic correction P1 x1000
-#define REG_ADC_T_CASE2_S1_P0		37	// Fine coefficient for Tcase2 quadratic correction P0 (in T x100)
+#define REG_ADC_IM_P2				27	// Fine coefficient for Im quadratic correction P2 x1e6
+#define REG_ADC_IM_P1				28	// Fine coefficient for Im quadratic correction P1 x1000
+#define REG_ADC_IM_P0				29	// Fine coefficient for Im quadratic correction P0 (in mA)
+#define REG_ADC_IM_K				30	// Conversion coefficient K for Im x1000
+#define REG_ADC_IM_B				31	// Conversion offset for Im (in mA x100)
 //
-#define REG_ADC_T_COOL1_S1_P2		38	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
-#define REG_ADC_T_COOL1_S1_P1		39	// Fine coefficient for Tcool1 quadratic correction P1 x1000
-#define REG_ADC_T_COOL1_S1_P0		40	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
+#define REG_ADC_TSP_P2				32	// Fine coefficient for TSP quadratic correction P2 x1e6
+#define REG_ADC_TSP_P1				33	// Fine coefficient for TSP quadratic correction P1 x1000
+#define REG_ADC_TSP_P0				34	// Fine coefficient for TSP quadratic correction P0 (in mV)
+#define REG_ADC_TSP_K				35	// Conversion coefficient K for TSP x1000
+#define REG_ADC_TSP_B				36	// Conversion offset for TSP (in mV)
 //
-#define REG_ADC_T_COOL2_S1_P2		41	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
-#define REG_ADC_T_COOL2_S1_P1		42	// Fine coefficient for Tcool2 quadratic correction P1 x1000
-#define REG_ADC_T_COOL2_S1_P0		43	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
+#define REG_ADC_T_CASE1_S1_P2		37	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE1_S1_P1		38	// Fine coefficient for Tcase1 quadratic correction P1 x1000
+#define REG_ADC_T_CASE1_S1_P0		39	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
+#define REG_ADC_T_CASE1_K			40	// Conversion coefficient K for T x1000
+#define REG_ADC_T_CASE1_B			41	// Conversion offset for T (in C x100)
 //
-#define REG_CAP_VOLTAGE_K_N			44	// Capasitors voltage coefficient (N)
-#define REG_CAP_VOLTAGE_K_D			45	// Capasitors voltage coefficient (D)
-#define REG_CAP_VOLTAGE_THRE_L		46	// Capacitors voltage low threshold ( in V x10)
-// 47
-#define REG_FILTER_ACTIVE			48	// Enable or disable data filtering
-#define REG_FILTER_ERR_THRESHOLD	49	// Error level to switch on filtered data (in %)
+#define REG_ADC_T_CASE2_S1_P2		42	// Fine coefficient for Tcase2 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE2_S1_P1		43	// Fine coefficient for Tcase2 quadratic correction P1 x1000
+#define REG_ADC_T_CASE2_S1_P0		44	// Fine coefficient for Tcase2 quadratic correction P0 (in T x100)
+#define REG_ADC_T_CASE2_K			45	// Conversion coefficient K for T x1000
+#define REG_ADC_T_CASE2_B			46	// Conversion offset for T (in C x100)
 //
-#define REG_PI_CTRL_IM_Kp			50	// Measurement current PI Kp x1000
-#define REG_PI_CTRL_IM_Ki			51	// Measurement current PI Ki
-#define REG_PI_CTRL_IH_Kp			52	// Heating current PI Kp x1000
-#define REG_PI_CTRL_IH_Ki			53	// Heating current PI Ki
-#define REG_PI_CTRL_P_Kp			54	// Heating current PI Kp x1000
-#define REG_PI_CTRL_P_Ki			55	// Heating current PI Ki
+#define REG_ADC_T_CASE_S2_P2		47	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
+#define REG_ADC_T_CASE_S2_P1		48	// Fine coefficient for Tcase1 quadratic correction P1 x1000
+#define REG_ADC_T_CASE_S2_P0		49	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
 //
-#define REG_DAC_IH_R0_K				56	// Conversion coefficient K for Ih range 0 x1000
-#define REG_DAC_IH_R0_B				57	// Conversion offset for Ih (in A) range 0
-#define REG_DAC_IH_R1_K				58	// Conversion coefficient K for Ih range 1 x1000
-#define REG_DAC_IH_R1_B				59	// Conversion offset for Ih (in A) range 1
+#define REG_ADC_T_COOL1_S1_P2		50	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL1_S1_P1		51	// Fine coefficient for Tcool1 quadratic correction P1 x1000
+#define REG_ADC_T_COOL1_S1_P0		52	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
+#define REG_ADC_T_COOL1_K			53	// Conversion coefficient K for T x1000
+#define REG_ADC_T_COOL1_B			54	// Conversion offset for T (in C x100)
 //
-#define REG_DAC_IH_R0_P2			60	// Conversion coefficient P2 for Ih range 0 x1e6
-#define REG_DAC_IH_R0_P1			61	// Conversion coefficient P1 for Ih range 0 x1000
-#define REG_DAC_IH_R0_P0			62	// Offset P0 for Ih range 0
+#define REG_ADC_T_COOL2_S1_P2		55	// Fine coefficient for Tcool2 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL2_S1_P1		56	// Fine coefficient for Tcool2 quadratic correction P1 x1000
+#define REG_ADC_T_COOL2_S1_P0		57	// Fine coefficient for Tcool2 quadratic correction P0 (in T x100)
+#define REG_ADC_T_COOL2_K			58	// Conversion coefficient K for T x1000
+#define REG_ADC_T_COOL2_B			59	// Conversion offset for T (in C x100)
 //
-#define REG_DAC_IH_R1_P2			63	// Conversion coefficient P2 for Ih range 0 x1e6
-#define REG_DAC_IH_R1_P1			64	// Conversion coefficient P1 for Ih range 0 x1000
-#define REG_DAC_IH_R1_P0			65	// Offset P0 for Ih range 0
+#define REG_ADC_T_COOL_S2_P2		60	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
+#define REG_ADC_T_COOL_S2_P1		61	// Fine coefficient for Tcool1 quadratic correction P1 x1000
+#define REG_ADC_T_COOL_S2_P0		62	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
 //
-#define REG_MUTE_PROTECTION			66	// Ignore protection
-#define REG_SCOPE_STEP				67	// Scope step
+#define REG_ADC_T_K_DIV				63	// REG_ADC_Tx_K divider
 //
-#define REG_CAP_VOLTAGE_THRE_H		68	// Capacitors voltage high threshold ( in V x10)
-#define REG_I_THRE_SET_CAP_V_THRE	69	// Current thresholt for changing capacitors voltage threshold (in A)
+#define REG_CAP_VOLTAGE_K_N			64	// Capasitors voltage coefficient (N)
+#define REG_CAP_VOLTAGE_K_D			65	// Capasitors voltage coefficient (D)
 //
-#define REG_REGULATOR_SKIP_CYCLE	70	// Number of skip regulator cycle
-#define REG_REGULATOR_POWER_CTRL	71	// Enable or disable of power regulator
-#define REG_POWER_SET_DEL_BIPOLAR	72	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
-#define REG_POWER_SET_DEL_IGBT		73	// Time after starting the current to set the power dissipation reference for IGBT (in us x0.01)
-#define REG_POWER_SET_I_ERR			74	// Current error throshold to fixing power dissipation setpoint (in % x10)
+#define REG_CAP_VOLTAGE_THRE_H		66	// Capacitors voltage high threshold ( in V x10)
+#define REG_CAP_VOLTAGE_THRE_L		67	// Capacitors voltage low threshold ( in V x10)
 //
-#define REG_ADC_T_CASE1_K			80	// Conversion coefficient K for T x1000
-#define REG_ADC_T_CASE1_B			81	// Conversion offset for T (in C x100)
-#define REG_ADC_T_COOL1_K			82	// Conversion coefficient K for T x1000
-#define REG_ADC_T_COOL1_B			83	// Conversion offset for T (in C x100)
-#define REG_ADC_T_CASE2_K			84	// Conversion coefficient K for T x1000
-#define REG_ADC_T_CASE2_B			85	// Conversion offset for T (in C x100)
-#define REG_ADC_T_COOL2_K			86	// Conversion coefficient K for T x1000
-#define REG_ADC_T_COOL2_B			87	// Conversion offset for T (in C x100)
+#define REG_FILTER_ACTIVE			68	// Enable or disable data filtering
+#define REG_FILTER_ERR_THRESHOLD	69	// Error level to switch on filtered data (in %)
 //
-#define REG_ADC_T_K_DIV				88	// REG_ADC_Tx_K divider
+#define REG_PI_CTRL_IM_Kp			70	// Measurement current PI Kp x1000
+#define REG_PI_CTRL_IM_Ki			71	// Measurement current PI Ki
+#define REG_PI_CTRL_IH_Kp			72	// Heating current PI Kp x1000
+#define REG_PI_CTRL_IH_Ki			73	// Heating current PI Ki
+#define REG_PI_CTRL_P_Kp			74	// Heating current PI Kp x1000
+#define REG_PI_CTRL_P_Ki			75	// Heating current PI Ki
 //
-#define REG_ADC_T_CASE_S2_P2		90	// Fine coefficient for Tcase1 quadratic correction P2 x1e6
-#define REG_ADC_T_CASE_S2_P1		91	// Fine coefficient for Tcase1 quadratic correction P1 x1000
-#define REG_ADC_T_CASE_S2_P0		92	// Fine coefficient for Tcase1 quadratic correction P0 (in T x100)
+#define REG_REGULATOR_SKIP_CYCLE	76	// Number of skip regulator cycle
+#define REG_REGULATOR_POWER_CTRL	77	// Enable or disable of power regulator
 //
-#define REG_ADC_T_COOL_S2_P2		93	// Fine coefficient for Tcool1 quadratic correction P2 x1e6
-#define REG_ADC_T_COOL_S2_P1		94	// Fine coefficient for Tcool1 quadratic correction P1 x1000
-#define REG_ADC_T_COOL_S2_P0		95	// Fine coefficient for Tcool1 quadratic correction P0 (in T x100)
+#define REG_POWER_SET_DEL_BIPOLAR	78	// Time after starting the current to set the power dissipation reference for bipolar device (in us x0.01)
+#define REG_POWER_SET_DEL_IGBT		79	// Time after starting the current to set the power dissipation reference for IGBT (in us x0.01)
+#define REG_POWER_SET_I_ERR			80	// Current error throshold to fixing power dissipation setpoint (in % x10)
+//
+#define REG_IH_RANGE_THRESHOLD		81	// Heating current range threshold (in A)
+#define REG_I_THRE_SET_CAP_V_THRE	82	// Current thresholt for changing capacitors voltage threshold (in A)
+#define REG_MUTE_PROTECTION			83	// Ignore protection
+#define REG_SCOPE_STEP				84	// Scope step
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)
 #define REG_DUT_TYPE				129	// Select DUT type (0 - thyristor, 1 - IGBT)
