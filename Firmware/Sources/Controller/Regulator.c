@@ -11,6 +11,7 @@
 #include "IQmathUtils.h"
 #include "ZthMCurrentBoard.h"
 #include "Logic.h"
+#include "Controller.h"
 
 
 // Types
@@ -181,15 +182,26 @@ void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSetting
 			{
 				if((Regulator->Counter >= PowerSetDelay) && MeasureSample->P)
 				{
-					if(!P_TargetPulseValue)
+					if(DataTable[REG_REGULATOR_POWER_CTRL])
 					{
-						P_TargetPulseValue = MeasureSample->P;
+						if(MeasureSample->U >= _IQI(VOLTAGE_DUT_MIN))
+						{
+							if(!P_TargetPulseValue)
+							{
+								P_TargetPulseValue = MeasureSample->P;
 
-						REGULATOR_Update(SelectP, P_TargetPulseValue);
-						REGULATOR_SavePowerTarget(P_TargetPulseValue);
+								REGULATOR_Update(SelectP, P_TargetPulseValue);
+								REGULATOR_SavePowerTarget(P_TargetPulseValue);
+							}
+							else
+								REGULATOR_Update(SelectP, P_TargetPulseValue);
+						}
+						else
+						{
+							CONTROL_ForceStopProcess();
+							CONTROL_SwitchToFault(FAULT_NO_POT);
+						}
 					}
-					else
-						REGULATOR_Update(SelectP, P_TargetPulseValue);
 				}
 			}
 		}
