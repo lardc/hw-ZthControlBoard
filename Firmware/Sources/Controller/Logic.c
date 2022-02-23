@@ -32,6 +32,8 @@
 //
 #define ZTH_02								20		// Zth value x100
 #define ZTH_01								10		// Zth value x100
+//
+#define REG_OUTPUT_CLEAR_CNT_MAX_VALUE		5000	// in us x0.01
 
 // Variables
 //
@@ -283,7 +285,6 @@ void LOGIC_ZthLongPulseProcess()
 
 		case LS_Heating:
 			REGULATOR_Update(SelectIm, _IQI(LOGIC_MeasuringCurrent));
-			LOGIC_HeatingCurrentUpdate(LOGIC_PulseWidthMax);
 
 			if(LOGIC_TimeCounterCheck(LOGIC_PulseWidthMax))
 			{
@@ -337,15 +338,6 @@ void LOGIC_RthSequenceProcess()
 
 		case LS_Cooling:
 			if(LOGIC_TimeCounterCheck(LOGIC_Pause))
-				LOGIC_SetState(LS_ChargeWaiting);
-			else
-				break;
-
-		case LS_ChargeWaiting:
-			MEASURE_CapVoltageSamplingStart();
-			DELAY_US(10);
-			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
-			if(MEASURE_CapVoltage >= LOGIC_CapVoltageThreshold)
 				LOGIC_SetState(LS_StartHeating);
 			else
 				break;
@@ -421,7 +413,6 @@ void LOGIC_Graduation()
 				}
 				break;
 			}
-
 
 		case LS_ChargeWaiting:
 			MEASURE_CapVoltageSamplingStart();
@@ -534,10 +525,33 @@ Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth)
 
 void LOGIC_SaveHeatingData(RegulatorsData Sample)
 {
-	DataTable[REG_ACTUAL_U_DUT]   = _IQint(Sample.U);
-	DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
-	DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
-	DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
+	static Int16U RegOutClearCounter = 0;
+
+
+	if(LOGIC_State == LS_Heating)
+	{
+		DataTable[REG_ACTUAL_U_DUT] = _IQint(Sample.U);
+		DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
+		DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
+		DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
+
+		RegOutClearCounter = 0;
+	}
+	else
+	{
+		RegOutClearCounter++;
+
+		if(RegOutClearCounter >= REG_OUTPUT_CLEAR_CNT_MAX_VALUE)
+		{
+			DataTable[REG_ACTUAL_U_DUT] = 0;
+			DataTable[REG_ACTUAL_I_DUT] = 0;
+			DataTable[REG_ACTUAL_P_DUT_WHOLE] = 0;
+			DataTable[REG_ACTUAL_P_DUT_FRACT] = 0;
+
+			RegOutClearCounter = 0;
+		}
+	}
+
 	DataTable[REG_ACTUAL_I_MEASUREMENT] = _IQint(_IQmpy(Sample.Im, _IQI(10)));
 }
 // ----------------------------------------
