@@ -52,6 +52,7 @@ void CONTROL_SwitchToFault(Int16U FaultReason);
 void CONTROL_SetDeviceState(DeviceState NewState, LogicState NewSubState);
 // Stop process
 void CONTROL_StopProcess(Int16U OpResult);
+void CONTROL_ForceStopProcess();
 //
 void CONTROL_SubcribeToCycle(CONTROL_FUNC_RealTimeRoutine Routine);
 

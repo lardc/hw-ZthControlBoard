@@ -58,7 +58,6 @@ void CONTROL_ModeSelect();
 void CONTROL_MeasuringCurrentProcess(Boolean State);
 void CONTROL_ResetOutputRegisters();
 void CONTROL_Protection();
-void CONTROL_ForceStopProcess();
 Boolean CONTROL_ValidationParams();
 
 // Functions
@@ -142,13 +141,16 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DISABLE_POWER:
-			if(CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_Ready || CONTROL_State == DS_InProcess)
 			{
+				if(CONTROL_State == DS_InProcess)
+					CONTROL_ForceStopProcess();
+
 				ZbGPIO_LowPowerSupplyControl(FALSE);
 				CONTROL_SetDeviceState(DS_None, LS_None);
 			}
 			else if(CONTROL_State != DS_None)
-					*UserError = ERR_OPERATION_BLOCKED;
+				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_START_PROCESS:
@@ -176,6 +178,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if (CONTROL_State == DS_InProcess)
 			{
 				CONTROL_SetDeviceState(DS_Ready, LS_None);
+				LOGIC_SetOperationState(OS_None);
 				CONTROL_StopProcess(OPRESULT_OK);
 			}
 			break;
@@ -183,6 +186,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_STOP_HEATING:
 			if ((CONTROL_State == DS_InProcess) && ((CONTROL_Mode == MODE_ZTH_LONG_PULSE) || (CONTROL_Mode == MODE_GRADUATION)))
 			{
+				LOGIC_SetOperationState(OS_Measuring);
 				CONTROL_SetDeviceState(DS_InProcess, LS_MeasurementDelay);
 				LOGIC_TimeCounterReset();
 				LOGIC_Heating(FALSE);
