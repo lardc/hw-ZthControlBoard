@@ -250,7 +250,7 @@
 #define FAULT_TR2					4	// Transformer 2 is overheated
 #define FAULT_REC					5	// Rectifier is overheated
 #define FAULT_NO_POT				6	// Potential line not connected
-#define FAULT_DUT_NOT_TRIG			7	// DUT not triggered (no heating current)
+#define FAULT_CUR_FOLLOWING_ERR		7	// DUT not triggered (no heating current)
 
 
 // WARNING CODES

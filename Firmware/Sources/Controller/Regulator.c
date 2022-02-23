@@ -13,6 +13,9 @@
 #include "Logic.h"
 #include "Controller.h"
 
+// Definitions
+//
+#define FOLLOWING_ERROR_COUNTER_MAX		10
 
 // Types
 typedef struct __RegulatorSettings
@@ -125,7 +128,15 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			Regulator->Error += Error;
 
 			if(_IQabs(Regulator->Error) > REGLTR_ERROR_I_SAT_H)
+			{
 				Regulator->Error = (Regulator->Error > 0) ? REGLTR_ERROR_I_SAT_H : _IQmpy(_IQ(-1), REGLTR_ERROR_I_SAT_H);
+
+				if(Regulator->Counter >= FOLLOWING_ERROR_COUNTER_MAX)
+				{
+					CONTROL_ForceStopProcess();
+					CONTROL_SwitchToFault(FAULT_CUR_FOLLOWING_ERR);
+				}
+			}
 
 			ControlI = _IQmpy(Regulator->Error, Regulator->Ki);
 		}
