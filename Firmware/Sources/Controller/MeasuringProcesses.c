@@ -93,9 +93,20 @@ _iq MEASURE_DataMUX(pMovingAverageFilter Data)
 	_iq RelativeError;
 
 	Data->AvgResult = MEASURE_AveragingProcess(Data);
-	RelativeError = ABS(_IQmpy(_IQdiv((Data->AvgResult - Data->Sample), Data->Sample), _IQ(100)));
+	RelativeError = ABS(_IQmpy(_IQdiv((Data->AvgResult - Data->Sample), Data->Sample), _IQI(100)));
 
-	return (RelativeError <= FilterErrorThreshold) ? Data->AvgResult : Data->Sample;
+	if(!Data->SwitchFlag)
+	{
+		if((Data->Counter >= (AVERAGE_DEGREE - 1)) && (RelativeError <= FilterErrorThreshold))
+		{
+			Data->SwitchFlag = TRUE;
+			return Data->AvgResult;
+		}
+		else
+			return Data->Sample;
+	}
+	else
+		return Data->AvgResult;
 }
 // ----------------------------------------
 
@@ -186,6 +197,11 @@ void MEASURE_VariablesPrepare()
 	AvgCapacitorsVoltage.DataSum = 0;
 	AvgVoltageDUT.DataSum = 0;
 	//
+	AvgPowerDissipationDUT.SwitchFlag = FALSE;
+	AvgMeasurementCurrent.SwitchFlag = FALSE;
+	AvgCapacitorsVoltage.SwitchFlag = FALSE;
+	AvgVoltageDUT.SwitchFlag = FALSE;
+
 	FilterErrorThreshold = _IQdiv(_IQI(DataTable[REG_FILTER_ERR_THRESHOLD]), _IQI(10));
 }
 // ----------------------------------------

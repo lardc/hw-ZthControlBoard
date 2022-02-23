@@ -644,6 +644,7 @@ void LOGIC_SaveToOutputRegisters()
 
 void LOGIC_Heating(Boolean State)
 {
+	MEASURE_VariablesPrepare();
 	ZbGPIO_SyncOscilloscope(State);
 	ZbGPIO_OuputLock(!State);
 	//

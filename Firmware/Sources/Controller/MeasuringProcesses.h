@@ -40,6 +40,7 @@ typedef struct __MovingAverageFilter
 	_iq DataSum;
 	_iq Array[AVERAGE_DEGREE];
 	_iq AvgResult;
+	Boolean SwitchFlag;
 }MovingAverageFilter, *pMovingAverageFilter;
 
 // Variables
