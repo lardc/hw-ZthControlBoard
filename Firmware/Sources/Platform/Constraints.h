@@ -177,13 +177,13 @@ typedef struct __TableItemConstraint
 #define COOLING_TIME_MIN			1
 #define COOLING_TIME_MAX			100
 //
-#define I_WIDTH_LESS_2MS_MIN		50
+#define I_WIDTH_LESS_2MS_MIN		0
 #define I_WIDTH_LESS_2MS_MAX		2500
 //
-#define I_WIDTH_LESS_10MS_MIN		50
+#define I_WIDTH_LESS_10MS_MIN		0
 #define I_WIDTH_LESS_10MS_MAX		1500
 //
-#define I_WIDTH_ABOVE_10MS_MIN		50
+#define I_WIDTH_ABOVE_10MS_MIN		0
 #define I_WIDTH_ABOVE_10MS_MAX		1000
 //
 #define GATE_CURRENT_MIN			500
