@@ -395,7 +395,7 @@ void CONTROL_Protection()
 {
 	Int16U Fault = ZthPB_FaultCheck();
 
-	if((!DataTable[REG_MUTE_PROTECTION]) && (Fault != PB_FAULT_NONE) && (CONTROL_State == DS_InProcess))
+	if((!DataTable[REG_FAULT_CONTROL]) && (Fault != PB_FAULT_NONE) && (CONTROL_State == DS_InProcess))
 	{
 		switch(Fault)
 		{

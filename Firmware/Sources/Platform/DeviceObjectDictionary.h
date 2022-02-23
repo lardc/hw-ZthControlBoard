@@ -155,7 +155,7 @@
 //
 #define REG_IH_RANGE_THRESHOLD		81	// Heating current range threshold (in A)
 #define REG_I_THRE_SET_CAP_V_THRE	82	// Current thresholt for changing capacitors voltage threshold (in A)
-#define REG_MUTE_PROTECTION			83	// Ignore protection
+#define REG_FAULT_CONTROL			83	// Ignore protection
 #define REG_SCOPE_STEP				84	// Scope step
 //
 #define REG_MODE					128	// Operating mode (The list of modes is presented in the file Controller.c)

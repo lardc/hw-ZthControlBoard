@@ -94,6 +94,7 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 	_iq SampleValue, ControlI, ControlP, Error;
 	pRegulatorSettings Regulator;
 	pSaveDataParams DataParams;
+	static Int16U FollowingErrorCounter = 0;
 
 	switch (Selector)
 	{
@@ -130,13 +131,16 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 			if(_IQabs(Regulator->Error) > REGLTR_ERROR_I_SAT_H)
 			{
 				Regulator->Error = (Regulator->Error > 0) ? REGLTR_ERROR_I_SAT_H : _IQmpy(_IQ(-1), REGLTR_ERROR_I_SAT_H);
+				FollowingErrorCounter++;
 
-				if(Regulator->Counter >= FOLLOWING_ERROR_COUNTER_MAX)
+				if(DataTable[REG_FAULT_CONTROL] && FollowingErrorCounter >= FOLLOWING_ERROR_COUNTER_MAX)
 				{
 					CONTROL_ForceStopProcess();
 					CONTROL_SwitchToFault(FAULT_CUR_FOLLOWING_ERR);
 				}
 			}
+			else
+				FollowingErrorCounter = 0;
 
 			ControlI = _IQmpy(Regulator->Error, Regulator->Ki);
 		}
@@ -209,8 +213,11 @@ void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSetting
 						}
 						else
 						{
-							CONTROL_ForceStopProcess();
-							CONTROL_SwitchToFault(FAULT_NO_POT);
+							if(DataTable[REG_FAULT_CONTROL])
+							{
+								CONTROL_ForceStopProcess();
+								CONTROL_SwitchToFault(FAULT_NO_POT);
+							}
 						}
 					}
 				}
