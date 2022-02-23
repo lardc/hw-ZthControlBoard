@@ -184,7 +184,7 @@ typedef struct __TableItemConstraint
 #define I_WIDTH_LESS_10MS_MAX		1500
 //
 #define I_WIDTH_ABOVE_10MS_MIN		0
-#define I_WIDTH_ABOVE_10MS_MAX		1000
+#define I_WIDTH_ABOVE_10MS_MAX		500
 //
 #define GATE_CURRENT_MIN			500
 #define GATE_CURRENT_MAX			3000
