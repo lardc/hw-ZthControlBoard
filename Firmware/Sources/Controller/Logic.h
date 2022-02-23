@@ -30,6 +30,13 @@ typedef enum __LogicState
 } LogicState;
 //
 
+typedef enum __OperationState
+{
+	OS_None			= 0,
+	OS_Heating		= 1,
+	OS_Measuring	= 2
+} OperationState;
+
 // Variables
 //
 extern volatile LogicState LOGIC_State;
@@ -65,5 +72,6 @@ void LOGIC_GateCurrentProcess();
 void LOGIC_TimeCounterReset();
 void LOGIC_ResetVariables();
 void LOGIC_UpdateParams();
+void LOGIC_SetOperationState(OperationState NewState);
 
 #endif // __LOGIC_H

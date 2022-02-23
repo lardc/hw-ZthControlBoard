@@ -166,8 +166,8 @@
 #define REG_PULSE_WIDTH_MAX_H		133	// Width of last pulse (in us x0.01, MSB)
 #define REG_ZTH_PAUSE				134	// Cooling time between pulses (in %)
 #define REG_PAUSE					135	// Time between pulses in "Rth sequence pulses" and "graduation" modes (in us x0.01)
-#define REG_I_WIDTH_LESS_2MS		136	// Heating current value if pulse width less than 10ms  (in A)
-#define REG_I_WIDTH_LESS_10MS		137	// Heating current value if pulse width less than 10ms  (in A)
+#define REG_I_WIDTH_LESS_OR_EQ_2MS	136	// Heating current value if pulse width less than 10ms  (in A)
+#define REG_I_WIDTH_LESS_OR_EQ_10MS	137	// Heating current value if pulse width less than 10ms  (in A)
 #define REG_I_WIDTH_ABOVE_10MS		138	// Heating current value if pulse width above than 10ms  (in A)
 #define REG_GATE_CURRENT			139	// Gate current value (in mA)
 #define REG_MEASURING_CURRENT		140	// Measuring current value (in mA)
@@ -193,10 +193,10 @@
 #define REG_WARNING					195	// Warning if present
 #define REG_PROBLEM					196	// Problem if present
 #define REG_OP_RESULT				197	// Indicates that test is done and there is result or fault
-#define REG_FAULT_REASON_EXT		198	// Fault reason extended code
+#define REG_OP_STATE				198	// Operation state
 #define REG_LOGIC_STATE				199	// Logic state
 //
-#define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV x10)
+#define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A x10)
 #define REG_ACTUAL_P_DUT_WHOLE		202	// Actual whole part of DUT power dissipation (in W)
 #define REG_ACTUAL_P_DUT_FRACT		203	// Actual fraction part of DUT power dissipation (in W)
@@ -249,11 +249,8 @@
 #define FAULT_TR1					3	// Transformer 1 is overheated
 #define FAULT_TR2					4	// Transformer 2 is overheated
 #define FAULT_REC					5	// Rectifier is overheated
-//
-#define FAULT_PROTOCOL				10	// Protocol error
-#define FAULT_DRCU_PWRON			11	// DRCU power on fault
-#define FAULT_DRCU_WRONG_STATE		12	// DRCU wrong state
-#define FAULT_DRCU_WAIT_STATE		13	// DRCU waot state timeout
+#define FAULT_NO_POT				6	// Potential line not connected
+#define FAULT_DUT_NOT_TRIG			7	// DUT not triggered (no heating current)
 
 
 // WARNING CODES

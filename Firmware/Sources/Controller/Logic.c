@@ -214,6 +214,7 @@ void LOGIC_ZthSequencePulsesProcess()
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
+			LOGIC_SetOperationState(OS_Heating);
 			break;
 
 		case LS_Heating:
@@ -238,6 +239,7 @@ void LOGIC_ZthSequencePulsesProcess()
 			if(LOGIC_ActualPulseWidth >= LOGIC_PulseWidthMax)
 			{
 				CONTROL_SetDeviceState(DS_Ready, LS_None);
+				LOGIC_SetOperationState(OS_None);
 				CONTROL_StopProcess(OPRESULT_OK);
 				return;
 			}
@@ -276,6 +278,7 @@ void LOGIC_ZthLongPulseProcess()
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
+			LOGIC_SetOperationState(OS_Heating);
 			break;
 
 		case LS_Heating:
@@ -288,6 +291,7 @@ void LOGIC_ZthLongPulseProcess()
 				//
 				LOGIC_TimeCounterReset();
 				LOGIC_SetState(LS_MeasurementDelay);
+				LOGIC_SetOperationState(OS_Measuring);
 			}
 			else
 				break;
@@ -350,6 +354,7 @@ void LOGIC_RthSequenceProcess()
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
+			LOGIC_SetOperationState(OS_Heating);
 			break;
 
 		case LS_Heating:
@@ -412,6 +417,7 @@ void LOGIC_Graduation()
 				{
 					LOGIC_CalculateTimeInterval(&LOGIC_ActualDelayWidth);
 					LOGIC_SetState(LS_Measuring);
+
 				}
 				break;
 			}
@@ -431,6 +437,7 @@ void LOGIC_Graduation()
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
+			LOGIC_SetOperationState(OS_Heating);
 			break;
 
 		case LS_Heating:
@@ -441,6 +448,7 @@ void LOGIC_Graduation()
 				//
 				LOGIC_TimeCounterReset();
 				LOGIC_SetState(LS_MeasurementDelay);
+				LOGIC_SetOperationState(OS_Measuring);
 			}
 			else
 			{
@@ -721,6 +729,12 @@ void LOGIC_SetState(LogicState State)
 }
 // ----------------------------------------
 
+void LOGIC_SetOperationState(OperationState NewState)
+{
+	DataTable[REG_OP_STATE] = NewState;
+}
+// ----------------------------------------
+
 void LOGIC_CacheVariables()
 {
 	LOGIC_PulseWidthMin = DataTable[REG_PULSE_WIDTH_MIN];
@@ -728,8 +742,8 @@ void LOGIC_CacheVariables()
 	LOGIC_PulseWidthMax = DataTable[REG_PULSE_WIDTH_MAX_H];
 	LOGIC_PulseWidthMax = (LOGIC_PulseWidthMax << 16) | DataTable[REG_PULSE_WIDTH_MAX_L];
 	//
-	LOGIC_CurrentWidthLess_2ms = DataTable[REG_I_WIDTH_LESS_2MS];
-	LOGIC_CurrentWidthLess_10ms = DataTable[REG_I_WIDTH_LESS_10MS];
+	LOGIC_CurrentWidthLess_2ms = DataTable[REG_I_WIDTH_LESS_OR_EQ_2MS];
+	LOGIC_CurrentWidthLess_10ms = DataTable[REG_I_WIDTH_LESS_OR_EQ_10MS];
 	LOGIC_CurrentWidthAbove_10ms = DataTable[REG_I_WIDTH_ABOVE_10MS];
 	//
 	LOGIC_MeasurementDelay = DataTable[REG_MEASUREMENT_DELAY];

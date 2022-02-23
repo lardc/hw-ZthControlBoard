@@ -50,6 +50,8 @@
 #define POWER_LINE_DROP_VOLTAGE			20		// in V x10
 #define MAX_JUNCTION_TEMPERATURE		150		// in C
 #define MAX_CASE_TEMPERATURE			30		// in C
+//
+#define VOLTAGE_DUT_MIN					500		// in mV
 //--------------------------------------------------------
 
 // Regulator parameters
