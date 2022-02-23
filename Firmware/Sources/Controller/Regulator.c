@@ -402,7 +402,7 @@ void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error)
 	{
 		ScopeLogStep = 0;
 
-		*(DataParams->OutputArray + *DataParams->ArrayCounter) = _IQint(Output);
+		*(DataParams->OutputArray + *DataParams->ArrayCounter) = _IQint(_IQmpy(Output, _IQI(10)));
 		*(DataParams->ErrorArray + *DataParams->ArrayCounter) = _IQint(_IQmpy(Error, _IQI(100)));
 		*DataParams->ArrayCounter = *DataParams->ArrayLocalCounter;
 
