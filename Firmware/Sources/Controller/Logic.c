@@ -518,10 +518,10 @@ void LOGIC_SaveHeatingData(RegulatorsData Sample)
 	static Int16U RegOutClearCounter = 0;
 
 
-	if(LOGIC_State == LS_Heating)
+	if(LOGIC_State == LS_Heating || LOGIC_State == LS_PendingCompletion)
 	{
 		DataTable[REG_ACTUAL_U_DUT] = _IQint(Sample.U);
-		DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.Ih, _IQI(10)));
+		DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.IhAvg, _IQI(10)));
 		DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
 		DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
 

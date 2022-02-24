@@ -13,6 +13,8 @@
 
 // Definitions
 //
+#define RETURN_SAMPLE_RESULT	0
+#define RETURN_AVG_RESULT		1
 #define AVERAGE_DEGREE			20
 
 // Types
@@ -20,6 +22,7 @@ typedef struct __RegulatorsData
 {
 	_iq Im;
 	_iq Ih;
+	_iq IhAvg;
 	_iq	U;
 	_iq	P;
 } RegulatorsData, *pRegulatorsData;
@@ -54,7 +57,7 @@ _iq MEASURE_Tcase1();
 _iq MEASURE_Tcase2();
 _iq MEASURE_Tcool1();
 _iq MEASURE_Tcool2();
-_iq MEASURE_Ih();
+_iq MEASURE_Ih(Boolean UseAverage);
 _iq MEASURE_Im();
 _iq MEASURE_TSP();
 RegulatorsData MEASURE_RegulatorsSample();

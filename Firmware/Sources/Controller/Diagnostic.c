@@ -31,7 +31,7 @@ Boolean DIAG_Process(Int16U Command)
 			break;
 
 		case ACT_DBG_READ_IH:
-			DIAG_SaveToRegisters(MEASURE_Ih());
+			DIAG_SaveToRegisters(MEASURE_Ih(RETURN_SAMPLE_RESULT));
 			break;
 
 		case ACT_DBG_READ_TSP:

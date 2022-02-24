@@ -18,6 +18,7 @@ MovingAverageFilter AvgCapacitorsVoltage = {0};
 MovingAverageFilter AvgMeasurementCurrent = {0};
 MovingAverageFilter AvgPowerDissipationDUT = {0};
 MovingAverageFilter AvgVoltageDUT = {0};
+MovingAverageFilter AvgHeatingCurrent = {0};
 //
 _iq FilterErrorThreshold = 0;
 //
@@ -25,9 +26,9 @@ Int16U MEASURE_CapVoltage = 0;
 
 // Functions prototypes
 //
-_iq MEASURE_VoltgeDUT();
-_iq MEASURE_DataMUX(pMovingAverageFilter Data);
-_iq MEASURE_PowerDissapation(_iq Voltage, _iq Current);
+_iq MEASURE_VoltgeDUT(Boolean UseAverage);
+_iq MEASURE_DataMUX(pMovingAverageFilter Data, Boolean UseAverage);
+_iq MEASURE_PowerDissapation(_iq Voltage, _iq Current, Boolean UseAverage);
 
 // Functions
 //
@@ -55,16 +56,19 @@ _iq MEASURE_Tcool2()
 }
 // ----------------------------------------
 
-_iq MEASURE_Ih()
+_iq MEASURE_Ih(Boolean UseAverage)
 {
-	return CONVERT_ADCToIh(ZthSB_RawReadIh());
+	if(!UseAverage)
+		AvgHeatingCurrent.Sample = CONVERT_ADCToIh(ZthSB_RawReadIh());
+
+	return MEASURE_DataMUX(&AvgHeatingCurrent, UseAverage);
 }
 // ----------------------------------------
 
 _iq MEASURE_Im()
 {
 	AvgMeasurementCurrent.Sample = CONVERT_ADCToIm(ZthSB_RawReadIm());
-	return MEASURE_DataMUX(&AvgMeasurementCurrent);
+	return MEASURE_DataMUX(&AvgMeasurementCurrent, RETURN_AVG_RESULT);
 }
 // ----------------------------------------
 
@@ -74,39 +78,54 @@ _iq MEASURE_TSP()
 }
 // ----------------------------------------
 
-_iq MEASURE_VoltgeDUT()
+_iq MEASURE_VoltgeDUT(Boolean UseAverage)
 {
-	AvgVoltageDUT.Sample = MEASURE_TSP();
-	return MEASURE_DataMUX(&AvgVoltageDUT);
+	if(!UseAverage)
+		AvgVoltageDUT.Sample = MEASURE_TSP();
+
+	return MEASURE_DataMUX(&AvgVoltageDUT, UseAverage);
 }
 // ----------------------------------------
 
-_iq MEASURE_PowerDissapation(_iq Voltage, _iq Current)
+_iq MEASURE_PowerDissapation(_iq Voltage, _iq Current, Boolean UseAverage)
 {
-	AvgPowerDissipationDUT.Sample = _IQmpy(_IQdiv(Voltage, _IQI(1000)), Current);
-	return MEASURE_DataMUX(&AvgPowerDissipationDUT);
+	if(!UseAverage)
+		AvgPowerDissipationDUT.Sample = _IQmpy(_IQdiv(Voltage, _IQI(1000)), Current);
+
+	return MEASURE_DataMUX(&AvgPowerDissipationDUT, UseAverage);
 }
 // ----------------------------------------
 
-_iq MEASURE_DataMUX(pMovingAverageFilter Data)
+_iq MEASURE_DataMUX(pMovingAverageFilter Data, Boolean UseAverage)
 {
-	_iq RelativeError;
+	_iq Result, RelativeError;
 
-	Data->AvgResult = MEASURE_AveragingProcess(Data);
-	RelativeError = ABS(_IQmpy(_IQdiv((Data->AvgResult - Data->Sample), Data->Sample), _IQI(100)));
-
-	if(!Data->SwitchFlag)
+	if(UseAverage)
 	{
-		if((Data->Counter >= (AVERAGE_DEGREE - 1)) && (RelativeError <= FilterErrorThreshold))
+		Data->AvgResult = MEASURE_AveragingProcess(Data);
+
+		if(!Data->SwitchFlag)
 		{
-			Data->SwitchFlag = TRUE;
-			return Data->AvgResult;
+			Result = Data->Sample;
+			RelativeError = ABS(_IQmpy(_IQdiv((Data->AvgResult - Data->Sample), Data->Sample), _IQI(100)));
+
+			if(RelativeError <= FilterErrorThreshold)
+			{
+				Result = Data->AvgResult;
+				Data->SwitchFlag = TRUE;
+			}
 		}
 		else
-			return Data->Sample;
+			Result = Data->AvgResult;
 	}
 	else
-		return Data->AvgResult;
+	{
+		Result = Data->Sample;
+		Data->SwitchFlag = FALSE;
+	}
+
+
+	return Result;
 }
 // ----------------------------------------
 
@@ -114,10 +133,18 @@ RegulatorsData MEASURE_RegulatorsSample()
 {
 	RegulatorsData Sample = {0};
 
-	Sample.Ih = MEASURE_Ih();
-	Sample.U = MEASURE_VoltgeDUT();
-	Sample.P = MEASURE_PowerDissapation(Sample.U, Sample.Ih);
 	Sample.Im = MEASURE_Im();
+	Sample.Ih = MEASURE_Ih(RETURN_SAMPLE_RESULT);
+	Sample.U = MEASURE_VoltgeDUT(RETURN_SAMPLE_RESULT);
+
+	if(!REGULATOR_GetTarget().P)
+		Sample.P = MEASURE_PowerDissapation(Sample.U, Sample.Ih, RETURN_SAMPLE_RESULT);
+	else
+	{
+		Sample.U = MEASURE_VoltgeDUT(RETURN_AVG_RESULT);
+		Sample.IhAvg = MEASURE_Ih(RETURN_AVG_RESULT);
+		Sample.P = MEASURE_PowerDissapation(Sample.U, Sample.IhAvg, RETURN_AVG_RESULT);
+	}
 
 	return Sample;
 }
@@ -185,22 +212,26 @@ void MEASURE_VariablesPrepare()
 		AvgMeasurementCurrent.Array[i] = 0;
 		AvgCapacitorsVoltage.Array[i] = 0;
 		AvgVoltageDUT.Array[i] = 0;
+		AvgHeatingCurrent.Array[i] = 0;
 	}
 	//
 	AvgPowerDissipationDUT.Counter = 0;
 	AvgMeasurementCurrent.Counter = 0;
 	AvgCapacitorsVoltage.Counter = 0;
 	AvgVoltageDUT.Counter = 0;
+	AvgHeatingCurrent.Counter = 0;
 	//
 	AvgPowerDissipationDUT.DataSum = 0;
 	AvgMeasurementCurrent.DataSum = 0;
 	AvgCapacitorsVoltage.DataSum = 0;
 	AvgVoltageDUT.DataSum = 0;
+	AvgHeatingCurrent.DataSum = 0;
 	//
 	AvgPowerDissipationDUT.SwitchFlag = FALSE;
 	AvgMeasurementCurrent.SwitchFlag = FALSE;
 	AvgCapacitorsVoltage.SwitchFlag = FALSE;
 	AvgVoltageDUT.SwitchFlag = FALSE;
+	AvgHeatingCurrent.SwitchFlag = FALSE;
 
 	FilterErrorThreshold = _IQdiv(_IQI(DataTable[REG_FILTER_ERR_THRESHOLD]), _IQI(10));
 }
