@@ -66,6 +66,7 @@ _iq LOGIC_ZthArray_10ms[LOGIC_ARRAY_SIZE_TIME][LOGIC_ARRAY_SIZE_ZTH] =
 Boolean CurrentGeneratedFlag = FALSE;
 //
 volatile LogicState LOGIC_State = LS_None;
+volatile OperationState LOGIC_OpState = OS_None;
 volatile Int32U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 volatile Int64U Timeout = 0;
 //
@@ -377,8 +378,6 @@ void LOGIC_RthSequenceProcess()
 
 void LOGIC_Graduation()
 {
-	static Boolean HeatingProcess = FALSE;
-
 	switch (LOGIC_State)
 	{
 		case LS_ConfigAll:
@@ -393,7 +392,7 @@ void LOGIC_Graduation()
 			break;
 
 		case LS_Cooling:
-			if(HeatingProcess)
+			if(LOGIC_OpState == OS_Heating)
 			{
 				if(LOGIC_TimeCounterCheck(LOGIC_Pause))
 					LOGIC_SetState(LS_StartHeating);
@@ -412,7 +411,6 @@ void LOGIC_Graduation()
 			}
 
 		case LS_StartHeating:
-			HeatingProcess = TRUE;
 			LOGIC_TimeCounterReset();
 			LOGIC_Heating(TRUE);
 			LOGIC_SetState(LS_Heating);
@@ -422,7 +420,6 @@ void LOGIC_Graduation()
 		case LS_Heating:
 			if(DataTable[REG_ACTUAL_T_CASE1] >= LOGIC_Tmax)
 			{
-				HeatingProcess = FALSE;
 				LOGIC_Heating(FALSE);
 				//
 				LOGIC_TimeCounterReset();
@@ -447,7 +444,12 @@ void LOGIC_Graduation()
 				break;
 
 		case LS_Measuring:
-			(HeatingProcess) ? LOGIC_SaveToOutputRegisters() : LOGIC_MeasuringProcess();
+			if(LOGIC_OpState == OS_Heating)
+				LOGIC_SaveToOutputRegisters();
+
+			if(LOGIC_OpState == OS_Measuring)
+				LOGIC_MeasuringProcess();
+
 			LOGIC_SetState(LS_Cooling);
 			LOGIC_TimeCounter++;
 			return;
@@ -742,6 +744,7 @@ void LOGIC_SetState(LogicState State)
 
 void LOGIC_SetOperationState(OperationState NewState)
 {
+	LOGIC_OpState = NewState;
 	DataTable[REG_OP_STATE] = NewState;
 }
 // ----------------------------------------
