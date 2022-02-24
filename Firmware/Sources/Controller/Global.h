@@ -21,7 +21,7 @@
 #define UNLOCK_PWD_4					1
 //
 #define EP_COUNT						11
-#define VALUES_x_SIZE					1200
+#define VALUES_x_SIZE					1000
 //
 #define	NODEID_SCCI_SCOPE				0
 //
