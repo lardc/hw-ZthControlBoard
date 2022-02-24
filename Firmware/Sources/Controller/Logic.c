@@ -65,8 +65,6 @@ _iq LOGIC_ZthArray_10ms[LOGIC_ARRAY_SIZE_TIME][LOGIC_ARRAY_SIZE_ZTH] =
 //
 Boolean CurrentGeneratedFlag = FALSE;
 //
-static Int16U HeatingCurrentSetpoint = 0;
-//
 volatile LogicState LOGIC_State = LS_None;
 volatile Int32U LOGIC_TimeCounter = 0, LOGIC_HeatingTimeCounter = 0, LOGIC_CollingTime = 0;
 volatile Int64U Timeout = 0;
@@ -486,7 +484,7 @@ Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth)
 	{
 		MEASURE_CapVoltage = 240;
 		MosfetVds = _FPtoIQ2((MEASURE_CapVoltage - POWER_LINE_DROP_VOLTAGE), 10);
-		CurrentPerMosfet = _FPtoIQ2(HeatingCurrentSetpoint, ZTH_MOSFET_QUANTITY);
+		CurrentPerMosfet = _IQdiv(REGULATOR_GetTarget().Ih, _IQI(ZTH_MOSFET_QUANTITY));
 		MosfetPower = _IQmpy(CurrentPerMosfet, MosfetVds);
 		Zth = _IQint(_IQmpy(_IQdiv(_IQI(MAX_JUNCTION_TEMPERATURE - MAX_CASE_TEMPERATURE), MosfetPower),_IQI(100)));
 
@@ -575,6 +573,9 @@ void LOGIC_HeatingCurrentConfig(Int32U CurrentWidth)
 
 void LOGIC_HeatingCurrentUpdate(Int32U CurrentWidth)
 {
+	Int16U HeatingCurrentSetpoint;
+	static Int16U LastHeatingCurrentSetpoint = 0;
+
 	if(CurrentWidth <= TIME_2MS)
 		HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_2ms;
 	else
@@ -585,8 +586,18 @@ void LOGIC_HeatingCurrentUpdate(Int32U CurrentWidth)
 			HeatingCurrentSetpoint = LOGIC_CurrentWidthLess_10ms;
 	}
 
+	if(LastHeatingCurrentSetpoint != HeatingCurrentSetpoint)
+	{
+		LastHeatingCurrentSetpoint = HeatingCurrentSetpoint;
+		REGULATOR_Update(SelectIh, 0);
+		REGULATOR_Update(SelectP, 0);
+		REGULATOR_ResetVariables();
+	}
+
+	if(!REGULATOR_GetTarget().Ih)
+		REGULATOR_Update(SelectIh, _IQI(HeatingCurrentSetpoint));
+
 	LOGIC_HeatingCurrentSetRange(HeatingCurrentSetpoint);
-	REGULATOR_Update(SelectIh, _IQI(HeatingCurrentSetpoint));
 }
 // ----------------------------------------
 
