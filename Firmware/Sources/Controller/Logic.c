@@ -399,7 +399,7 @@ void LOGIC_Graduation()
 			if(HeatingProcess)
 			{
 				if(LOGIC_TimeCounterCheck(LOGIC_Pause))
-					LOGIC_SetState(LS_ChargeWaiting);
+					LOGIC_SetState(LS_StartHeating);
 				else
 					break;
 			}
@@ -413,15 +413,6 @@ void LOGIC_Graduation()
 				}
 				break;
 			}
-
-		case LS_ChargeWaiting:
-			MEASURE_CapVoltageSamplingStart();
-			DELAY_US(10);
-			MEASURE_CapVoltageSamplingResult(ZwADC_GetValues1());
-			if(MEASURE_CapVoltage >= LOGIC_CapVoltageThreshold)
-				LOGIC_SetState(LS_StartHeating);
-			else
-				break;
 
 		case LS_StartHeating:
 			HeatingProcess = TRUE;
