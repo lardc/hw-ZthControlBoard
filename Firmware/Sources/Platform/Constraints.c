@@ -80,7 +80,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {CAP_VOLTAGE_K_N_MIN, CAP_VOLTAGE_K_N_MAX, CAP_VOLTAGE_K_N_DEF},					// 64
 											   {CAP_VOLTAGE_K_D_MIN, CAP_VOLTAGE_K_D_MAX, CAP_VOLTAGE_K_D_DEF},					// 65
 											   {CAP_V_THRESHOLD_MIN, CAP_V_THRESHOLD_MAX, CAP_V_THRESHOLD_H_DEF},				// 66
-											   {CAP_V_THRESHOLD_MIN, CAP_V_THRESHOLD_MAX, CAP_V_THRESHOLD_L_DEF},				// 67
+											   {0, 0, 0},																		// 67
 											   {FALSE, TRUE, FALSE},															// 68
 											   {FLTR_ERR_THRESHOLD_MIN, FLTR_ERR_THRESHOLD_MAX, FLTR_ERR_THRESHOLD_DEF},		// 69
 											   {REG_IM_KP_MIN, REG_IM_KP_MAX, REG_IM_KP_DEF},									// 70

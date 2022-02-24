@@ -133,8 +133,7 @@
 #define REG_CAP_VOLTAGE_K_N			64	// Capasitors voltage coefficient (N)
 #define REG_CAP_VOLTAGE_K_D			65	// Capasitors voltage coefficient (D)
 //
-#define REG_CAP_VOLTAGE_THRE_H		66	// Capacitors voltage high threshold ( in V x10)
-#define REG_CAP_VOLTAGE_THRE_L		67	// Capacitors voltage low threshold ( in V x10)
+#define REG_CAP_VOLTAGE_THRE		66	// Capacitors voltage high threshold ( in V x10)
 //
 #define REG_FILTER_ACTIVE			68	// Enable or disable data filtering
 #define REG_FILTER_ERR_THRESHOLD	69	// Error level to switch on filtered data (in %)
