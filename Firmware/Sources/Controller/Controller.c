@@ -333,6 +333,7 @@ void CONTROL_CañheVariables()
 	//
 	LOGIC_ResetVariables();
 	REGULATOR_ResetVariables();
+	DataTable[REG_OP_RESULT] = FALSE;
 }
 // ----------------------------------------
 
