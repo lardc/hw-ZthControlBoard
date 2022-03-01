@@ -135,6 +135,7 @@ RegulatorsData MEASURE_RegulatorsSample()
 
 	Sample.Im = MEASURE_Im();
 	Sample.Ih = MEASURE_Ih(RETURN_SAMPLE_RESULT);
+	Sample.IhAvg = MEASURE_Ih(RETURN_AVG_RESULT);
 	Sample.U = MEASURE_VoltgeDUT(RETURN_SAMPLE_RESULT);
 
 	if(!REGULATOR_GetTarget().P)
@@ -142,7 +143,6 @@ RegulatorsData MEASURE_RegulatorsSample()
 	else
 	{
 		Sample.U = MEASURE_VoltgeDUT(RETURN_AVG_RESULT);
-		Sample.IhAvg = MEASURE_Ih(RETURN_AVG_RESULT);
 		Sample.P = MEASURE_PowerDissapation(Sample.U, Sample.IhAvg, RETURN_AVG_RESULT);
 	}
 
