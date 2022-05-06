@@ -70,7 +70,7 @@ Int16U REGULATOR_P_LocalCounter = 0;
 // Forward functions
 void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample);
 void REGULATOR_SavePowerTarget(_iq Power);
-void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error);
+void REGULATOR_SaveData(RegulatorSelector Selector, pSaveDataParams DataParams, _iq Output, _iq Error);
 void REGULATOR_InitX(pRegulatorSettings Regulator, _iq ControlSat, Int16U Register_Kp, Int16U Register_Ki);
 void REGULATOR_InitSaveData(pSaveDataParams DataParams, Int16U *OutputArray, Int16U *ErrorArray, Int16U *ArrayCounter, Int16U *ArrayLocalCounter);
 void REGULATOR_SetPowerDissapation(RegulatorSelector Selector, pRegulatorSettings Regulator, pRegulatorsData MeasureSample);
@@ -162,7 +162,7 @@ void REGULATOR_CycleX(RegulatorSelector Selector, RegulatorsData MeasureSample)
 		Regulator->Counter++;
 
 		REGULATOR_SetOutput(Selector, Regulator->Control);
-		REGULATOR_SaveData(DataParams, SampleValue, Error);
+		REGULATOR_SaveData(Selector, DataParams, SampleValue, Error);
 	}
 	else
 		Regulator->Counter = 0;
@@ -390,9 +390,26 @@ RegulatorsData REGULATOR_GetTarget()
 }
 // ----------------------------------------
 
-void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error)
+void REGULATOR_SaveData(RegulatorSelector Selector, pSaveDataParams DataParams, _iq Output, _iq Error)
 {
 	static Int16U ScopeLogStep = 0;
+	_iq Multiplier;
+	Int32U Value;
+
+	switch(Selector)
+	{
+		case SelectIm:
+			Multiplier = _IQI(10);
+			break;
+
+		case SelectIh:
+			Multiplier = _IQI(10);
+			break;
+
+		case SelectP:
+			Multiplier = _IQI(1);
+			break;
+	}
 
 	if (*DataParams->ArrayCounter == 0)
 		*DataParams->ArrayLocalCounter = 0;
@@ -401,8 +418,16 @@ void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error)
 	{
 		ScopeLogStep = 0;
 
-		*(DataParams->OutputArray + *DataParams->ArrayCounter) = _IQint(_IQmpy(Output, _IQI(10)));
+		Value = _IQint(_IQmpy(Output, Multiplier));
+		if(Value > INT16S_MAX)
+			Value = INT16S_MAX;
+		*(DataParams->OutputArray + *DataParams->ArrayCounter) = Value;
+
+		Value = _IQint(_IQmpy(Error, _IQI(100)));
+		if(Value > INT16S_MAX)
+			Value = INT16S_MAX;
 		*(DataParams->ErrorArray + *DataParams->ArrayCounter) = _IQint(_IQmpy(Error, _IQI(100)));
+
 		*DataParams->ArrayCounter = *DataParams->ArrayLocalCounter;
 
 		++*DataParams->ArrayLocalCounter;
@@ -418,7 +443,6 @@ void REGULATOR_SaveData(pSaveDataParams DataParams, _iq Output, _iq Error)
 
 void REGULATOR_SavePowerTarget(_iq Power)
 {
-	DataTable[REG_ACTUAL_P_TARGET_WHOLE] = _IQint(Power);
-	DataTable[REG_ACTUAL_P_TARGET_FRACT] = _IQint(_IQmpy((Power - _IQI(DataTable[REG_ACTUAL_P_TARGET_WHOLE])), _IQI(100)));
+	DataTable[REG_ACTUAL_P_TARGET] = _IQint(_IQmpy(Power, _IQI(10)));
 }
 // ----------------------------------------

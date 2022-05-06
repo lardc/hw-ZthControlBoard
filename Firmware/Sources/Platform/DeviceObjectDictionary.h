@@ -197,10 +197,10 @@
 //
 #define REG_ACTUAL_U_DUT			200	// Actual DUT voltage result (in mV)
 #define REG_ACTUAL_I_DUT			201	// Actual DUT current result (in A x10)
-#define REG_ACTUAL_P_DUT_WHOLE		202	// Actual whole part of DUT power dissipation (in W)
-#define REG_ACTUAL_P_DUT_FRACT		203	// Actual fraction part of DUT power dissipation (in W)
-#define REG_ACTUAL_P_TARGET_WHOLE	204	// Actual whole part of target power dissipation (in W)
-#define REG_ACTUAL_P_TARGET_FRACT	205	// Actual fraction part of target power dissipation (in W)
+#define REG_ACTUAL_P_DUT			202	// Actual DUT power dissipation (in W x10)
+// 203
+#define REG_ACTUAL_P_TARGET			204	// Actual target power dissipation (in W x10)
+// 205
 #define REG_ACTUAL_I_MEASUREMENT	206	// Actual measurement current (in mA x10)
 #define REG_ACTUAL_T_CASE1			207	// Actual temperature of DUT case 1 (in C x10)
 #define REG_ACTUAL_T_CASE2			208	// Actual temperature of DUT case 2 (in C x10)
@@ -255,6 +255,7 @@
 // WARNING CODES
 //
 #define WARNING_NONE				0
+#define WARNING_EP_CROWDED			1		// The endpoints are crowded
 #define WARNING_WATCHDOG_RESET		1001	// System has been reseted by WD
 
 // DISABLE CODES

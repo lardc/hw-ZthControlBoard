@@ -34,6 +34,8 @@
 #define ZTH_01								10		// Zth value x100
 //
 #define REG_OUTPUT_CLEAR_CNT_MAX_VALUE		5000	// in us x0.01
+//
+#define SAVE_DATA_DELAY						50		// in ms x10
 
 // Variables
 //
@@ -515,28 +517,37 @@ Int32U LOGIC_CalculatePostPulseDelay(Int32U ActualCurrentWidth)
 
 void LOGIC_SaveHeatingData(RegulatorsData Sample)
 {
-	static Int16U RegOutClearCounter = 0;
-
+	static Int16U RegOutClearCounter = 0, DelayCounter = 0;
+	Int32U SamplePower;
 
 	if(LOGIC_State == LS_Heating || LOGIC_State == LS_PendingCompletion)
 	{
-		DataTable[REG_ACTUAL_U_DUT] = _IQint(Sample.U);
-		DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.IhAvg, _IQI(10)));
-		DataTable[REG_ACTUAL_P_DUT_WHOLE] = _IQint(Sample.P);
-		DataTable[REG_ACTUAL_P_DUT_FRACT] = _IQint(_IQmpy((Sample.P - _IQI(DataTable[REG_ACTUAL_P_DUT_WHOLE])), _IQI(100)));
+		if(DelayCounter >= SAVE_DATA_DELAY)
+		{
+			DataTable[REG_ACTUAL_U_DUT] = _IQint(_IQmpy(Sample.U, _IQI(10)));
+			DataTable[REG_ACTUAL_I_DUT] = _IQint(_IQmpy(Sample.IhAvg, _IQI(10)));
 
-		RegOutClearCounter = 0;
+			SamplePower = _IQint(_IQmpy(Sample.P, _IQI(10)));
+			if(SamplePower > INT16U_MAX)
+				SamplePower = INT16U_MAX;
+
+			DataTable[REG_ACTUAL_P_DUT] = SamplePower;
+
+			RegOutClearCounter = 0;
+		}
+		else
+			DelayCounter++;
 	}
 	else
 	{
+		DelayCounter = 0;
 		RegOutClearCounter++;
 
 		if(RegOutClearCounter >= REG_OUTPUT_CLEAR_CNT_MAX_VALUE)
 		{
 			DataTable[REG_ACTUAL_U_DUT] = 0;
 			DataTable[REG_ACTUAL_I_DUT] = 0;
-			DataTable[REG_ACTUAL_P_DUT_WHOLE] = 0;
-			DataTable[REG_ACTUAL_P_DUT_FRACT] = 0;
+			DataTable[REG_ACTUAL_P_DUT] = 0;
 
 			RegOutClearCounter = 0;
 		}
@@ -673,35 +684,32 @@ void LOGIC_Heating(Boolean State)
 void LOGIC_SaveData(CombinedData Sample, Boolean SaveToEndpoints)
 {
 	Int16U TSP, Tcase1, Tcase2, Tcool1, Tcool2;
-	static Int16U ScopeLogStep = 0;
 
 	if(CurrentGeneratedFlag)
 		TSP = DataTable[REG_ACTUAL_TSP];
 	else
-		TSP = _IQint(Sample.TSP);
+		TSP = _IQint(_IQmpy(Sample.TSP, _IQI(10)));
 
 	Tcase1 = _IQint(_IQmpy(Sample.Tcase1, _IQI(10)));
 	Tcase2 = _IQint(_IQmpy(Sample.Tcase2, _IQI(10)));
 	Tcool1 = _IQint(_IQmpy(Sample.Tcool1, _IQI(10)));
 	Tcool2 = _IQint(_IQmpy(Sample.Tcool2, _IQI(10)));
 
-	if (SaveToEndpoints && (ScopeLogStep++ >= DataTable[REG_SCOPE_STEP]))
+	if (SaveToEndpoints)
 	{
-		ScopeLogStep = 0;
-
 		// Save to endpoints
 		if(LOGIC_Values_Counter < VALUES_x_SIZE)
 		{
-			LOGIC_Values_TSP[EP_DataCounter]    = TSP;
-			LOGIC_Values_Tcase1[EP_DataCounter] = Tcase1;
-			LOGIC_Values_Tcase2[EP_DataCounter] = Tcase2;
-			LOGIC_Values_Tcool1[EP_DataCounter] = Tcool1;
-			LOGIC_Values_Tcool2[EP_DataCounter] = Tcool2;
-			EP_DataCounter++;
+			LOGIC_Values_TSP[LOGIC_Values_Counter]    = TSP;
+			LOGIC_Values_Tcase1[LOGIC_Values_Counter] = Tcase1;
+			LOGIC_Values_Tcase2[LOGIC_Values_Counter] = Tcase2;
+			LOGIC_Values_Tcool1[LOGIC_Values_Counter] = Tcool1;
+			LOGIC_Values_Tcool2[LOGIC_Values_Counter] = Tcool2;
+			LOGIC_Values_Counter++;
 		}
+		else
+			DataTable[REG_WARNING] = WARNING_EP_CROWDED;
 	}
-
-	LOGIC_Values_Counter = EP_DataCounter;
 
 	// Save to ouput registers
 	DataTable[REG_ACTUAL_TSP]   = TSP;
