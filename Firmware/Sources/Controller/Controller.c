@@ -253,8 +253,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		default:
-			CONTROL_CañheVariables();
-			return DIAG_Process(ActionID);
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
+			{
+				CONTROL_CañheVariables();
+				return DIAG_Process(ActionID);
+			}
+			else
+				*UserError = ERR_OPERATION_BLOCKED;
+			break;
 	}
 
 	return TRUE;
@@ -427,10 +433,8 @@ void CONTROL_ResetOutputRegisters()
 	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
 	DataTable[REG_ACTUAL_U_DUT] = 0;
 	DataTable[REG_ACTUAL_I_DUT] = 0;
-	DataTable[REG_ACTUAL_P_DUT_WHOLE] = 0;
-	DataTable[REG_ACTUAL_P_DUT_FRACT] = 0;
-	DataTable[REG_ACTUAL_P_TARGET_WHOLE] = 0;
-	DataTable[REG_ACTUAL_P_TARGET_FRACT] = 0;
+	DataTable[REG_ACTUAL_P_DUT] = 0;
+	DataTable[REG_ACTUAL_P_TARGET] = 0;
 	DataTable[REG_ACTUAL_I_MEASUREMENT] = 0;
 	DataTable[REG_ACTUAL_T_CASE1] = 0;
 	DataTable[REG_ACTUAL_T_CASE2] = 0;
