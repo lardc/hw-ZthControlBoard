@@ -51,7 +51,7 @@
 #define MAX_JUNCTION_TEMPERATURE		150		// in C
 #define MAX_CASE_TEMPERATURE			30		// in C
 //
-#define VOLTAGE_DUT_MIN					500		// in mV
+#define VOLTAGE_DUT_MIN					300		// in mV
 //--------------------------------------------------------
 
 // Regulator parameters
